@@ -1,6 +1,6 @@
 export PATH=".dotfiles/scripts/path:$PATH"
 
-alias src="source ~/.zshrc"
+alias src="source $HOME/.zshrc"
 alias talk="curl 'https://system.easypractice.net/online_booking/getAvailableTimesInMonth' -H 'Content-Type: application/json' --data-raw '{\"calendar_id\":605522,\"permalink\":\"varga-psykoterapi\",\"product_ids\":[186358],\"year\":2023,\"month\":12}'"
 alias me="tl is.json && echo && tl hb"
 

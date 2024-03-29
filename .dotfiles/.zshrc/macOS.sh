@@ -1,7 +1,9 @@
+source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+
 vault="$HOME/Dropbox/Apps/remotely-save/vault"
 doc="$HOME/Documents"
 dev="$HOME/Developer"
-
 
 alias vi="nvim"
 alias c="bc -le"
@@ -52,25 +54,6 @@ function day {
 
     tdi
 }
-
-# --------------------- TERMINAL SETTINGS -------------------- #
-
-plugins=(git)
-
-unsetopt inc_append_history
-unsetopt share_history
-
-# Disable zsh-autocompletion on paste
-pasteinit() {
-  OLD_SELF_INSERT=${${(s.:.)widgets[self-insert]}[2,3]}
-  zle -N self-insert url-quote-magic # I wonder if you'd need `.url-quote-magic`?
-}
-
- pastefinish() {
-   zle -N self-insert $OLD_SELF_INSERT
- }
- zstyle :bracketed-paste-magic paste-init pasteinit
- zstyle :bracketed-paste-magic paste-finish pastefinish
 
 # -------------------------- TIMING -------------------------- #
 
