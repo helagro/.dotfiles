@@ -1,0 +1,5 @@
+*.passwords*
+*.secrets.sh
+~/.secrets.sh
+.secrets.sh
+
