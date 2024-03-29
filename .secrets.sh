@@ -1,2 +1,0 @@
-export TODOIST_TOKEN="5900da9f953ed6f9e2c9d1b21010acc582a63c53"
-
