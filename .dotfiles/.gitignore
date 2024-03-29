@@ -37,6 +37,5 @@ Temporary Items
 
 .vscode
 secrets.sh
-data
-ignored/*
-!ignored/.gitkeep
+data/*
+!data/.gitkeep

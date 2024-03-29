@@ -1,9 +1,7 @@
-vault="~/Dropbox/Apps/remotely-save/vault"
-doc="~/Documents"
-dev="~/Developer"
+vault="$HOME/Dropbox/Apps/remotely-save/vault"
+doc="$HOME/Documents"
+dev="$HOME/Developer"
 
-export PATH="~/.dotfiles/scripts/functions:$PATH"
-export PATH="~/Library/Python/3.9/bin:$PATH"
 
 alias vi="nvim"
 alias c="bc -le"
