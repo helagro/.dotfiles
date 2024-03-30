@@ -1,15 +1,16 @@
-function listApp() {
-    echo "\n# /Applications\n"
+# ------------------------- LIST APPS ------------------------ #
+
+function listApps() {
     ls /Applications
-    echo "\n# ~/Applications\n"
     ls $HOME/Applications
-    echo "\n# brew\n"
-    brew list
 }
 
 dt=$(date '+%Y-%m-%d')
+listApps >"$HOME/Downloads/apps ($dt).md"
 
-cd $HOME/Downloads
-pathName="apps ($dt).md"
+# ------------------------- LIST BREW ------------------------ #
 
-listApp >$pathName
+echo "" >$HOME/.dotfiles/setup/macOS/brewPkgs.sh
+brew list | while IFS= read -r line; do
+    echo "brew install \"$line\"" >>$HOME/.dotfiles/setup/macOS/brewPkgs.sh
+done
