@@ -7,4 +7,5 @@ fi
 
 if ! todoist q "$@"; then
     osascript -e "tell application \"NotificationCenter\" to display notification \"'$@'\" with title \"Could not add\""
+    echo "a WITH '$@' FAILED" >>$HOME/.dotfiles/data/td.log
 fi

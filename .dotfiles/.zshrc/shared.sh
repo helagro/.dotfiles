@@ -94,11 +94,11 @@ function a {
 
         while [[ $line != 'q' ]]; do
             line=$(echo "$line" | tr -d '\\')
-            (nohup $funcs/a.sh "$line" >/dev/null 2>&1 &)
+            (nohup a.sh "$line" >>$HOME/.dotfiles/data/td.log 2>&1 &)
             m_vared
         done
     else
-        (nohup $funcs/a.sh "$*" >/dev/null 2>&1 &)
+        (nohup a.sh "$*" >>$HOME/.dotfiles/data/td.log 2>&1 &)
     fi
 }
 
