@@ -1,3 +1,5 @@
+#!/bin/zsh
+
 cd $HOME
 
 function addIfMissing {
