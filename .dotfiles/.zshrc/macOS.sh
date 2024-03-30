@@ -10,7 +10,7 @@ alias c="bc -le"
 alias plans="$vault/p && nvim -O p.md break.md"
 alias eve="a eve && day Tom && echo && me && echo && tl p/eve.md && shortcuts run 'Sleep Focus'"
 alias breake="nvim $doc/break-timer/.env"
-alias yadm-enc="yadm encrypt"
+alias yadm-enc="export GPG_TTY=$(tty) && yadm encrypt"
 
 function e {
     if [ -d "$dev/$1" ]; then
