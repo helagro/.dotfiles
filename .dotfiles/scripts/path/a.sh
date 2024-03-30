@@ -1,5 +1,5 @@
-a75h=uyE1bf9kt60kYj
-resCode=$(curl -s -b "a75h=$a75h" -o /dev/null -w "%{http_code}" -X POST -d "$@" https://helagro.se/td-app)
+source $HOME/.dotfiles/.zshrc/secrets.sh
+resCode=$(curl -s -b "a75h=$A75H" -o /dev/null -w "%{http_code}" -X POST -d "$@" $TDA_URL)
 
 if [ "$resCode" -eq 200 ]; then
     exit
