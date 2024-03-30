@@ -33,6 +33,7 @@ function clr {
 
 # ---------------------------- GIT --------------------------- #
 
+alias yq="yadm add -u && yadm commit -m 'Unspecified' && yadm push"
 alias gaa="git add ."                    # Git Add All
 alias gcm="git commit -m "               # Git Commit Message
 alias gsw="git switch "                  # Git Switch
@@ -45,7 +46,7 @@ function gi() { curl -s https://www.toptal.com/developers/gitignore/api/$@; }
 function gql {
     commit_message="$*"
     if [ -z "$commit_message" ]; then
-        commit_message="unspecified"
+        commit_message="Unspecified"
     fi
 
     git add .
