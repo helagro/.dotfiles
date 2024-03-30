@@ -1,6 +1,7 @@
 sudo nvram SystemAudioVolume=" " # disables boot chime
 defaults write com.apple.ActivityMonitor IconType -int 5
 defaults write com.apple.messageshelper.MessageController SOInputLineSettings -dict-add "automaticQuoteSubstitutionEnabled" -bool false
+defaults write -g ApplePressAndHoldEnabled -bool false
 
 # ------------------- REDUCE ANIMATION TIME ------------------ #
 
