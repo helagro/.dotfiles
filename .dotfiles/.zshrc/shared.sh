@@ -94,8 +94,7 @@ function a {
 
         while [[ $line != 'q' ]]; do
             line=$(echo "$line" | tr -d '\\')
-            echo "a - $line" >>$HOME/.dotfiles/data/td.log
-            (nohup a.sh "$line" >>$HOME/.dotfiles/data/td.log 2>&1 &)
+            a "$line"
             m_vared
         done
     else
