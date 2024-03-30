@@ -1,5 +1,8 @@
 #!/bin/sh
 
+echo "RUNNING setup/main.sh"
+$HOME/.dotfiles/setup/main.sh
+
 if [ "$(uname)" = "Darwin" ]; then
   echo "RUNNING setup/macOS/os.sh"
   $HOME/.dotfiles/setup/macOS/os.sh
