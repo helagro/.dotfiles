@@ -1,16 +1,21 @@
-#!/bin/sh
+#!/bin/zsh
 
 echo "RUNNING setup/main.sh"
 $HOME/.dotfiles/setup/main.sh
 
 if [ "$(uname)" = "Darwin" ]; then
-  echo "RUNNING setup/macOS/os.sh"
-  $HOME/.dotfiles/setup/macOS/os.sh
-
   echo "RUNNING setup/macOS/other.sh"
-  $HOME/.dotfiles/setup/macOS.sh
+  $HOME/.dotfiles/setup/macOS/other.sh
 
-  read -p "RUN setup/macOS/brewPkgs.sh? (y/n) " response
+  echo -n "RUN setup/macOS/os.sh? (y/n) "
+  read response
+  if [[ "$response" =~ ^[Yy]$ ]]; then
+    echo "RUNNING setup/macOS/os.sh"
+    $HOME/.dotfiles/setup/macOS/os.sh
+  fi
+
+  echo -n "RUN setup/macOS/brewPkgs.sh? (y/n) "
+  read response
   if [[ "$response" =~ ^[Yy]$ ]]; then
     echo "RUNNING setup/macOS/brewPkgs.sh"
     $HOME/.dotfiles/setup/macOS/brewPkgs.sh
@@ -20,4 +25,6 @@ elif [ "$(uname)" = "Linux" ]; then
   echo "RUNNING setup/linux.sh"
   $HOME/.dotfiles/setup/linux.sh
 fi
+
+source $HOME/.zshrc
 
