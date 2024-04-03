@@ -1,8 +1,11 @@
 export PATH=".dotfiles/scripts/path:$PATH"
 
+export SETTINGS_FILE=settings/mac.json
+
 alias src="source $HOME/.zshrc"
 alias talk="curl 'https://system.easypractice.net/online_booking/getAvailableTimesInMonth' -H 'Content-Type: application/json' --data-raw '{\"calendar_id\":605522,\"permalink\":\"varga-psykoterapi\",\"product_ids\":[186358],\"year\":2023,\"month\":12}'"
 alias me="tl is.json && echo && tl hb"
+alias archive="cd $doc/archiver && python3 main.py do"
 
 alias gpt="aichat"
 alias gpt4="aichat -m openai:gpt-4"
@@ -76,12 +79,7 @@ function repo {
 alias td="todoist"
 alias tdi='td s && tdl "(tod | od | p1)"'
 alias tdls='td s && tdl'
-
-function tdl {
-    # isZt
-    # ztRes="$?"
-    tdl.sh 1 "$*"
-}
+alias tdl="tdl.sh"
 
 function tdc {
     for arg in "$@"; do
