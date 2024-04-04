@@ -5,23 +5,25 @@ export SETTINGS_FILE=settings/mac.json
 alias src="source $HOME/.zshrc"
 alias talk="curl 'https://system.easypractice.net/online_booking/getAvailableTimesInMonth' -H 'Content-Type: application/json' --data-raw '{\"calendar_id\":605522,\"permalink\":\"varga-psykoterapi\",\"product_ids\":[186358],\"year\":2023,\"month\":12}'"
 alias me="tl is.json && echo && tl hb"
-alias archive="cd $doc/archiver && python3 main.py do"
 
 alias gpt="aichat"
 alias gpt4="aichat -m openai:gpt-4"
 
 function tl {
-    if [ -e "$vault/$*.md" ]; then
-        bat -P "$vault/$*.md"
-    else
-        a75h=uyE1bf9kt60kYj
+    a75h=uyE1bf9kt60kYj
 
-        ext="${1##*.}"
-        [[ "$1" != *.* ]] && ext="json"
+    ext="${1##*.}"
+    [[ "$1" != *.* ]] && ext="json"
 
-        url="https://helagro.se/tools/$1"
-        curl -b "a75h=$a75h" -s $url | bat -pPl $ext
-    fi
+    url="https://helagro.se/tools/$1"
+    curl -b "a75h=$a75h" -s $url | bat -pPl $ext
+}
+
+function ob {
+    bat -P "$vault/i/$*.md" 2>/dev/null
+    bat -P "$vault/p/$*.md" 2>/dev/null
+    bat -P "$vault/tmp/$*.md" 2>/dev/null
+    bat -P "$vault/_/log/$*.md" 2>/dev/null
 }
 
 function clr {
