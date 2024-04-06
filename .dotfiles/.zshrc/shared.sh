@@ -99,8 +99,8 @@ function a {
             m_vared
         done
     else
-        echo "a - $line" >>$HOME/.dotfiles/data/td.log
-        (nohup a.sh "$*" >>$HOME/.dotfiles/data/td.log 2>&1 &)
+        echo "$line" >>$HOME/.dotfiles/data/a.log
+        (nohup a.sh "$*" >>$HOME/.dotfiles/data/a.log 2>&1 &)
     fi
 }
 
