@@ -9,11 +9,22 @@ export PATH="/Users/h/Library/Python/3.9/bin:$PATH"
 
 alias vi="nvim"
 alias c="bc -le"
-alias plans="$vault/p && nvim -O p.md break.md r.md"
-alias eve="a eve && day Tom && echo && me && echo && tl p/eve.md && shortcuts run 'Sleep Focus'"
+alias plans="$vault/p && nvim -O p.md break.md"
 alias breake="nvim $doc/break-timer/.env"
 alias yadm-enc="export GPG_TTY=$(tty) && yadm encrypt"
 alias archive="( cd $doc/archiver && python3 main.py do )"
+
+function eve {
+    a eve
+    day Tom
+    echo
+    tl d/is.json
+    echo
+    tl hb
+    echo
+    tl p/eve.md
+    shortcuts run "Sleep Focus"
+}
 
 function e {
     if [ -d "$dev/$1" ]; then
