@@ -9,13 +9,11 @@ alias gpt="aichat"
 alias gpt4="aichat -m openai:gpt-4"
 
 function tl {
-    a75h=uyE1bf9kt60kYj
-
     ext="${1##*.}"
     [[ "$1" != *.* ]] && ext="json"
 
     url="https://helagro.se/tools/$1"
-    curl -b "a75h=$a75h" -s $url | bat -pPl $ext
+    curl -s $url -b "id=u3o8hiefo" -b "a75h=$A75H" | bat -pPl $ext
 }
 
 function ob {
