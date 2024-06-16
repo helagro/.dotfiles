@@ -1,12 +1,16 @@
 export PATH=".dotfiles/scripts/path:$PATH"
-
 export SETTINGS_FILE=settings/mac.json
+export GPG_TTY=$(tty)
+
+# ------------------------- UNCATEGORISED ALIASES ------------------------ #
 
 alias src="source $HOME/.zshrc"
 alias talk="curl 'https://system.easypractice.net/online_booking/getAvailableTimesInMonth' -H 'Content-Type: application/json' --data-raw '{\"calendar_id\":605522,\"permalink\":\"varga-psykoterapi\",\"product_ids\":[186358],\"year\":2023,\"month\":12}'"
 
 alias gpt="aichat"
 alias gpt4="aichat -m openai:gpt-4"
+
+# ------------------ UNCATEGORISED FUNCTIONS ----------------- #
 
 function tl {
     ext="${1##*.}"
