@@ -3,13 +3,15 @@ defaults write com.apple.ActivityMonitor IconType -int 5
 defaults write com.apple.messageshelper.MessageController SOInputLineSettings -dict-add "automaticQuoteSubstitutionEnabled" -bool false
 defaults write -g ApplePressAndHoldEnabled -bool false
 
+# Maps caps lock to escape
+hidutil property --set '{"UserKeyMapping":[{"HIDKeyboardModifierMappingSrc":0x700000039,"HIDKeyboardModifierMappingDst":0x700000029}]}'
+
 # ------------------- REDUCE ANIMATION TIME ------------------ #
 
 defaults write com.apple.dock springboard-page-duration -float .1
 defaults write com.apple.dock springboard-hide-duration -float .1
 defaults write com.apple.dock springboard-show-duration -float .1
 defaults write com.apple.dock autohide-time-modifier -int 0
-killall Dock
 
 # ------------------------ SCREENSHOTS ----------------------- #
 
@@ -30,3 +32,14 @@ defaults write com.apple.finder WarnOnEmptyTrash -bool false
 
 defaults write com.apple.dock launchanim -bool false
 defaults write com.apple.dock autohide-delay -float 0
+defaults write com.apple.dock tilesize -int 36
+defaults write com.apple.dock orientation -string "left"
+defaults write com.apple.dock autohide -bool true
+
+echo -n "Clear dock? (y/n) "
+read response
+if [[ "$response" =~ ^[Yy]$ ]]; then
+    defaults write com.apple.dock persistent-apps -array
+fi
+
+killall Dock
