@@ -7,18 +7,18 @@ if [ "$(uname)" = "Darwin" ]; then
   echo "RUNNING setup/macOS/other.sh"
   $HOME/.dotfiles/setup/macOS/other.sh
 
-  echo -n "RUN setup/macOS/os.sh? (y/n) "
-  read response
-  if [[ "$response" =~ ^[Yy]$ ]]; then
-    echo "RUNNING setup/macOS/os.sh"
-    $HOME/.dotfiles/setup/macOS/os.sh
-  fi
-
   echo -n "RUN setup/macOS/brewPkgs.sh? (y/n) "
   read response
   if [[ "$response" =~ ^[Yy]$ ]]; then
     echo "RUNNING setup/macOS/brewPkgs.sh"
     $HOME/.dotfiles/setup/macOS/brewPkgs.sh
+  fi
+
+  echo -n "RUN setup/macOS/os.sh? (y/n) "
+  read response
+  if [[ "$response" =~ ^[Yy]$ ]]; then
+    echo "RUNNING setup/macOS/os.sh"
+    $HOME/.dotfiles/setup/macOS/os.sh
   fi
 
 elif [ "$(uname)" = "Linux" ]; then
