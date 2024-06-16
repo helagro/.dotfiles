@@ -2,6 +2,7 @@ sudo nvram SystemAudioVolume=" " # disables boot chime
 defaults write com.apple.ActivityMonitor IconType -int 5
 defaults write com.apple.messageshelper.MessageController SOInputLineSettings -dict-add "automaticQuoteSubstitutionEnabled" -bool false
 defaults write -g ApplePressAndHoldEnabled -bool false
+defaults write com.apple.screensaver askForPasswordDelay -int 1200
 
 # Maps caps lock to escape
 hidutil property --set '{"UserKeyMapping":[{"HIDKeyboardModifierMappingSrc":0x700000039,"HIDKeyboardModifierMappingDst":0x700000029}]}'
@@ -27,6 +28,8 @@ defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
 defaults write com.apple.finder ShowPathbar -bool true
 defaults write com.apple.finder _FXShowPosixPathInTitle -bool true
 defaults write com.apple.finder WarnOnEmptyTrash -bool false
+defaults write com.apple.finder FXPreferredViewStyle -string "clmv"
+defaults write com.apple.finder FXPreferredGroupBy -string "Tags"
 
 # --------------------------- DOCK --------------------------- #
 

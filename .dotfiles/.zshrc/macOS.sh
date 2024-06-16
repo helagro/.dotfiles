@@ -32,8 +32,13 @@ function e {
         code "$dev/$1"
     elif [ -d "$doc/$1" ]; then
         code "$doc/$1"
+    elif [ -d "$1" ]; then
+        code "$1"
     elif [ -e "$vault/$*.md" ]; then
         nvim "$vault/$*.md"
+        return 0
+    elif [ -e "$*" ]; then
+        nvim "$*"
         return 0
     else
         gclone $1

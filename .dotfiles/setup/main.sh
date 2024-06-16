@@ -2,6 +2,7 @@
 
 cd $HOME
 yadm -C $HOME/.dotfiles remote set-url origin git@github.com:helagro/.dotfiles.git
+mkdir Developer
 
 function addIfMissing {
     grep -qF "$1" "$HOME/.zshrc" || echo "$1" >>"$HOME/.zshrc"
