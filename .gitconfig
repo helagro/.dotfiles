@@ -1,6 +1,7 @@
 # This is Git's per-user configuration file.
 [user]
 	email = helagro@outlook.com
+	signingkey = ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDS6JkmGS07KVPso2w5Im/g3QkG7pfrtxlv+2Vwg7YKljyk5ELG0yqkCffqTGn29b8lse77Zamk0+PuLiM458I89xGnXApCk+HOwyc/LVM7xtbvLjMfsaYW1hzOAP4hp4A4iryU1Y4cG+r4lqOCcGZy3IIs8EB7GjoCw1JZwBTdHjbcalU4w9ulFgI+TZ7hcZ1BycIQEHK4GXevYUSx6P1jH3SXOB6oL5sbmsZfUO5iMhlfYFBNMWv/8JiwqxkK6v5LyiXnlNt9hNsygiPCHDqsI1XBnvvVX9W1BlJDQeOThNxPLt0QMu+IeecTloujGx4Roo3e+tWg0OZNjsnHj10lpK5gBZjI0RlzFbhNA4gLXh0Dd5mkyA/2tdtq+QFoQbKa+CtESJP4F0WpM0RKjei7dIwpBOdDo+1yHVWpZYw+AkfwgiewGaEfFhrBu1cSNI7Q1o8zjVS9v7bm+HbzuO3NFn4ZChU5NQPmEIhR2A5AdK7bzUnp+n4rL09MxsGLnjDMHIdraTbOwsz5OGCg8jPBlheDIhwtvNRBdGDgfhRqymX5P7fXyO1t0oZNI7g1GcJtadDQHRhDQVwHJTLoLzoAatsD4Rj/KqZdbw1HgzJH7KX+mzdpztA87X002QSCSiwaQb1YCAV28MQu8OnmnFYfJs1ZrsDOhTMn1UP8gcCQTw==
 # Please adapt and uncomment the following lines:
 #	name = Henrik L
 #	email = h@Henriks-MacBook-Air.local
@@ -9,3 +10,9 @@
 	commentChar = ";"
 [push]
 	autoSetupRemote = true
+[gpg]
+	format = ssh
+[gpg "ssh"]
+	program = /Applications/1Password.app/Contents/MacOS/op-ssh-sign
+[commit]
+	gpgsign = true
