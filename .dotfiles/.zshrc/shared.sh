@@ -45,7 +45,7 @@ alias gcm="git commit -m "               # Git Commit Message
 alias gsw="git switch "                  # Git Switch
 alias gcu="git commit --amend --no-edit" # Git Commit Update
 
-function gclone { git clone "https://github.com/helagro/$1.git" $dev/$1; }
+function gclone { git clone "git@github.com:helagro/$1.git" $dev/$1; }
 function gi() { curl -s https://www.toptal.com/developers/gitignore/api/$@; }
 
 # Git Quick Local

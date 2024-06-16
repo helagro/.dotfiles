@@ -3,6 +3,7 @@ defaults write com.apple.ActivityMonitor IconType -int 5
 defaults write com.apple.messageshelper.MessageController SOInputLineSettings -dict-add "automaticQuoteSubstitutionEnabled" -bool false
 defaults write -g ApplePressAndHoldEnabled -bool false
 defaults write com.apple.screensaver askForPasswordDelay -int 1200
+defaults write -g AppleAccentColor -int 0
 
 # Maps caps lock to escape
 hidutil property --set '{"UserKeyMapping":[{"HIDKeyboardModifierMappingSrc":0x700000039,"HIDKeyboardModifierMappingDst":0x700000029}]}'
