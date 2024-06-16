@@ -16,3 +16,8 @@ cd "/Users/h/Documents/archiver/" && python3 main.py do >>$LOG_FILE
 
 echo "   listApp" | tee -a $LOG_FILE
 cd "$HOME/.dotfiles/scripts/path" && ./listApp.sh >>$LOG_FILE
+
+# --------------------------- OTHER -------------------------- #
+
+brew upgrade >>$LOG_FILE
+brew cleanup >>$LOG_FILE
