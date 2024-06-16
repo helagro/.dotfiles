@@ -10,7 +10,12 @@ listApps >"$HOME/Downloads/apps ($dt).md"
 
 # ------------------------- LIST BREW ------------------------ #
 
+function storeBrew() {
+    while IFS= read -r line; do
+        echo "brew install \"$line\"" >>$HOME/.dotfiles/setup/macOS/brewPkgs.sh
+    done
+}
+
 echo "" >$HOME/.dotfiles/setup/macOS/brewPkgs.sh
-brew leaves | while IFS= read -r line; do
-    echo "brew install \"$line\"" >>$HOME/.dotfiles/setup/macOS/brewPkgs.sh
-done
+brew leaves | storeBrew
+brew list --cask | storeBrew
