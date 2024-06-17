@@ -5,6 +5,9 @@ defaults write -g ApplePressAndHoldEnabled -bool false
 defaults write com.apple.screensaver askForPasswordDelay -int 1200
 defaults write -g AppleAccentColor -int 0
 
+# Tap to click
+defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true
+
 # Maps caps lock to escape
 hidutil property --set '{"UserKeyMapping":[{"HIDKeyboardModifierMappingSrc":0x700000039,"HIDKeyboardModifierMappingDst":0x700000029}]}'
 
