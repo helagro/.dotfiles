@@ -1,8 +1,10 @@
 defaults write com.apple.ActivityMonitor IconType -int 5
-defaults write com.apple.messageshelper.MessageController SOInputLineSettings -dict-add "automaticQuoteSubstitutionEnabled" -bool false
 defaults write -g ApplePressAndHoldEnabled -bool false
 defaults write com.apple.screensaver askForPasswordDelay -int 1200
 defaults write -g AppleAccentColor -int 0
+
+# Disables "smart" quotes
+defaults write com.apple.messageshelper.MessageController SOInputLineSettings -dict-add "automaticQuoteSubstitutionEnabled" -bool false
 
 # Disables boot chime
 sudo nvram SystemAudioVolume=" "
