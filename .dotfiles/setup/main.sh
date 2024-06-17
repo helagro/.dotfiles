@@ -1,6 +1,7 @@
 #!/bin/zsh
 
 cd $HOME
+
 yadm -C $HOME/.dotfiles remote set-url origin git@github.com:helagro/.dotfiles.git
 mkdir Developer
 
@@ -8,11 +9,11 @@ function addIfMissing {
     grep -qF "$1" "$HOME/.zshrc" || echo "$1" >>"$HOME/.zshrc"
 }
 
-# ----------------- ADD MY ZSH CONFIGURATION ----------------- #
+# ----------------- ADDS MY ZSH CONFIGURATION ----------------- #
 
 addIfMissing 'source "$HOME/.dotfiles/.zshrc/router.sh"'
 
-# ----------------------- ADD OH MY ZSH ---------------------- #
+# ----------------------- ADDS OH MY ZSH ---------------------- #
 
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
     git clone https://github.com/helagro/ohmyzsh.git $HOME/.oh-my-zsh
