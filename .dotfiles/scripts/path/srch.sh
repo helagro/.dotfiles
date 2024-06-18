@@ -19,6 +19,6 @@ else
     m_find ~/Desktop "$a1"
     m_find ~/Documents "$a1"
     m_find ~/Pictures "$a1"
-    m_find ~/obsidian "$a1"
+    m_find $HOME/Dropbox/vault "$a1"
     m_find /Users/h/Library/Mobile\ Documents/com~apple~CloudDocs/ "$2"
 fi

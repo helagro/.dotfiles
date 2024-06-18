@@ -1,7 +1,7 @@
 source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 
-vault="$HOME/Dropbox/Apps/remotely-save/vault"
+vault="$HOME/Dropbox/vault"
 doc="$HOME/Documents"
 dev="$HOME/Developer"
 

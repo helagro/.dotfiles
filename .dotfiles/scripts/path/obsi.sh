@@ -1,4 +1,4 @@
-vault="/Users/h/Dropbox/Apps/remotely-save/vault"
+vault="$HOME/Dropbox/vault"
 scripts="$HOME/.dotfiles/scripts/"
 
 [[ -z "$1" ]] && 1="0"
