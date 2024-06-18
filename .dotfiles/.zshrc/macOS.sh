@@ -12,7 +12,7 @@ alias c="bc -le"
 alias plans="$vault/p && nvim -O p.md break.md"
 alias breake="nvim $doc/break-timer/.env"
 alias yadm-enc="export GPG_TTY=$(tty) && yadm encrypt"
-alias archive="( cd $doc/archiver && python3 main.py do )"
+alias archive="$HOME/Documents/archiver-go/archiver-go"
 
 function eve {
     a eve
