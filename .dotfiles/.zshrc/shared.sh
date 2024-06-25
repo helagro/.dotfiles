@@ -1,5 +1,9 @@
+doc="$HOME/Documents"
+dev="$HOME/Developer"
+
+# --------------------------- PATHS -------------------------- #
+
 export PATH=".dotfiles/scripts/path:$PATH"
-export SETTINGS_FILE=settings/mac.json
 export GPG_TTY=$(tty)
 
 # ------------------------- UNCATEGORISED ALIASES ------------------------ #

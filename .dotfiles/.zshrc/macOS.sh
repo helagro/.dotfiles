@@ -2,8 +2,6 @@ source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 
 vault="$HOME/Dropbox/vault"
-doc="$HOME/Documents"
-dev="$HOME/Developer"
 
 export PATH="/Users/h/Library/Python/3.9/bin:$PATH"
 export PATH="$HOME/.rbenv/bin:$PATH"
@@ -15,7 +13,6 @@ alias vi="nvim"
 alias c="bc -le"
 alias plans="$vault/p && nvim -O p.md break.md"
 alias breake="nvim $doc/break-timer/.env"
-alias yadm-enc="export GPG_TTY=$(tty) && yadm encrypt"
 alias archive="$HOME/Documents/archiver-go/archiver-go"
 
 # ------------------------- OTHER FUNCTIONS ------------------------ #
