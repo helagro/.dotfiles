@@ -1,8 +1,6 @@
 source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 
-vault="$HOME/Dropbox/vault"
-
 export PATH="/Users/h/Library/Python/3.9/bin:$PATH"
 export PATH="$HOME/.rbenv/bin:$PATH"
 eval "$(rbenv init -)"
@@ -10,7 +8,6 @@ eval "$(rbenv init -)"
 # ----------------------- OTHER ALIASES ---------------------- #
 
 alias vi="nvim"
-alias c="bc -le"
 alias plans="$vault/p && nvim -O p.md break.md"
 alias breake="nvim $doc/break-timer/.env"
 alias archive="$HOME/Documents/archiver-go/archiver-go"
