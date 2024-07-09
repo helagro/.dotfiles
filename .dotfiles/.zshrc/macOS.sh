@@ -1,16 +1,30 @@
-source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+# -------------------------- SOURCE -------------------------- #
+
+if [ -f /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
+    source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+fi
+
+if [ -f /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]; then
+    source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+fi
+
+# ------------------------- VARIABLES ------------------------ #
 
 export PATH="/Users/h/Library/Python/3.9/bin:$PATH"
 export PATH="$HOME/.rbenv/bin:$PATH"
-eval "$(rbenv init -)"
+
+if command -v rbenv &>/dev/null; then
+    eval "$(rbenv init -)"
+fi
 
 # ----------------------- OTHER ALIASES ---------------------- #
 
 alias vi="nvim"
 alias plans="$vault/p && nvim -O p.md break.md"
-alias breake="nvim $doc/break-timer/.env"
 alias archive="$HOME/Documents/archiver-go/archiver-go"
+
+alias breake="nvim $doc/break-timer/.env"
+alias repe="vi $dev/todoist-app/data/repeated.json"
 
 # ------------------------- OTHER FUNCTIONS ------------------------ #
 

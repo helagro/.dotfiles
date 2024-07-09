@@ -4,6 +4,7 @@ cd $HOME
 
 yadm -C $HOME/.dotfiles remote set-url origin git@github.com:helagro/.dotfiles.git
 mkdir Developer
+zstyle ':omz:update' mode disabled
 
 function addIfMissing {
     grep -qF "$1" "$HOME/.zshrc" || echo "$1" >>"$HOME/.zshrc"

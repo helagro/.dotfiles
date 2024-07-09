@@ -1,4 +1,5 @@
 
+brew install "age"
 brew install "aichat"
 brew install "bat"
 brew install "git"
