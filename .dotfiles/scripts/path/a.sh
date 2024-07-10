@@ -1,11 +1,30 @@
 source $HOME/.dotfiles/.zshrc/secrets.sh
-resCode=$(curl -s -b "a75h=$A75H" -o /dev/null -w "%{http_code}" -X POST -d "$@" $TDA_URL)
+file_path="$HOME/.dotfiles/data/a.txt"
 
-if [ "$resCode" -eq 200 ]; then
-    exit
-fi
+function process {
+    resCode=$(curl -s -b "a75h=$A75H" -o /dev/null -w "%{http_code}" -X POST -d "$1" $TDA_URL)
 
-if ! todoist q "$@"; then
-    osascript -e "tell application \"NotificationCenter\" to display notification \"'$@'\" with title \"Could not add\""
-    echo "a WITH '$@' FAILED" >>$HOME/.dotfiles/data/a.log
+    if [ "$resCode" -eq 200 ]; then
+        return 0
+    fi
+
+    if todoist q "$1"; then
+        return 0
+    fi
+
+    echo "$1" >>"$file_path"
+    return 1
+}
+
+function upload_stored {
+    file_content=$(cat "$file_path")
+    >$file_path
+
+    echo "$file_content" | while IFS= read -r line; do
+        process "$line"
+    done
+}
+
+if process "$@"; then
+    upload_stored
 fi
