@@ -7,3 +7,18 @@ if ! command -v brew &>/dev/null; then
 fi
 
 brew tap zackelia/formulae
+
+# --------------------------- DUTI --------------------------- #
+
+brew install duti
+
+duti -s com.googlecode.iterm2 .sh all
+duti -s com.googlecode.iterm2 .zsh all
+duti -s com.microsoft.VSCode public.json all
+duti -s com.microsoft.VSCode public.plain-text all
+duti -s com.microsoft.VSCode public.python-script all
+duti -s com.microsoft.VSCode public.shell-script all
+duti -s com.microsoft.VSCode public.source-code all
+duti -s com.microsoft.VSCode public.text all
+duti -s com.microsoft.VSCode public.unix-executable all
+duti -s com.microsoft.VSCode .md all

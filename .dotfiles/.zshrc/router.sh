@@ -9,3 +9,7 @@ if [ "$(uname)" = "Darwin" ]; then
 elif [ "$(uname)" = "Linux" ]; then
     source "$HOME/.dotfiles/.zshrc/"
 fi
+
+if [ -f $(brew --prefix)/opt/zsh-vi-mode/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh ]; then
+    source $(brew --prefix)/opt/zsh-vi-mode/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh
+fi
