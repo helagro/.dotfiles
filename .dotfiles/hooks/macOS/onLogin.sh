@@ -17,8 +17,8 @@ $HOME/Documents/archiver-go/archiver-go >>$LOG_FILE
 
 # ------------------------- APP LIST ------------------------- #
 
-echo "   listApp" | tee -a $LOG_FILE
-cd "$HOME/.dotfiles/scripts/path" && ./listApp.sh >>$LOG_FILE
+echo "   list_app" | tee -a $LOG_FILE
+cd "$HOME/.dotfiles/scripts/path" && ./list_app.sh >>$LOG_FILE
 
 # ------------------------ BREW STUFF ------------------------ #
 

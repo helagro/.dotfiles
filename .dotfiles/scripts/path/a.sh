@@ -8,7 +8,7 @@ function process {
         return 0
     fi
 
-    if todoist q "$1"; then
+    if todoist q "$1" 2>/dev/null; then
         return 0
     fi
 

@@ -3,12 +3,12 @@
 doc="$HOME/Documents"
 dev="$HOME/Developer"
 vault="$HOME/Dropbox/vault"
+DISABLE_AUTO_UPDATE="true"
 
 # --------------------------- PATHS -------------------------- #
 
 export PATH="$HOME/.dotfiles/scripts/path:$PATH"
 export GPG_TTY=$(tty)
-DISABLE_AUTO_UPDATE="true"
 
 # ------------------------- UNCATEGORISED ALIASES ------------------------ #
 
@@ -27,13 +27,6 @@ function tl {
 
     url="https://helagro.se/tools/$1"
     curl -s $url -b "id=u3o8hiefo" -b "a75h=$A75H" | bat -pPl $ext
-}
-
-function ob {
-    bat -P "$vault/i/$*.md" 2>/dev/null
-    bat -P "$vault/p/$*.md" 2>/dev/null
-    bat -P "$vault/tmp/$*.md" 2>/dev/null
-    bat -P "$vault/_/log/$*.md" 2>/dev/null
 }
 
 function clr {
@@ -101,13 +94,21 @@ function tdc {
 
 function a {
     if [ -z "$*" ]; then
-        m_vared
-
-        while [[ $line != 'q' ]]; do
-            line=$(echo "$line" | tr -d '\\')
-            a "$line"
+        if [ -t 0 ]; then
             m_vared
-        done
+
+            while [[ $line != 'q' ]]; do
+                line=$(echo "$line" | tr -d '\\')
+                a "$line"
+                m_vared
+            done
+        else
+            while read -r line; do
+                line=$(echo "$line" | sed -e 's/^- \[ \] //' -e 's/^- //')
+                a "$line"
+            done
+        fi
+
     else
         echo "$line" >>$HOME/.dotfiles/data/a.log
         (nohup a.sh "$*" >>$HOME/.dotfiles/data/a.log 2>&1 &)
@@ -117,4 +118,20 @@ function a {
 function m_vared {
     line=""
     vared -p "%B%F{red}-%f%b " line
+}
+
+# ------------------------- OBSIDIAN ------------------------- #
+
+function do_now {
+    if ob "$*" | a; then
+        echo -n >"$vault/$*.md"
+    fi
+}
+
+function ob {
+    bat -P "$vault/i/$*.md" 2>/dev/null
+    bat -P "$vault/p/$*.md" 2>/dev/null
+    bat -P "$vault/tmp/$*.md" 2>/dev/null
+    bat -P "$vault/_/log/$*.md" 2>/dev/null
+    bat -P "$vault/$*.md" 2>/dev/null
 }

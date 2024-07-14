@@ -420,7 +420,7 @@
 				<real>1</real>
 			</dict>
 			<key>Blinking Cursor</key>
-			<false/>
+			<true/>
 			<key>Blur</key>
 			<true/>
 			<key>Blur Radius</key>
@@ -446,12 +446,16 @@
 			<string></string>
 			<key>Cursor Color</key>
 			<dict>
+				<key>Alpha Component</key>
+				<real>1</real>
 				<key>Blue Component</key>
-				<real>0.0</real>
+				<real>0.05439826101064682</real>
+				<key>Color Space</key>
+				<string>P3</string>
 				<key>Green Component</key>
-				<real>0.0</real>
+				<real>0.089361406862735748</real>
 				<key>Red Component</key>
-				<real>0.0</real>
+				<real>0.49474233388900757</real>
 			</dict>
 			<key>Cursor Guide Color</key>
 			<dict>

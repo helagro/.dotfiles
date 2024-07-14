@@ -13,7 +13,12 @@ sudo nvram SystemAudioVolume=" "
 defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true
 
 # Maps caps lock to escape
-hidutil property --set '{"UserKeyMapping":[{"HIDKeyboardModifierMappingSrc":0x700000039,"HIDKeyboardModifierMappingDst":0x700000029}]}'
+
+echo -n "Map caps lock to escape for all users? (y/n) "
+read response
+if [[ "$response" =~ ^[Yy]$ ]]; then
+    hidutil property --set '{"UserKeyMapping":[{"HIDKeyboardModifierMappingSrc":0x700000039,"HIDKeyboardModifierMappingDst":0x700000029}]}'
+fi
 
 # ------------------- REDUCE ANIMATION TIME ------------------ #
 
