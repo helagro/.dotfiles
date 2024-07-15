@@ -22,10 +22,13 @@ fi
 
 # ------------------- REDUCE ANIMATION TIME ------------------ #
 
-defaults write com.apple.dock springboard-page-duration -float .1
-defaults write com.apple.dock springboard-hide-duration -float .1
-defaults write com.apple.dock springboard-show-duration -float .1
+defaults write com.apple.dock expose-animation-duration -float 0
 defaults write com.apple.dock autohide-time-modifier -int 0
+defaults write com.apple.dock autohide-delay -float 0
+
+defaults write com.apple.dock springboard-page-duration -float 0
+defaults write com.apple.dock springboard-hide-duration -float 0
+defaults write com.apple.dock springboard-show-duration -float 0
 
 # ------------------------ SCREENSHOTS ----------------------- #
 
