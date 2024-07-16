@@ -41,7 +41,6 @@ function clr {
 
 # ---------------------------- GIT --------------------------- #
 
-alias yq="yadm add -u && yadm commit -m 'Unspecified' && yadm push"
 alias gaa="git add ."                    # Git Add All
 alias gcm="git commit -m "               # Git Commit Message
 alias gsw="git switch "                  # Git Switch
@@ -49,6 +48,7 @@ alias gcu="git commit --amend --no-edit" # Git Commit Update
 
 function gclone { git clone "git@github.com:helagro/$1.git" $dev/$1; }
 function gi() { curl -s https://www.toptal.com/developers/gitignore/api/$@; }
+function yq() { yadm add -u && yadm commit -m "Msg: $*" && yadm push; }
 
 # Git Quick Local
 function gql {
@@ -134,4 +134,13 @@ function ob {
     bat -P "$vault/tmp/$*.md" 2>/dev/null
     bat -P "$vault/_/log/$*.md" 2>/dev/null
     bat -P "$vault/$*.md" 2>/dev/null
+
+    a ob
+}
+
+function randote {
+    file=$(find "$vault/i" -type f | sort -R | head -n 1)
+    bat -P "$file"
+
+    a ob
 }
