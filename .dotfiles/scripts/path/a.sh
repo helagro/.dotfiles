@@ -2,6 +2,10 @@ source $HOME/.dotfiles/.zshrc/secrets.sh
 file_path="$HOME/.dotfiles/data/a.txt"
 
 function process {
+    if [ -z "$1" ]; then
+        return 1
+    fi
+
     resCode=$(curl -s -b "a75h=$A75H" -o /dev/null -w "%{http_code}" -X POST -d "$1" $TDA_URL)
 
     if [ "$resCode" -eq 200 ]; then
