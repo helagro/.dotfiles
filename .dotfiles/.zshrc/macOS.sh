@@ -8,7 +8,7 @@ if [ -f /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]; then
     source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 fi
 
-# ------------------------- VARIABLES ------------------------ #
+# ------------------------- OTHER ------------------------ #
 
 export PATH="/Users/h/Library/Python/3.9/bin:$PATH"
 export PATH="$HOME/.rbenv/bin:$PATH"

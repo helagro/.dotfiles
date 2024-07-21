@@ -39,6 +39,17 @@ function clr {
     clear
 }
 
+function cnt {
+    if [[ -e "$HOME/.dotfiles/data/cnt.txt" ]]; then
+        cnt=$(cat "$HOME/.dotfiles/data/cnt.txt")
+    else
+        cnt=0
+    fi
+
+    echo $cnt
+    echo -n $((cnt + 1)) >"$HOME/.dotfiles/data/cnt.txt"
+}
+
 # ---------------------------- GIT --------------------------- #
 
 alias gaa="git add ."                    # Git Add All
