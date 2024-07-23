@@ -1,0 +1,9 @@
+[Unit]
+Description=Dotfiles Service
+After=network.target
+
+[Service]
+ExecStart=%h/.dotfiles/hooks/linux/onLogin.sh
+
+[Install]
+WantedBy=default.target
