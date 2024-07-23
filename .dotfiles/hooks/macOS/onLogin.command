@@ -1,2 +1,2 @@
 cd ~/.dotfiles/hooks/macOS
-nohup ./onLogin.sh >/dev/null 2>&1 &
+nohup ./on_login.sh >/dev/null 2>&1 &

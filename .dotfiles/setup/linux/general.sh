@@ -1,6 +1,4 @@
 mkdir -p ~/.config/systemd/user
-cp -f $HOME/.dotfiles/setup/linux/dotfiles.service $HOME/.config/systemd/user/dotfiles.service
+cp -f $HOME/.dotfiles/setup/linux/dotfiles.service /etc/systemd/system/dotfiles.service
 
-systemctl --user daemon-reload
-systemctl --user enable dotfiles.service
-systemctl --user start dotfiles.service
+su -c "sudo systemctl daemon-reload && sudo systemctl enable dotfiles.service && sudo systemctl start dotfiles.service"

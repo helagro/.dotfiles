@@ -59,7 +59,7 @@ alias gcu="git commit --amend --no-edit" # Git Commit Update
 
 function gclone { git clone "git@github.com:helagro/$1.git" $dev/$1; }
 function gi() { curl -s https://www.toptal.com/developers/gitignore/api/$@; }
-function yq() { yadm add -u && yadm commit -m "Msg: $*" && yadm push; }
+function yq() { yadm add -u && yadm commit -m "$*" && yadm push; }
 
 # Git Quick Local
 function gql {
