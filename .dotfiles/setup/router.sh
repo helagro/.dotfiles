@@ -27,8 +27,8 @@ if [ "$(uname)" = "Darwin" ]; then
     fi
 
 elif [ "$(uname)" = "Linux" ]; then
-    # echo "RUNNING setup/linux.sh"
-    # $HOME/.dotfiles/setup/linux.sh
+    echo "RUNNING setup/linux/general.sh"
+    ./linux/general.sh
 fi
 
 source $HOME/.zshrc
