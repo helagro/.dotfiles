@@ -9,6 +9,6 @@
 [core]
 	editor = code
 	commentChar = ";"
-	excludesFile = /Users/h/.gitignore
+	excludesFile = /home/h/.gitignore
 [push]
 	autoSetupRemote = true

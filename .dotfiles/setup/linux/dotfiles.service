@@ -3,7 +3,10 @@ Description=Dotfiles Service
 After=network.target
 
 [Service]
+Type=forking
 ExecStart=%h/.dotfiles/hooks/linux/onLogin.sh
+StandardOutput=journal
+StandardError=journal
 
 [Install]
 WantedBy=default.target
