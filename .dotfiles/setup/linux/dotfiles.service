@@ -4,7 +4,7 @@ After=network.target
 
 [Service]
 Type=forking
-ExecStart=/home/h/.dotfiles/hooks/linux/onLogin.sh
+ExecStart=/home/h/.dotfiles/hooks/linux/on_login.sh
 User=h
 Environment=HOME=/home/h
 StandardOutput=journal
