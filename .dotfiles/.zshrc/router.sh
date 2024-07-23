@@ -7,7 +7,7 @@ fi
 if [ "$(uname)" = "Darwin" ]; then
     source "$HOME/.dotfiles/.zshrc/macOS.sh"
 elif [ "$(uname)" = "Linux" ]; then
-    source "$HOME/.dotfiles/.zshrc/"
+    source "$HOME/.dotfiles/.zshrc/linux.sh"
 fi
 
 if command -v brew >/dev/null 2>&1 && [ -f $(brew --prefix)/opt/zsh-vi-mode/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh ]; then
