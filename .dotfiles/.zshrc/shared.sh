@@ -5,10 +5,9 @@ dev="$HOME/Developer"
 vault="$HOME/Dropbox/vault"
 DISABLE_AUTO_UPDATE="true"
 
-# --------------------------- PATHS -------------------------- #
-
-export PATH="$HOME/.dotfiles/scripts/path:$PATH"
+export DISABLED_TD_APP_ITEMS="ob,joe,"
 export GPG_TTY=$(tty)
+export PATH="$HOME/.dotfiles/scripts/path:$PATH"
 
 # ------------------------- UNCATEGORISED ALIASES ------------------------ #
 
@@ -104,22 +103,31 @@ function tdc {
 }
 
 function a {
+    # If no arguments passed
     if [ -z "$*" ]; then
+
+        # If terminal
         if [ -t 0 ]; then
             m_vared
 
+            # Ask for lines until 'q' is entered
             while [[ $line != 'q' ]]; do
                 line=$(echo "$line" | tr -d '\\')
                 a "$line"
                 m_vared
             done
+
+        # If piped
         else
+
+            # Read lines from pipe
             while read -r line; do
-                line=$(echo "$line" | sed -e 's/^- \[ \] //' -e 's/^- //')
+                line=$(echo "$line" | sed -e 's/^- \[ \] //' -e 's/^- //') # Remove checkboxes
                 a "$line"
             done
         fi
 
+    # If arguments passed
     else
         echo "$line" >>$HOME/.dotfiles/data/a.log
         (nohup a.sh "$*" >>$HOME/.dotfiles/data/a.log 2>&1 &)

@@ -1,4 +1,4 @@
-source $HOME/.dotfiles/.zshrc/secrets.sh
+#!/bin/zsh
 file_path="$HOME/.dotfiles/data/a.txt"
 
 function process {
@@ -6,6 +6,11 @@ function process {
         return 1
     fi
 
+    if [[ "$DISABLED_TD_APP_ITEMS" == *"$1"* ]]; then
+        return 0
+    fi
+
+    echo "$1"
     resCode=$(curl -s -b "a75h=$A75H" -o /dev/null -w "%{http_code}" -X POST -d "$1" $TDA_URL)
 
     if [ "$resCode" -eq 200 ]; then

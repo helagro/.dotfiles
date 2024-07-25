@@ -13,7 +13,7 @@ echo "Running..."
 # ------------------------- ARCHIVER ------------------------- #
 
 echo "   archiver" | tee -a $LOG_FILE
-$HOME/Documents/archiver-go/archiver-go >>$LOG_FILE
+$HOME/Documents/archiver-go/build/macOS >>$LOG_FILE
 
 # ------------------------- APP LIST ------------------------- #
 

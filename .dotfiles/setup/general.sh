@@ -4,7 +4,7 @@ cd $HOME
 
 git config --global core.excludesFile "$HOME/.gitignore"
 yadm -C $HOME/.dotfiles remote set-url origin git@github.com:helagro/.dotfiles.git
-mkdir Developer
+mkdir -p Developer
 zstyle ':omz:update' mode disabled
 
 function addIfMissing {
