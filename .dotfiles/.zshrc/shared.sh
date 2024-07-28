@@ -5,14 +5,13 @@ dev="$HOME/Developer"
 vault="$HOME/Dropbox/vault"
 DISABLE_AUTO_UPDATE="true"
 
-export DISABLED_TD_APP_ITEMS="ob,joe,"
+export DISABLED_TD_APP_ITEMS="ob,"
 export GPG_TTY=$(tty)
 export PATH="$HOME/.dotfiles/scripts/path:$PATH"
 
 # ------------------------- UNCATEGORISED ALIASES ------------------------ #
 
 alias src="source $HOME/.zshrc"
-alias talk="curl 'https://system.easypractice.net/online_booking/getAvailableTimesInMonth' -H 'Content-Type: application/json' --data-raw '{\"calendar_id\":605522,\"permalink\":\"varga-psykoterapi\",\"product_ids\":[186358],\"year\":2023,\"month\":12}'"
 alias c="bc -le"
 
 alias gpt="aichat"

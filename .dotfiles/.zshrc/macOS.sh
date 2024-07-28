@@ -96,7 +96,12 @@ alias sw="$doc/stopwatch/main"
 function timer { echo $1 | shortcuts run "Timer"; }
 
 function medd {
+    shortcuts run "dnd on"
+    start_time=$(date +%s)
     sw $1
-    min=$(echo "$1" | cut -d ':' -f1)
+
+    end_time=$(date +%s)
+    min=$((($end_time - $start_time) / 60))
     a "medd $min"
+    shortcuts run "dnd off"
 }
