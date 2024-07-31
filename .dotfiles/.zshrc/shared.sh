@@ -24,7 +24,13 @@ function tl {
     [[ "$1" != *.* ]] && ext="json"
 
     url="https://helagro.se/tools/$1"
-    curl -s $url -b "id=u3o8hiefo" -b "a75h=$A75H" | bat -pPl $ext
+    content=$(curl -s "$url" -b "id=u3o8hiefo" -b "a75h=$A75H")
+
+    if command -v bat &> /dev/null; then
+        echo "$content" | bat -pPl "$ext"
+    else
+        echo "$content"
+    fi
 }
 
 function clr {
