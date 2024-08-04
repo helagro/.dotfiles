@@ -26,7 +26,7 @@ function tl {
     url="https://helagro.se/tools/$1"
     content=$(curl -s "$url" -b "id=u3o8hiefo" -b "a75h=$A75H")
 
-    if command -v bat &> /dev/null; then
+    if command -v bat &>/dev/null; then
         echo "$content" | bat -pPl "$ext"
     else
         echo "$content"
@@ -134,7 +134,6 @@ function a {
 
     # If arguments passed
     else
-        echo "$line" >>$HOME/.dotfiles/data/a.log
         (nohup a.sh "$*" >>$HOME/.dotfiles/data/a.log 2>&1 &)
     fi
 }

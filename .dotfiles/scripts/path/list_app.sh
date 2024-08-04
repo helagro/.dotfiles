@@ -1,3 +1,5 @@
+source $HOME/.dotfiles/.zshrc/shared.sh
+
 # ------------------------- LIST APPS ------------------------ #
 
 function list_apps() {
@@ -5,14 +7,18 @@ function list_apps() {
     ls $HOME/Applications
 }
 
-dt=$(date '+%Y-%m-%d')
-list_apps >"$HOME/Downloads/apps ($dt).md"
+apps=""
+while IFS= read -r line; do
+    apps=$(echo "$apps $line ;" | tr -d '\n')
+done <<<"$(list_apps)"
+
+a "#apps $apps"
 
 # ------------------------- LIST BREW ------------------------ #
 
 function store_brew() {
     while IFS= read -r line; do
-        echo "brew install \"$line\"" >>$HOME/.dotfiles/setup/macOS/brewPkgs.sh
+        echo "brew install \"$line\" -q" >>$HOME/.dotfiles/setup/macOS/brewPkgs.sh
     done
 }
 

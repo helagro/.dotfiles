@@ -1,38 +1,41 @@
 
-brew install "age"
-brew install "aichat"
-brew install "bat"
-brew install "duti"
-brew install "git"
-brew install "gnupg"
-brew install "go"
-brew install "gradle"
-brew install "mosquitto"
-brew install "neovim"
-brew install "node"
-brew install "rbenv"
-brew install "sachaos/todoist/todoist"
-brew install "tree"
-brew install "yadm"
-brew install "zackelia/formulae/bclm"
-brew install "zsh-autosuggestions"
-brew install "zsh-syntax-highlighting"
-brew install "zsh-vi-mode"
-brew install "1password"
-brew install "android-studio"
-brew install "arc"
-brew install "blackhole-2ch"
-brew install "docker"
-brew install "dropbox"
-brew install "flutter"
-brew install "font-jetbrains-mono-nerd-font"
-brew install "hiddenbar"
-brew install "iterm2"
-brew install "kindavim"
-brew install "middleclick"
-brew install "mission-control-plus"
-brew install "monitorcontrol"
-brew install "notunes"
-brew install "obsidian"
-brew install "openmtp"
-brew install "visual-studio-code"
+brew install "age" -q
+brew install "aichat" -q
+brew install "bat" -q
+brew install "duti" -q
+brew install "git" -q
+brew install "gnupg" -q
+brew install "go" -q
+brew install "gradle" -q
+brew install "handbrake" -q
+brew install "mosquitto" -q
+brew install "neovim" -q
+brew install "node" -q
+brew install "rbenv" -q
+brew install "sachaos/todoist/todoist" -q
+brew install "tree" -q
+brew install "yadm" -q
+brew install "zackelia/formulae/bclm" -q
+brew install "zsh-autosuggestions" -q
+brew install "zsh-syntax-highlighting" -q
+brew install "zsh-vi-mode" -q
+brew install "1password" -q
+brew install "android-studio" -q
+brew install "arc" -q
+brew install "blackhole-2ch" -q
+brew install "caffeine" -q
+brew install "docker" -q
+brew install "dropbox" -q
+brew install "flutter" -q
+brew install "font-jetbrains-mono-nerd-font" -q
+brew install "handbrake" -q
+brew install "hiddenbar" -q
+brew install "iterm2" -q
+brew install "kindavim" -q
+brew install "middleclick" -q
+brew install "mission-control-plus" -q
+brew install "monitorcontrol" -q
+brew install "notunes" -q
+brew install "obsidian" -q
+brew install "openmtp" -q
+brew install "visual-studio-code" -q
