@@ -32,9 +32,6 @@ function eve {
     a eve
     day Tom
     echo
-    tl d/is.json
-    echo
-    echo
     tl hb
     echo
     tl p/eve.md
