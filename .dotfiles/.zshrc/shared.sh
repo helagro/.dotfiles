@@ -5,7 +5,7 @@ dev="$HOME/Developer"
 vault="$HOME/Dropbox/vault"
 DISABLE_AUTO_UPDATE="true"
 
-export DISABLED_TD_APP_ITEMS="ob,"
+export DISABLED_TD_APP_ITEMS="" # Items must end with a comma, even last one
 export GPG_TTY=$(tty)
 export PATH="$HOME/.dotfiles/scripts/path:$PATH"
 
