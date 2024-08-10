@@ -7,7 +7,6 @@ brew install "git" -q
 brew install "gnupg" -q
 brew install "go" -q
 brew install "gradle" -q
-brew install "handbrake" -q
 brew install "mosquitto" -q
 brew install "neovim" -q
 brew install "node" -q
@@ -28,9 +27,9 @@ brew install "docker" -q
 brew install "dropbox" -q
 brew install "flutter" -q
 brew install "font-jetbrains-mono-nerd-font" -q
-brew install "handbrake" -q
 brew install "hiddenbar" -q
 brew install "iterm2" -q
+brew install "itermai" -q
 brew install "kindavim" -q
 brew install "middleclick" -q
 brew install "mission-control-plus" -q
