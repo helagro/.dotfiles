@@ -28,6 +28,11 @@ alias repe="vi $dev/todoist-app/data/repeated.json"
 
 # ------------------------- OTHER FUNCTIONS ------------------------ #
 
+function pass {
+    op item get "$@" --reveal --fields password | pbcopy
+    op item get "$@" --reveal
+}
+
 function eve {
     a eve
     day Tom
