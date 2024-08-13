@@ -13,6 +13,7 @@ export PATH="$HOME/.dotfiles/scripts/path:$PATH"
 
 alias src="source $HOME/.zshrc"
 alias c="bc -le"
+alias lines="grep -v '^$' | wc -l"
 
 alias gpt="aichat"
 alias gpt4="aichat -m openai:gpt-4"
