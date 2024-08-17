@@ -7,6 +7,7 @@ brew install "git" -q
 brew install "gnupg" -q
 brew install "go" -q
 brew install "gradle" -q
+brew install "lftp" -q
 brew install "mosquitto" -q
 brew install "neovim" -q
 brew install "node" -q
@@ -19,6 +20,7 @@ brew install "zsh-autosuggestions" -q
 brew install "zsh-syntax-highlighting" -q
 brew install "zsh-vi-mode" -q
 brew install "1password" -q
+brew install "1password-cli" -q
 brew install "android-studio" -q
 brew install "arc" -q
 brew install "blackhole-2ch" -q
@@ -34,6 +36,7 @@ brew install "kindavim" -q
 brew install "middleclick" -q
 brew install "mission-control-plus" -q
 brew install "monitorcontrol" -q
+brew install "notion" -q
 brew install "notunes" -q
 brew install "obsidian" -q
 brew install "openmtp" -q

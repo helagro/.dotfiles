@@ -2,7 +2,7 @@
 
 doc="$HOME/Documents"
 dev="$HOME/Developer"
-vault="$HOME/Dropbox/vault"
+vault="$HOME/vault"
 DISABLE_AUTO_UPDATE="true"
 
 export DISABLED_TD_APP_ITEMS="" # Items must end with a comma, even last one

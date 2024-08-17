@@ -1,4 +1,4 @@
-vault="$HOME/Dropbox/vault"
+vault="$HOME/vault"
 scripts="$HOME/.dotfiles/scripts/"
 
 [[ -z "$1" ]] && 1="0" # default to 0 if no argument is provided

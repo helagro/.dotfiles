@@ -20,7 +20,6 @@ fi
 # ----------------------- OTHER ALIASES ---------------------- #
 
 alias vi="nvim"
-alias plans="$vault/p && nvim -O p.md break.md"
 alias archive="$HOME/Documents/archiver-go/build/macOS"
 
 alias breake="nvim $doc/break-timer/.env"
