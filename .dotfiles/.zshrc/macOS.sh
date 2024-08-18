@@ -38,7 +38,7 @@ function eve {
     echo
     tl hb
     echo
-    tl p/eve.md
+    ob eve
     shortcuts run "Sleep Focus"
 }
 
