@@ -12,12 +12,20 @@ brew tap zackelia/formulae
 
 brew install duti
 
-duti -s com.apple.QuickTimePlayerX .mp4 all
+# Audio
+duti -s com.apple.QuickTimePlayerX .mp3 all
+duti -s com.apple.QuickTimePlayerX .wav all
 duti -s com.apple.QuickTimePlayerX .m4a all
 
+# Video
+duti -s com.apple.QuickTimePlayerX .mp4 all
+duti -s com.apple.QuickTimePlayerX .mov all
+
+# Shell scripts
 duti -s com.googlecode.iterm2 .sh all
 duti -s com.googlecode.iterm2 .zsh all
 
+# Code
 duti -s com.microsoft.VSCode public.json all
 duti -s com.microsoft.VSCode public.plain-text all
 duti -s com.microsoft.VSCode public.python-script all
