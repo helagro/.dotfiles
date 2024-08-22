@@ -104,12 +104,16 @@ function medd {
 function sw {
     local start_time=$(date +%s)
 
-    $doc/stopwatch/main "$1"
+    caffeinate -disu -i $doc/stopwatch/main "$1"
+
+    if [ $? -ne 2 ]; then
+        asciiquarium
+    fi
 
     local end_time=$(date +%s)
     local min=$((($end_time - $start_time) / 60))
 
-    if [ -n "$2" ]; then
+    if [ -n "$2" ] && [ "$min" -ne 0 ]; then
         a "$2 $min"
     fi
 }
