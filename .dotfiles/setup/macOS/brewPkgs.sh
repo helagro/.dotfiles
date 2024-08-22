@@ -30,6 +30,7 @@ brew install "dropbox" -q
 brew install "flutter" -q
 brew install "font-jetbrains-mono-nerd-font" -q
 brew install "hiddenbar" -q
+brew install "imageoptim" -q
 brew install "iterm2" -q
 brew install "itermai" -q
 brew install "kindavim" -q

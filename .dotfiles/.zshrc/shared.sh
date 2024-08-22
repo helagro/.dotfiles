@@ -5,7 +5,7 @@ dev="$HOME/Developer"
 vault="$HOME/vault"
 DISABLE_AUTO_UPDATE="true"
 
-export DISABLED_TD_APP_ITEMS="" # Items must end with a comma, even last one
+export DISABLED_TD_APP_ITEMS="---," # Items must end with a comma, even last one
 export GPG_TTY=$(tty)
 export PATH="$HOME/.dotfiles/scripts/path:$PATH"
 
@@ -21,11 +21,11 @@ alias gpt4="aichat -m openai:gpt-4"
 # ------------------ UNCATEGORISED FUNCTIONS ----------------- #
 
 function tl {
-    ext="${1##*.}"
+    local ext="${1##*.}"
     [[ "$1" != *.* ]] && ext="json"
 
-    url="https://helagro.se/tools/$1"
-    content=$(curl -s "$url" -b "id=u3o8hiefo" -b "a75h=$A75H")
+    local url="https://helagro.se/tools/$1"
+    local content=$(curl -s "$url" -b "id=u3o8hiefo" -b "a75h=$A75H")
 
     if command -v bat &>/dev/null; then
         echo "$content" | bat -pPl "$ext"
@@ -35,7 +35,7 @@ function tl {
 }
 
 function clr {
-    cols=$(tput cols)
+    local cols=$(tput cols)
     for ((i = 0; i < $cols; i++)); do
         echo -n "="
     done
@@ -46,9 +46,9 @@ function clr {
 
 function cnt {
     if [[ -e "$HOME/.dotfiles/data/cnt.txt" ]]; then
-        cnt=$(cat "$HOME/.dotfiles/data/cnt.txt")
+        local cnt=$(cat "$HOME/.dotfiles/data/cnt.txt")
     else
-        cnt=0
+        local cnt=0
     fi
 
     echo $cnt
@@ -68,9 +68,9 @@ function yq() { yadm add -u && yadm commit -m "$*" && yadm push; }
 
 # Git Quick Local
 function gql {
-    commit_message="$*"
+    local commit_message="$*"
     if [ -z "$commit_message" ]; then
-        commit_message="Unspecified"
+        local commit_message="Unspecified"
     fi
 
     git add .
@@ -90,8 +90,8 @@ function gdb {
 }
 
 function repo {
-    url=$(git config --get remote.origin.url)
-    url=$(echo $url | sed 's/git@github.com:/https:\/\/github.com\//g')
+    local url=$(git config --get remote.origin.url)
+    local url=$(echo $url | sed 's/git@github.com:/https:\/\/github.com\//g')
     open $url
 }
 
@@ -118,7 +118,7 @@ function a {
 
             # Ask for lines until 'q' is entered
             while [[ $line != 'q' ]]; do
-                line=$(echo "$line" | tr -d '\\')
+                local line=$(echo "$line" | tr -d '\\')
                 a "$line"
                 m_vared
             done
@@ -128,7 +128,7 @@ function a {
 
             # Read lines from pipe
             while read -r line; do
-                line=$(echo "$line" | sed -e 's/^- \[ \] //' -e 's/^- //') # Remove checkboxes
+                local line=$(echo "$line" | sed -e 's/^- \[ \] //' -e 's/^- //') # Remove checkboxes
                 a "$line"
             done
         fi
@@ -140,7 +140,7 @@ function a {
 }
 
 function m_vared {
-    line=""
+    local line=""
     vared -p "%B%F{red}-%f%b " line
 }
 
@@ -163,7 +163,7 @@ function ob {
 }
 
 function randote {
-    file=$(find "$vault/i" -type f | sort -R | head -n 1)
+    local file=$(find "$vault/i" -type f | sort -R | head -n 1)
     bat -P "$file"
 
     a ob

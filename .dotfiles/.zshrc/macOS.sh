@@ -80,7 +80,7 @@ function inv {
 }
 
 function day {
-    clipBoard=$(pbpaste)
+    local clipBoard=$(pbpaste)
 
     shortcuts run "$1"
     pbpaste
@@ -93,16 +93,23 @@ function day {
 
 # -------------------------- TIMING -------------------------- #
 
-alias sw="$doc/stopwatch/main"
 function timer { echo $1 | shortcuts run "Timer"; }
 
 function medd {
     shortcuts run "dnd on"
-    start_time=$(date +%s)
-    sw $1
-
-    end_time=$(date +%s)
-    min=$((($end_time - $start_time) / 60))
-    a "medd $min"
+    sw $1 "medd"
     shortcuts run "dnd off"
+}
+
+function sw {
+    local start_time=$(date +%s)
+
+    $doc/stopwatch/main "$1"
+
+    local end_time=$(date +%s)
+    local min=$((($end_time - $start_time) / 60))
+
+    if [ -n "$2" ]; then
+        a "$2 $min"
+    fi
 }
