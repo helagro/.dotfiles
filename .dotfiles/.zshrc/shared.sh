@@ -5,7 +5,7 @@ dev="$HOME/Developer"
 vault="$HOME/vault"
 DISABLE_AUTO_UPDATE="true"
 
-export DISABLED_TD_APP_ITEMS="---," # Items must end with a comma, even last one
+export DISABLED_TD_APP_ITEMS="---,ob," # Items must end with a comma, even last one
 export GPG_TTY=$(tty)
 export PATH="$HOME/.dotfiles/scripts/path:$PATH"
 
@@ -118,7 +118,7 @@ function a {
 
             # Ask for lines until 'q' is entered
             while [[ $line != 'q' ]]; do
-                local line=$(echo "$line" | tr -d '\\')
+                line=$(echo "$line" | tr -d '\\')
                 a "$line"
                 m_vared
             done
@@ -128,7 +128,7 @@ function a {
 
             # Read lines from pipe
             while read -r line; do
-                local line=$(echo "$line" | sed -e 's/^- \[ \] //' -e 's/^- //') # Remove checkboxes
+                line=$(echo "$line" | sed -e 's/^- \[ \] //' -e 's/^- //') # Remove checkboxes
                 a "$line"
             done
         fi
@@ -140,7 +140,7 @@ function a {
 }
 
 function m_vared {
-    local line=""
+    line=""
     vared -p "%B%F{red}-%f%b " line
 }
 

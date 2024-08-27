@@ -1,6 +1,7 @@
 
 brew install "age" -q
 brew install "aichat" -q
+brew install "asciiquarium" -q
 brew install "bat" -q
 brew install "duti" -q
 brew install "git" -q
@@ -26,7 +27,6 @@ brew install "arc" -q
 brew install "blackhole-2ch" -q
 brew install "caffeine" -q
 brew install "docker" -q
-brew install "dropbox" -q
 brew install "flutter" -q
 brew install "font-jetbrains-mono-nerd-font" -q
 brew install "hiddenbar" -q
