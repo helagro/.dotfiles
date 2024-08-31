@@ -32,16 +32,6 @@ function pass {
     op item get "$@" --reveal
 }
 
-function eve {
-    a eve
-    day Tom
-    echo
-    tl hb
-    echo
-    ob eve
-    shortcuts run "Sleep Focus"
-}
-
 function e {
     if [ -d "$dev/$1" ]; then
         code "$dev/$1"
@@ -89,6 +79,25 @@ function day {
     echo -n $clipBoard | pbcopy
 
     tdi
+}
+
+# -------------------------- ROUTINE ------------------------- #
+
+function dawn {
+    shortcuts run "dnd off"
+    a dawn
+    day Tod
+    ob dawn
+}
+
+function eve {
+    a eve
+    day Tom
+    echo
+    tl hb
+    echo
+    ob eve
+    shortcuts run "Sleep Focus"
 }
 
 # -------------------------- TIMING -------------------------- #
