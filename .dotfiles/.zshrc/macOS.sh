@@ -28,8 +28,9 @@ alias repe="vi $dev/todoist-app/data/repeated.json"
 # ------------------------- OTHER FUNCTIONS ------------------------ #
 
 function pass {
-    op item get "$@" --reveal --fields password | pbcopy
-    op item get "$@" --reveal
+    local passw=$(op item get "$@" --reveal --fields password)
+    echo $passw
+    echo $passw | pbcopy
 }
 
 function e {

@@ -14,6 +14,7 @@ brew install "neovim" -q
 brew install "node" -q
 brew install "rbenv" -q
 brew install "sachaos/todoist/todoist" -q
+brew install "sox" -q
 brew install "tree" -q
 brew install "yadm" -q
 brew install "zackelia/formulae/bclm" -q
@@ -26,6 +27,7 @@ brew install "android-studio" -q
 brew install "arc" -q
 brew install "blackhole-2ch" -q
 brew install "caffeine" -q
+brew install "chatgpt" -q
 brew install "docker" -q
 brew install "flutter" -q
 brew install "font-jetbrains-mono-nerd-font" -q
@@ -33,7 +35,6 @@ brew install "hiddenbar" -q
 brew install "imageoptim" -q
 brew install "iterm2" -q
 brew install "itermai" -q
-brew install "kindavim" -q
 brew install "middleclick" -q
 brew install "mission-control-plus" -q
 brew install "monitorcontrol" -q
