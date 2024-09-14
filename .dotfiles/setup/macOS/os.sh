@@ -1,3 +1,15 @@
+#!/bin/zsh
+
+# ------------------------- FUNCTIONS ------------------------ #
+
+ask() {
+    echo -n "$1 (y/n) "
+    read response
+    [[ "$response" =~ ^[Yy]$ ]]
+}
+
+# ------------------------- COMMANDS ------------------------- #
+
 defaults write com.apple.ActivityMonitor IconType -int 5
 defaults write -g ApplePressAndHoldEnabled -bool false
 defaults write com.apple.screensaver askForPasswordDelay -int 1200
@@ -14,9 +26,7 @@ defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool
 
 # Maps caps lock to escape
 
-echo -n "Map caps lock to escape for all users? (y/n) "
-read response
-if [[ "$response" =~ ^[Yy]$ ]]; then
+if ask "Map caps lock to escape for all users?"; then
     hidutil property --set '{"UserKeyMapping":[{"HIDKeyboardModifierMappingSrc":0x700000039,"HIDKeyboardModifierMappingDst":0x700000029}]}'
 fi
 
@@ -55,9 +65,7 @@ defaults write com.apple.dock tilesize -int 36
 defaults write com.apple.dock orientation -string "left"
 defaults write com.apple.dock autohide -bool true
 
-echo -n "Clear dock? (y/n) "
-read response
-if [[ "$response" =~ ^[Yy]$ ]]; then
+if ask "Clear dock?"; then
     defaults write com.apple.dock persistent-apps -array
 fi
 

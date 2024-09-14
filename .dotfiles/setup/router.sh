@@ -3,7 +3,8 @@
 # ------------------------- FUNCTIONS ------------------------ #
 
 ask() {
-    read "response?$1 (y/n) "
+    echo -n "$1 (y/n) "
+    read response
     [[ "$response" =~ ^[Yy]$ ]]
 }
 
