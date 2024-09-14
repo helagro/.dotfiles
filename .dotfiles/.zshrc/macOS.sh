@@ -21,9 +21,7 @@ fi
 
 alias vi="nvim"
 alias archive="$HOME/Documents/archiver-go/build/macOS"
-
 alias breake="nvim $doc/break-timer/.env"
-alias repe="vi $dev/todoist-app/data/repeated.json"
 
 # ------------------------- OTHER FUNCTIONS ------------------------ #
 

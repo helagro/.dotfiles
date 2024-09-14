@@ -15,6 +15,7 @@ brew install "node" -q
 brew install "rbenv" -q
 brew install "sachaos/todoist/todoist" -q
 brew install "sox" -q
+brew install "sshpass" -q
 brew install "tree" -q
 brew install "yadm" -q
 brew install "zackelia/formulae/bclm" -q
@@ -38,7 +39,6 @@ brew install "itermai" -q
 brew install "middleclick" -q
 brew install "mission-control-plus" -q
 brew install "monitorcontrol" -q
-brew install "notion" -q
 brew install "notunes" -q
 brew install "obsidian" -q
 brew install "openmtp" -q
