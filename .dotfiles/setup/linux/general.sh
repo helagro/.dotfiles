@@ -11,9 +11,9 @@ ask() {
 # ------------------------- COMMANDS ------------------------- #
 
 chsh -s $(which zsh)
-mkdir -p ~/.config/systemd/user
 
 if ask "Setup login hook?"; then
+    mkdir -p ~/.config/systemd/user
     su -c "
         cp -f $HOME/.dotfiles/setup/linux/dotfiles.service /etc/systemd/system/dotfiles.service && \
         sudo systemctl daemon-reload && \
