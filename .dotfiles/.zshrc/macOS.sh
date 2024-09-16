@@ -93,7 +93,13 @@ function eve {
     a eve
     day Tom
     echo
+
     tl hb
+    echo
+
+    echo "podd: $(tl is/podd/1)"
+    echo "tv_min: $(tl is/tv_min/1)"
+
     echo
     ob eve
     shortcuts run "Sleep Focus"

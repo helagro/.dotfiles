@@ -8,6 +8,8 @@
 	<true/>
 	<key>BracketedPasteMode</key>
 	<true/>
+	<key>ClickToSelectCommand</key>
+	<false/>
 	<key>ConvertDosNewlines</key>
 	<false/>
 	<key>Default Arrangement Name</key>
@@ -38,6 +40,19 @@
 			<integer>39</integer>
 			<key>Text</key>
 			<string></string>
+		</dict>
+		<key>0x54-0x120000-0x11</key>
+		<dict>
+			<key>Action</key>
+			<integer>27</integer>
+			<key>Apply Mode</key>
+			<integer>0</integer>
+			<key>Escaping</key>
+			<integer>2</integer>
+			<key>Text</key>
+			<string>A8184BCE-0341-438A-BF0E-2FB117BCA502</string>
+			<key>Version</key>
+			<integer>2</integer>
 		</dict>
 		<key>0x68-0x100000-0x4</key>
 		<dict>
@@ -1137,6 +1152,8 @@
 		<dict>
 			<key>ASCII Anti Aliased</key>
 			<true/>
+			<key>Allow Paste Bracketing</key>
+			<false/>
 			<key>Allow Title Setting</key>
 			<true/>
 			<key>Ambiguous Double Width</key>
@@ -1347,7 +1364,7 @@
 			<key>Close Sessions On End</key>
 			<true/>
 			<key>Columns</key>
-			<integer>91</integer>
+			<integer>60</integer>
 			<key>Command</key>
 			<string></string>
 			<key>Cursor Color</key>
@@ -1413,7 +1430,7 @@
 			<key>Guid</key>
 			<string>A8184BCE-0341-438A-BF0E-2FB117BCA502</string>
 			<key>Has Hotkey</key>
-			<false/>
+			<true/>
 			<key>Horizontal Spacing</key>
 			<real>1</real>
 			<key>HotKey Activated By Modifier</key>
@@ -1443,9 +1460,9 @@
 			<key>Idle Code</key>
 			<integer>0</integer>
 			<key>Initial Text</key>
-			<string>plans</string>
+			<string></string>
 			<key>Initial Use Transparency</key>
-			<true/>
+			<false/>
 			<key>Jobs to Ignore</key>
 			<array>
 				<string>rlogin</string>
@@ -1903,7 +1920,7 @@
 			<key>Right Option Key Sends</key>
 			<integer>0</integer>
 			<key>Rows</key>
-			<integer>28</integer>
+			<integer>10</integer>
 			<key>Screen</key>
 			<integer>-1</integer>
 			<key>Scrollback Lines</key>
