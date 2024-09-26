@@ -10,6 +10,7 @@ brew install "go" -q
 brew install "gradle" -q
 brew install "lftp" -q
 brew install "mosquitto" -q
+brew install "mpv" -q
 brew install "neovim" -q
 brew install "node" -q
 brew install "rbenv" -q
@@ -24,7 +25,6 @@ brew install "zsh-syntax-highlighting" -q
 brew install "zsh-vi-mode" -q
 brew install "1password" -q
 brew install "1password-cli" -q
-brew install "android-studio" -q
 brew install "arc" -q
 brew install "blackhole-2ch" -q
 brew install "caffeine" -q
@@ -35,11 +35,9 @@ brew install "font-jetbrains-mono-nerd-font" -q
 brew install "hiddenbar" -q
 brew install "imageoptim" -q
 brew install "iterm2" -q
-brew install "itermai" -q
 brew install "middleclick" -q
 brew install "mission-control-plus" -q
 brew install "monitorcontrol" -q
 brew install "notunes" -q
 brew install "obsidian" -q
-brew install "openmtp" -q
 brew install "visual-studio-code" -q

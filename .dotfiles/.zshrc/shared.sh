@@ -12,13 +12,17 @@ export PATH="$HOME/.dotfiles/scripts/path:$PATH"
 # ------------------------- UNCATEGORISED ALIASES ------------------------ #
 
 alias src="source $HOME/.zshrc"
-alias c="bc -le"
+alias c="qalc"
 alias lines="grep -v '^$' | wc -l"
 
 alias gpt="aichat"
 alias gpt4="aichat -m openai:gpt-4"
 
 # ------------------ UNCATEGORISED FUNCTIONS ----------------- #
+
+function rand {
+    echo $((1 + RANDOM % ($1)))
+}
 
 function tl {
     local ext="${1##*.}"
