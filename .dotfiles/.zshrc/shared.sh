@@ -17,6 +17,7 @@ alias lines="grep -v '^$' | wc -l"
 
 alias gpt="aichat"
 alias gpt4="aichat -m openai:gpt-4"
+alias hm="python3 $HOME/.dotfiles/scripts/hm.py"
 
 # ------------------ UNCATEGORISED FUNCTIONS ----------------- #
 

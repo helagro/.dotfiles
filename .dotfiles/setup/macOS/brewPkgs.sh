@@ -5,10 +5,12 @@ brew install "asciiquarium" -q
 brew install "bat" -q
 brew install "duti" -q
 brew install "git" -q
+brew install "gnirehtet" -q
 brew install "gnupg" -q
 brew install "go" -q
 brew install "gradle" -q
 brew install "lftp" -q
+brew install "libqalculate" -q
 brew install "mosquitto" -q
 brew install "mpv" -q
 brew install "neovim" -q
@@ -25,6 +27,8 @@ brew install "zsh-syntax-highlighting" -q
 brew install "zsh-vi-mode" -q
 brew install "1password" -q
 brew install "1password-cli" -q
+brew install "android-file-transfer" -q
+brew install "android-platform-tools" -q
 brew install "arc" -q
 brew install "blackhole-2ch" -q
 brew install "caffeine" -q
