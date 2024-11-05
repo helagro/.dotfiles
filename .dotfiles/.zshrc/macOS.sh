@@ -103,6 +103,8 @@ function eve {
     echo
     ob eve
     shortcuts run "Sleep Focus"
+
+    a "p-ett $(tdi | lines | tr -d '[:space:]')"
 }
 
 # -------------------------- TIMING -------------------------- #

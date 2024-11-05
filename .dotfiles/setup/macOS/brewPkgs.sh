@@ -17,7 +17,6 @@ brew install "neovim" -q
 brew install "node" -q
 brew install "rbenv" -q
 brew install "sachaos/todoist/todoist" -q
-brew install "sox" -q
 brew install "sshpass" -q
 brew install "tree" -q
 brew install "yadm" -q
@@ -42,6 +41,7 @@ brew install "iterm2" -q
 brew install "middleclick" -q
 brew install "mission-control-plus" -q
 brew install "monitorcontrol" -q
+brew install "neardrop" -q
 brew install "notunes" -q
 brew install "obsidian" -q
 brew install "visual-studio-code" -q
