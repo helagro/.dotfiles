@@ -28,14 +28,13 @@ function rand {
 }
 
 function tl {
-    local ext="${1##*.}"
-    [[ "$1" != *.* ]] && ext="json"
+    local d="${1//+/?}" # Replaces '+' with '?'
 
-    local url="https://helagro.se/tools/$1"
+    local url="https://helagro.se/tools/$d"
     local content=$(curl -s "$url" -b "id=u3o8hiefo" -b "a75h=$A75H")
 
     if command -v bat &>/dev/null; then
-        echo "$content" | bat -pPl "$ext"
+        echo "$content" | bat -pPl "json"
     else
         echo "$content"
     fi
