@@ -19,7 +19,7 @@ alias gpt="aichat"
 alias gpt4="aichat -m openai:gpt-4"
 
 alias hm="python3 $HOME/.dotfiles/scripts/hm.py"
-alias avg="python3 $HOME/.dotfiles/scripts/avg.py"
+alias st="python3 $HOME/.dotfiles/scripts/st.py"
 
 # ------------------ UNCATEGORISED FUNCTIONS ----------------- #
 
