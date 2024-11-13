@@ -11,6 +11,7 @@ brew install "go" -q
 brew install "gradle" -q
 brew install "lftp" -q
 brew install "libqalculate" -q
+brew install "mecab" -q
 brew install "mosquitto" -q
 brew install "mpv" -q
 brew install "neovim" -q
