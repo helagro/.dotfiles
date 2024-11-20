@@ -20,6 +20,8 @@ def calculate_statistic(json_str, operation):
         return sum(numeric_values) 
     elif operation == "avg":
         return sum(numeric_values) / len(numeric_values)
+    elif operation in ("count", "len", "cnt"):
+        return sum(1 for v in numeric_values if v > 0)
     else:
         raise ValueError("Invalid operation")
 

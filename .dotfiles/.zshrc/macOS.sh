@@ -113,6 +113,7 @@ function dawn {
     a dawn
     day Tod
     ob dawn
+    ob p
 }
 
 function eve {
