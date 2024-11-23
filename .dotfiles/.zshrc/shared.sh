@@ -23,6 +23,10 @@ alias st="python3 $HOME/.dotfiles/scripts/st.py"
 
 # ------------------ UNCATEGORISED FUNCTIONS ----------------- #
 
+function sens {
+    curl "192.168.3.46:8004/$1"
+}
+
 function rand {
     echo $((1 + RANDOM % ($1)))
 }
