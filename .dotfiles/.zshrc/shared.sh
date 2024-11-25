@@ -15,21 +15,16 @@ alias src="source $HOME/.zshrc"
 alias c="qalc"
 alias lines="grep -v '^$' | wc -l"
 
-alias gpt="aichat"
-alias gpt4="aichat -m openai:gpt-4"
+alias gpt4="aichat -s -m openai:gpt-4o"
 
 alias hm="python3 $HOME/.dotfiles/scripts/hm.py"
 alias st="python3 $HOME/.dotfiles/scripts/st.py"
 
 # ------------------ UNCATEGORISED FUNCTIONS ----------------- #
 
-function sens {
-    curl "192.168.3.46:8004/$1"
-}
+function sens { curl -sS "192.168.3.46:8004/$1" | bat -pPl "json"; }
 
-function rand {
-    echo $((1 + RANDOM % ($1)))
-}
+function rand { echo $((1 + RANDOM % ($1))); }
 
 function tl {
     local d="${1//+/?}" # Replaces '+' with '?'
@@ -73,8 +68,8 @@ alias gsw="git switch "                  # Git Switch
 alias gcu="git commit --amend --no-edit" # Git Commit Update
 
 function gclone { git clone "git@github.com:helagro/$1.git" $dev/$1; }
-function gi() { curl -s https://www.toptal.com/developers/gitignore/api/$@; }
-function yq() { yadm add -u && yadm commit -m "$*" && yadm push; }
+function gi { curl -s https://www.toptal.com/developers/gitignore/api/$@; }
+function yq { yadm add -u && yadm commit -m "$*" && yadm push; }
 
 # Git Quick Local
 function gql {

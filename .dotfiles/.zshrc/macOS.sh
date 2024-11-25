@@ -26,6 +26,18 @@ alias breake="nvim $doc/break-timer/.env"
 
 # ------------------------- OTHER FUNCTIONS ------------------------ #
 
+function on_tab {
+    local role=$(basename $(pwd))
+
+    if [[ $role == "a" ]]; then
+        a
+    elif [[ $role == "ai" ]]; then
+        gpt4
+    fi
+
+    clr
+}
+
 function talk {
     local text
     read -r -d '' text

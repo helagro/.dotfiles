@@ -12,10 +12,12 @@ brew install "gradle" -q
 brew install "lftp" -q
 brew install "libqalculate" -q
 brew install "mecab" -q
+brew install "minikube" -q
 brew install "mosquitto" -q
 brew install "mpv" -q
 brew install "neovim" -q
 brew install "node" -q
+brew install "postgresql@14" -q
 brew install "rbenv" -q
 brew install "sachaos/todoist/todoist" -q
 brew install "sshpass" -q
