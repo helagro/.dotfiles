@@ -34,13 +34,6 @@
 	<false/>
 	<key>GlobalKeyMap</key>
 	<dict>
-		<key>0x19-0x60000</key>
-		<dict>
-			<key>Action</key>
-			<integer>39</integer>
-			<key>Text</key>
-			<string></string>
-		</dict>
 		<key>0x54-0x120000-0x11</key>
 		<dict>
 			<key>Action</key>
@@ -57,7 +50,7 @@
 		<key>0x68-0x100000-0x4</key>
 		<dict>
 			<key>Action</key>
-			<integer>39</integer>
+			<integer>2</integer>
 			<key>Apply Mode</key>
 			<integer>0</integer>
 			<key>Escaping</key>
@@ -70,7 +63,7 @@
 		<key>0x68-0x180000-0x4</key>
 		<dict>
 			<key>Action</key>
-			<integer>18</integer>
+			<integer>31</integer>
 			<key>Apply Mode</key>
 			<integer>0</integer>
 			<key>Escaping</key>
@@ -83,7 +76,7 @@
 		<key>0x6c-0x100000-0x25</key>
 		<dict>
 			<key>Action</key>
-			<integer>32</integer>
+			<integer>0</integer>
 			<key>Apply Mode</key>
 			<integer>0</integer>
 			<key>Escaping</key>
@@ -96,7 +89,7 @@
 		<key>0x6c-0x180000-0x25</key>
 		<dict>
 			<key>Action</key>
-			<integer>19</integer>
+			<integer>30</integer>
 			<key>Apply Mode</key>
 			<integer>0</integer>
 			<key>Escaping</key>
@@ -105,13 +98,6 @@
 			<string></string>
 			<key>Version</key>
 			<integer>2</integer>
-		</dict>
-		<key>0x9-0x40000</key>
-		<dict>
-			<key>Action</key>
-			<integer>32</integer>
-			<key>Text</key>
-			<string></string>
 		</dict>
 		<key>0xf700-0x300000</key>
 		<dict>
@@ -160,24 +146,6 @@
 			<key>Version</key>
 			<integer>1</integer>
 		</dict>
-		<key>0xf702-0x320000</key>
-		<dict>
-			<key>Action</key>
-			<integer>33</integer>
-			<key>Text</key>
-			<string></string>
-		</dict>
-		<key>0xf702-0x380000-0x7b</key>
-		<dict>
-			<key>Action</key>
-			<integer>39</integer>
-			<key>Label</key>
-			<string></string>
-			<key>Text</key>
-			<string></string>
-			<key>Version</key>
-			<integer>1</integer>
-		</dict>
 		<key>0xf703-0x280000-0x7c</key>
 		<dict>
 			<key>Action</key>
@@ -197,24 +165,6 @@
 			<string></string>
 			<key>Text</key>
 			<string>0x05</string>
-			<key>Version</key>
-			<integer>1</integer>
-		</dict>
-		<key>0xf703-0x320000</key>
-		<dict>
-			<key>Action</key>
-			<integer>34</integer>
-			<key>Text</key>
-			<string></string>
-		</dict>
-		<key>0xf703-0x380000-0x7c</key>
-		<dict>
-			<key>Action</key>
-			<integer>32</integer>
-			<key>Label</key>
-			<string></string>
-			<key>Text</key>
-			<string></string>
 			<key>Version</key>
 			<integer>1</integer>
 		</dict>
