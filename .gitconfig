@@ -7,7 +7,7 @@
 #	name = Henrik L
 #	email = h@Henriks-MacBook-Air.local
 [core]
-	editor = code
+	editor = code --wait
 	commentChar = ";"
 	excludesFile = /Users/h/.gitignore
 [push]

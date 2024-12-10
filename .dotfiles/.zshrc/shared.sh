@@ -103,9 +103,11 @@ function repo {
 # -------------------------- TODOIST ------------------------- #
 
 alias td="todoist"
-alias tdi='td s && tdl "(tod | od | p1)"'
-alias tdls='td s && tdl'
 alias tdl="tdl.sh"
+alias tdi="tdl '(tod | od | p1)'"
+
+alias tdis='td s && tdi'
+alias tdls='td s && tdl'
 
 function tdc {
     for arg in "$@"; do

@@ -116,7 +116,7 @@ function day {
     echo && echo
     echo -n $clipBoard | pbcopy
 
-    tdi
+    tdis
 }
 
 # -------------------------- ROUTINE ------------------------- #
@@ -144,7 +144,7 @@ function eve {
     ob eve
     shortcuts run "Sleep Focus"
 
-    a "p-ett $(tdi | lines | tr -d '[:space:]')"
+    a "p-ett $(tdis | tr -d '[:space:]' | lines | tr -d '[:space:]') s"
 }
 
 # -------------------------- TIMING -------------------------- #
