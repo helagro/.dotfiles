@@ -17,8 +17,9 @@ alias lines="grep -v '^$' | wc -l"
 
 alias gpt4="aichat -s -m openai:gpt-4o"
 
-alias hm="python3 $HOME/.dotfiles/scripts/hm.py"
+alias hm="python3 $HOME/.dotfiles/scripts/hm.py | bat -pPl 'json'"
 alias st="python3 $HOME/.dotfiles/scripts/st.py"
+alias csv="conda run -n main python3 $HOME/.dotfiles/scripts/jsons_to_csv.py"
 
 # ------------------ UNCATEGORISED FUNCTIONS ----------------- #
 
@@ -50,14 +51,14 @@ function clr {
 }
 
 function cnt {
-    if [[ -e "$HOME/.dotfiles/data/cnt.txt" ]]; then
-        local cnt=$(cat "$HOME/.dotfiles/data/cnt.txt")
+    if [[ -e "$HOME/.dotfiles/logs/cnt.txt" ]]; then
+        local cnt=$(cat "$HOME/.dotfiles/logs/cnt.txt")
     else
         local cnt=0
     fi
 
     echo $cnt
-    echo -n $((cnt + 1)) >"$HOME/.dotfiles/data/cnt.txt"
+    echo -n $((cnt + 1)) >"$HOME/.dotfiles/logs/cnt.txt"
 }
 
 # ---------------------------- GIT --------------------------- #
@@ -142,7 +143,7 @@ function a {
 
     # If arguments passed
     else
-        (nohup a.sh "$*" >>$HOME/.dotfiles/data/a.log 2>&1 &)
+        (nohup a.sh "$*" >>$HOME/.dotfiles/logs/a.log 2>&1 &)
     fi
 }
 

@@ -3,8 +3,8 @@ if [ $# -eq 0 ]; then
     sleep 120
 fi
 
-LOG_FILE="$HOME/.dotfiles/data/onLogin.log"
-BREAK_LOG_FILE="$HOME/.dotfiles/data/break.log"
+LOG_FILE="$HOME/.dotfiles/logs/onLogin.log"
+BREAK_LOG_FILE="$HOME/.dotfiles/logs/break.log"
 
 dt=$(date '+%d/%m/%Y %H:%M:%S')
 echo "\n----- RAN on_login.sh AT ($dt) -----\n" >>$LOG_FILE

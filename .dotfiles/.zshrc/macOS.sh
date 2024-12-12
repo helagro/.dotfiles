@@ -26,9 +26,18 @@ alias breake="nvim $doc/break-timer/.env"
 
 # ------------------------- OTHER FUNCTIONS ------------------------ #
 
+function theme {
+    osascript -e '
+        tell application "System Events"
+            tell appearance preferences
+                set dark mode to not dark mode
+            end tell
+        end tell
+    '
+}
+
 function on_tab {
     local role=$(basename $(pwd))
-
     clr
 
     if [[ $role == "a" ]]; then
@@ -144,7 +153,7 @@ function eve {
     ob eve
     shortcuts run "Sleep Focus"
 
-    a "p-ett $(tdis | tr -d '[:space:]' | lines | tr -d '[:space:]') s"
+    a "p_ett $(tdis | tr -d '[:space:]' | lines | tr -d '[:space:]') s"
 }
 
 # -------------------------- TIMING -------------------------- #

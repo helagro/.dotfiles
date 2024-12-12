@@ -3,9 +3,13 @@ import json
 
 
 def process_dict(data):
+    res = {}
+
     for date, minutes in data.items():
         time_str = hm(minutes) if minutes is not None else "Null"
-        print(f"{date}: {time_str}")
+        res[date] = time_str
+
+    print(json.dumps(res, indent=2))
 
 
 def hm(mins):
