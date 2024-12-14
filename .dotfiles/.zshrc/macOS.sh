@@ -143,17 +143,18 @@ function eve {
     day Tom
     echo
 
-    tl hb
-    echo
-
+    echo temp: $(sens temp)
     echo "podd: $(tl is/podd/1)"
     echo "tv_min: $(tl is/tv_min/1)"
+
+    tl hb
+    echo
 
     echo
     ob eve
     shortcuts run "Sleep Focus"
 
-    a "p_ett $(tdis | tr -d '[:space:]' | lines | tr -d '[:space:]') s"
+    a "p_ett $(tdis | lines | tr -d '[:space:]') s"
 }
 
 # -------------------------- TIMING -------------------------- #

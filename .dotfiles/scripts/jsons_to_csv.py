@@ -30,7 +30,7 @@ def main(args):
     result = result.sort_values('Date', ascending=False)
 
     # Print the final DataFrame
-    print(result)
+    print(result.to_csv(index=False, sep='\t', header=False))
 
 
 if __name__ == "__main__":

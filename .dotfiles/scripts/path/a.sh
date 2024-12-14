@@ -1,5 +1,5 @@
 #!/bin/zsh
-file_path="$HOME/.dotfiles/logs/a.txt"
+file_path="$HOME/.dotfiles/tmp/a.txt"
 
 function process {
     if [ -z "$1" ]; then

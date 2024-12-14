@@ -19,9 +19,12 @@ alias gpt4="aichat -s -m openai:gpt-4o"
 
 alias hm="python3 $HOME/.dotfiles/scripts/hm.py | bat -pPl 'json'"
 alias st="python3 $HOME/.dotfiles/scripts/st.py"
-alias csv="conda run -n main python3 $HOME/.dotfiles/scripts/jsons_to_csv.py"
 
 # ------------------ UNCATEGORISED FUNCTIONS ----------------- #
+
+function is { conda run -n main python3 "$HOME/.dotfiles/scripts/is.py" $@ | bat -pPl 'json'; }
+
+function csv { conda run -n main python3 "$HOME/.dotfiles/scripts/jsons_to_csv.py" $@ | bat -pPl 'tsv'; }
 
 function sens { curl -sS "192.168.3.46:8004/$1" | bat -pPl "json"; }
 
@@ -50,23 +53,23 @@ function clr {
     clear
 }
 
+# Counter function
 function cnt {
-    if [[ -e "$HOME/.dotfiles/logs/cnt.txt" ]]; then
-        local cnt=$(cat "$HOME/.dotfiles/logs/cnt.txt")
+    if [[ -e "$HOME/.dotfiles/tmp/cnt.txt" ]]; then
+        local cnt=$(cat "$HOME/.dotfiles/tmp/cnt.txt")
     else
         local cnt=0
     fi
 
     echo $cnt
-    echo -n $((cnt + 1)) >"$HOME/.dotfiles/logs/cnt.txt"
+    echo -n $((cnt + 1)) >"$HOME/.dotfiles/tmp/cnt.txt"
 }
 
 # ---------------------------- GIT --------------------------- #
 
-alias gaa="git add ."                    # Git Add All
-alias gcm="git commit -m "               # Git Commit Message
-alias gsw="git switch "                  # Git Switch
-alias gcu="git commit --amend --no-edit" # Git Commit Update
+alias gaa="git add ."      # Git Add All
+alias gcm="git commit -m " # Git Commit Message
+alias gsw="git switch "    # Git Switch
 
 function gclone { git clone "git@github.com:helagro/$1.git" $dev/$1; }
 function gi { curl -s https://www.toptal.com/developers/gitignore/api/$@; }
@@ -109,6 +112,17 @@ alias tdi="tdl '(tod | od | p1)'"
 
 alias tdis='td s && tdi'
 alias tdls='td s && tdl'
+
+function tdu {
+    local id=$1
+    shift
+    local update="$@"
+
+    local content_line=$(td show $id | grep Content | cut -d' ' -f2-)
+
+    a "$content_line" "$update"
+    tdc $id
+}
 
 function tdc {
     for arg in "$@"; do
