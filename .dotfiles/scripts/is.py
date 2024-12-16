@@ -16,25 +16,26 @@ def fetch_attribute_values(attr: str, days: int, date_max: str = None) -> dict:
     response = requests.get(URL, params=params, headers=headers)
 
     if not response.ok:
-        return '{ "error": "Could not find data" }'
+        print(f"Fetch failed with status code {response.status_code}")
+        exit(1)
 
     response_data = response.json()
     return {value['date']: value['value'] for value in response_data['results']}
 
 
-def is_valid_date(date: str) -> bool:
+def is_valid_date(date: str | None) -> bool:
     try:
         datetime.strptime(date, '%Y-%m-%d')
         return True
-    except ValueError:
+    except (ValueError, TypeError):
         return False
 
 
-def is_valid_int(value: str) -> bool:
+def is_valid_int(value: str | None) -> bool:
     try:
         int(value)
         return True
-    except ValueError:
+    except (ValueError, TypeError):
         return False
 
 
@@ -50,6 +51,8 @@ if __name__ == "__main__":
     elif is_valid_int(date_max_input):
         days_before = int(date_max_input)
         date_max = (datetime.now() - timedelta(days=days_before))
+    else:
+        date_max = datetime.now()
 
     result = {}
     iters = math.floor(days / 100)

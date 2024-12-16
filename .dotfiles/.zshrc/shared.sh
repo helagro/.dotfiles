@@ -11,10 +11,8 @@ export PATH="$HOME/.dotfiles/scripts/path:$PATH"
 
 # ------------------------- UNCATEGORISED ALIASES ------------------------ #
 
-alias src="source $HOME/.zshrc"
 alias c="qalc"
 alias lines="grep -v '^$' | wc -l"
-
 alias gpt4="aichat -s -m openai:gpt-4o"
 
 alias hm="python3 $HOME/.dotfiles/scripts/hm.py | bat -pPl 'json'"
@@ -22,22 +20,29 @@ alias st="python3 $HOME/.dotfiles/scripts/st.py"
 
 # ------------------ UNCATEGORISED FUNCTIONS ----------------- #
 
-function is { conda run -n main python3 "$HOME/.dotfiles/scripts/is.py" $@ | bat -pPl 'json'; }
-
 function csv { conda run -n main python3 "$HOME/.dotfiles/scripts/jsons_to_csv.py" $@ | bat -pPl 'tsv'; }
 
 function sens { curl -sS "192.168.3.46:8004/$1" | bat -pPl "json"; }
 
 function rand { echo $((1 + RANDOM % ($1))); }
 
-function tl {
-    local d="${1//+/?}" # Replaces '+' with '?'
+function is {
+    if [ $# -gt 0 ]; then
+        is_output=$(conda run -n main python3 "$HOME/.dotfiles/scripts/is.py" $@)
+    fi
 
-    local url="https://helagro.se/tools/$d"
+    echo $is_output | bat -pPl 'json'
+}
+
+function tl {
+    local url="https://helagro.se/tools/$1"
     local content=$(curl -s "$url" -b "id=u3o8hiefo" -b "a75h=$A75H")
 
+    # If bat is installed
     if command -v bat &>/dev/null; then
         echo "$content" | bat -pPl "json"
+
+    # If bat is not installed
     else
         echo "$content"
     fi
@@ -53,7 +58,7 @@ function clr {
     clear
 }
 
-# Counter function
+# Counter function, used by other things
 function cnt {
     if [[ -e "$HOME/.dotfiles/tmp/cnt.txt" ]]; then
         local cnt=$(cat "$HOME/.dotfiles/tmp/cnt.txt")
@@ -168,9 +173,20 @@ function m_vared {
 
 # ------------------------- OBSIDIAN ------------------------- #
 
+alias randine="grep -v '^$' | shuf -n 1"
+
 function do_now {
-    if ob "$*" | a; then
-        echo -n >"$vault/$*.md"
+    local file_name="$vault/$*.md"
+
+    if [[ ! -e "$file_name" ]]; then
+        echo "$file_name does not exist"
+        return 1
+    fi
+
+    local content=$(cat "$file_name")
+    if echo $content | awk '/---/ {found = NR; next} NR > found' | a; then
+        echo $content | tac | awk '/---/ {found = 1; next} found' >"$file_name"
+        echo "---" >>"$file_name"
     fi
 }
 

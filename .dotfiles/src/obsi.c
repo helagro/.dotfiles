@@ -4,8 +4,8 @@
 #define MAX_BOUNDARY_SIZE 10
 #define INBOX_BOUNDARIES 6
 
-char inboxBoundaries[INBOX_BOUNDARIES][MAX_BOUNDARY_SIZE] = {"## Inbox", "### Inbox", "## Input",
-                                                             "## Next", "### Next", "---"};
+char inboxBoundaries[INBOX_BOUNDARIES][MAX_BOUNDARY_SIZE] = {
+    "## Inbox", "### Inbox", "## Input", "---", "## In", "### In"};
 char *cmpPtrs[INBOX_BOUNDARIES] = {NULL};
 _Bool found = 0;
 

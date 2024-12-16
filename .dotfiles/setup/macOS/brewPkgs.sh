@@ -3,6 +3,7 @@ brew install "age" -q
 brew install "aichat" -q
 brew install "asciiquarium" -q
 brew install "bat" -q
+brew install "coreutils" -q
 brew install "duti" -q
 brew install "git" -q
 brew install "gnirehtet" -q

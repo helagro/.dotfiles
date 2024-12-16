@@ -144,8 +144,8 @@ function eve {
     echo
 
     echo temp: $(sens temp)
-    echo "podd: $(tl is/podd/1)"
-    echo "tv_min: $(tl is/tv_min/1)"
+    echo "podd: $(is podd 1)"
+    echo "tv_min: $(is tv_min 1)"
 
     tl hb
     echo
