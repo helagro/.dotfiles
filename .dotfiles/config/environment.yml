@@ -57,7 +57,6 @@ dependencies:
   - libev=4.33
   - libffi=3.4.4
   - libgfortran5=11.3.0
-  - libgfortran=5.0.0
   - libgrpc=1.62.2
   - libnghttp2=1.57.0
   - libopenblas=0.3.21

@@ -20,19 +20,11 @@ alias st="python3 $HOME/.dotfiles/scripts/st.py"
 
 # ------------------ UNCATEGORISED FUNCTIONS ----------------- #
 
-function csv { conda run -n main python3 "$HOME/.dotfiles/scripts/jsons_to_csv.py" $@ | bat -pPl 'tsv'; }
-
-function sens { curl -sS "192.168.3.46:8004/$1" | bat -pPl "json"; }
+if ! command -v bat >/dev/null 2>&1; then
+    function bat { cat; }
+fi
 
 function rand { echo $((1 + RANDOM % ($1))); }
-
-function is {
-    if [ $# -gt 0 ]; then
-        is_output=$(conda run -n main python3 "$HOME/.dotfiles/scripts/is.py" $@)
-    fi
-
-    echo $is_output | bat -pPl 'json'
-}
 
 function tl {
     local url="https://helagro.se/tools/$1"
@@ -107,6 +99,41 @@ function repo {
     local url=$(git config --get remote.origin.url)
     local url=$(echo $url | sed 's/git@github.com:/https:\/\/github.com\//g')
     open $url
+}
+
+# ------------------------- TRACKING ------------------------- #
+
+function csv { conda run -n main python3 "$HOME/.dotfiles/scripts/jsons_to_csv.py" $@ | bat -pPl 'tsv'; }
+
+function sens { curl -sS "192.168.3.46:8004/$1" | bat -pPl "json"; }
+
+function slope {
+    local m="${1:-7}"
+
+    tac | awk -v m="$m" '{
+        y[NR]=$2;
+        x[NR]=NR
+    }
+    END {
+        n=NR;
+        sumx=sumy=sumxy=sumxx=0;
+        for (i=1;i<=n;i++) {
+        sumx+=x[i];
+        sumy+=y[i];
+        sumxy+=x[i]*y[i];
+        sumxx+=x[i]*x[i]
+        }
+        slope=(n*sumxy-sumx*sumy)/(n*sumxx-sumx^2);
+        print slope * m
+    }'
+}
+
+function is {
+    if [ $# -gt 0 ]; then
+        is_output=$(conda run -n main python3 "$HOME/.dotfiles/scripts/is.py" $@)
+    fi
+
+    echo $is_output | bat -pPl 'json'
 }
 
 # -------------------------- TODOIST ------------------------- #
