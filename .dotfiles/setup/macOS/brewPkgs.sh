@@ -11,6 +11,7 @@ brew install "gnupg" -q
 brew install "go" -q
 brew install "gradle" -q
 brew install "helm" -q
+brew install "jq" -q
 brew install "libqalculate" -q
 brew install "mecab" -q
 brew install "minikube" -q
