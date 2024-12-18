@@ -19,7 +19,7 @@ HEADERS = {'Authorization': f'Token {EXIST_TOKEN_READ}'}
 # ------------------------- PUBLIC FUNCTIONS ------------------------ #
 
 
-def main(attr: str, days: int, date_max_input: int | None) -> dict:
+def main(attr: str, days: int, date_max_input: int | None = None) -> dict:
 
     if _is_valid_date(date_max_input):
         date_max = datetime.strptime(date_max_input, '%Y-%m-%d')

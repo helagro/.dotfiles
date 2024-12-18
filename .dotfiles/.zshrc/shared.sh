@@ -130,7 +130,7 @@ function slope {
 
 function is {
     if [ $# -gt 0 ]; then
-        is_output=$(conda run -n main python3 "$HOME/.dotfiles/scripts/is.py" $@)
+        is_output=$(conda run -n main python3 "$HOME/.dotfiles/scripts/exist.py" $@)
     fi
 
     echo $is_output | bat -pPl 'json'
