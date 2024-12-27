@@ -4308,7 +4308,7 @@
 			<key>Terminal Type</key>
 			<string>xterm-256color</string>
 			<key>Title Components</key>
-			<integer>512</integer>
+			<integer>544</integer>
 			<key>Transparency</key>
 			<real>0.052809175531914894</real>
 			<key>Unlimited Scrollback</key>

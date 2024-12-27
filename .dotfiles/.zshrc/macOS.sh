@@ -1,13 +1,3 @@
-# -------------------------- SOURCE -------------------------- #
-
-if [ -f /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
-    source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-fi
-
-if [ -f /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]; then
-    source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-fi
-
 # ------------------------- OTHER ------------------------ #
 
 export PATH="/Users/h/Library/Python/3.9/bin:$PATH"
@@ -18,22 +8,39 @@ if command -v rbenv &>/dev/null; then
     eval "$(rbenv init -)"
 fi
 
+# -------------------------- SOURCE -------------------------- #
+
+if [[ -f "$(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; then
+    source "$(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+fi
+
+if [[ -f "$(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ]]; then
+    source "$(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+fi
+
 # ----------------------- OTHER ALIASES ---------------------- #
 
 alias vi="nvim"
 alias archive="$HOME/Documents/archiver-go/build/macOS"
 alias breake="nvim $doc/break-timer/.env"
+alias wifi="networksetup -setairportpower en0" # NOTE - on/off
 
 # ------------------------- OTHER FUNCTIONS ------------------------ #
 
 function theme {
-    osascript -e '
-        tell application "System Events"
+    local new_mode=$1
+
+    if [ -z "$new_mode" ]; then
+        new_mode='not dark mode'
+    fi
+
+    osascript -e "
+        tell application \"System Events\"
             tell appearance preferences
-                set dark mode to not dark mode
+                set dark mode to $new_mode
             end tell
         end tell
-    '
+    "
 }
 
 function on_tab {
@@ -108,18 +115,24 @@ function e {
     fi
 }
 
+# ---------------------- APPLE SHORTCUTS --------------------- #
+
+function short {
+    echo -n $2 | shortcuts run "$1"
+}
+
 function inv {
     if [[ $1 == "1" ]]; then
         1="on"
     fi
 
-    echo -n $1 | shortcuts run "Invert"
+    short invert $1
 }
 
 function day {
     local clipBoard=$(pbpaste)
 
-    shortcuts run "$1"
+    short day "$1"
     pbpaste
 
     echo && echo
@@ -131,19 +144,32 @@ function day {
 # -------------------------- ROUTINE ------------------------- #
 
 function dawn {
-    shortcuts run "dnd off"
+    local focus_mode=$1
+
+    if [ -z "$focus_mode" ]; then
+        focus_mode="off"
+    fi
+
+    short focus "$focus_mode"
+    short night_shift 0
+    short focus
+    theme 0
+    wifi on
+
     a dawn
-    day Tod
+    day tod
     ob dawn
+
+    tl streaks
     ob p
 }
 
 function eve {
     a eve
-    day Tom
+    day tom
     echo
 
-    echo temp: $(sens temp)
+    echo temp: $(sens temp 2>&1)
     echo "podd: $(is podd 1)"
     echo "tv_min: $(is tv_min 1)"
 
@@ -152,19 +178,22 @@ function eve {
 
     echo
     ob eve
-    shortcuts run "Sleep Focus"
+
+    short focus sleep
+    short night_shift 1
+    theme 1
 
     a "p_ett $(tdis | lines | tr -d '[:space:]') s"
 }
 
 # -------------------------- TIMING -------------------------- #
 
-function timer { echo $1 | shortcuts run "Timer"; }
+alias timer="short timer"
 
 function medd {
-    shortcuts run "dnd on"
+    short focus on
     sw $1 "medd"
-    shortcuts run "dnd off"
+    short focus off
 }
 
 function sw {

@@ -23,12 +23,12 @@ function colorize {
     }'
 }
 
-# if no input, defaults to #inbox
-if [ -z "$1" ]; then
+# defaults to Inbox if no previous project
+if [ -n "$1" ]; then
+    input=$(echo "$1" | sed 's/:/#/g')
+else
     input="#inbox"
 fi
-
-input=$(echo "$1" | sed 's/:/#/g')
 
 # if input contains a slash, list all tasks and grep instead
 if [[ "$1" == *"/"* ]]; then

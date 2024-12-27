@@ -105,7 +105,7 @@ function repo {
 
 function csv { conda run -n main python3 "$HOME/.dotfiles/scripts/jsons_to_csv.py" $@ | bat -pPl 'tsv'; }
 
-function sens { curl -sS "192.168.3.46:8004/$1" | bat -pPl "json"; }
+function sens { curl -sS --max-time 1 "192.168.3.46:8004/$1" | bat -pPl "json"; }
 
 function slope {
     local m="${1:-7}"
@@ -139,21 +139,59 @@ function is {
 # -------------------------- TODOIST ------------------------- #
 
 alias td="todoist"
-alias tdl="tdl.sh"
 alias tdi="tdl '(tod | od | p1)'"
 
 alias tdis='td s && tdi'
 alias tdls='td s && tdl'
 
+function tdcp {
+    if [ -n "$1" ]; then
+        last_todoist_project="$1"
+    fi
+
+    if [ "$2" = "s" ]; then
+        td s
+    fi
+
+    local id_list=($(tdl "$last_todoist_project" | peco | awk '{print $1}' ORS=' ' | sed 's/\x1b\[[0-9;]*m//g'))
+    tdc "${id_list[@]}"
+    echo "${id_list[@]}"
+}
+
+function tdup {
+    # ARGS: update, project?, s?
+
+    if [ -n "$2" ]; then
+        last_todoist_project="$2"
+    fi
+
+    if [ "$3" = "s" ]; then
+        td s
+    fi
+
+    local id_list=($(tdl "$last_todoist_project" | peco | awk '{print $1}' ORS=' ' | sed 's/\x1b\[[0-9;]*m//g'))
+    tdu "$last_todoist_project $1" "${id_list[@]}"
+    echo "${id_list[@]}"
+}
+
+function tdl {
+    if [ -n "$1" ]; then
+        last_todoist_project="$1"
+    fi
+
+    tdl.sh "$last_todoist_project"
+}
+
 function tdu {
-    local id=$1
+    local update=$1
     shift
-    local update="$@"
 
-    local content_line=$(td show $id | grep Content | cut -d' ' -f2-)
+    for id in "$@"; do
+        local content_line=$(td show $id | grep Content | cut -d' ' -f2-)
 
-    a "$content_line" "$update"
-    tdc $id
+        a "$content_line" "$update"
+        tdc $id
+    done
 }
 
 function tdc {
@@ -195,7 +233,14 @@ function a {
 
 function m_vared {
     line=""
-    vared -p "%B%F{red}-%f%b " line
+    local offline_amt=$(cat "$HOME/.dotfiles/tmp/a.txt" | wc -l | tr -d '[:space:]')
+
+    if [[ $offline_amt != '0' ]]; then
+        local padded_offline_amt=$(printf "%02d" $offline_amt)
+        vared -p "%B%F{red}($padded_offline_amt) -%f%b " line
+    else
+        vared -p "%B%F{red}-%f%b " line
+    fi
 }
 
 # ------------------------- OBSIDIAN ------------------------- #

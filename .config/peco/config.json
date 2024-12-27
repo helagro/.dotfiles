@@ -1,0 +1,17 @@
+{
+  "Style": {
+    "Basic": ["on_default", "default"],
+    "SavedSelection": ["bold", "on_yellow", "white"],
+    "Selected": ["underline", "on_cyan", "black"],
+    "Query": ["magenta", "bold"],
+    "Matched": ["magenta", "on_green"]
+  },
+  "Keymap": {
+    "C-t": "peco.ToggleRangeMode",
+    "C-j": "peco.SelectDown",
+    "C-k": "peco.SelectUp",
+    "C-l": "peco.ForwardChar",
+    "C-s": "peco.ToggleSelection",
+    "C-h": "peco.BackwardChar"
+  }
+}
