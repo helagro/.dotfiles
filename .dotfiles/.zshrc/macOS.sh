@@ -118,7 +118,12 @@ function e {
 # ---------------------- APPLE SHORTCUTS --------------------- #
 
 function short {
-    echo -n $2 | shortcuts run "$1"
+    echo "$2" | shortcuts run "$1"
+
+    if [[ $? -ne 0 ]]; then
+        echo "Failure when running: $1 $2"
+        return 1
+    fi
 }
 
 function inv {
@@ -162,6 +167,8 @@ function dawn {
 
     tl streaks
     ob p
+
+    later
 }
 
 function eve {
@@ -184,6 +191,11 @@ function eve {
     theme 1
 
     a "p_ett $(tdis | lines | tr -d '[:space:]') s"
+}
+
+function bedtime {
+    wifi off
+    ob bedtime
 }
 
 # -------------------------- TIMING -------------------------- #

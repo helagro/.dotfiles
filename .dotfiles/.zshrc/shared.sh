@@ -17,6 +17,7 @@ alias gpt4="aichat -s -m openai:gpt-4o"
 
 alias hm="python3 $HOME/.dotfiles/scripts/hm.py | bat -pPl 'json'"
 alias st="python3 $HOME/.dotfiles/scripts/st.py"
+alias later="python3 $HOME/.dotfiles/scripts/later.py"
 
 # ------------------ UNCATEGORISED FUNCTIONS ----------------- #
 
