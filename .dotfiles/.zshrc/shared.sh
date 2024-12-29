@@ -27,6 +27,31 @@ fi
 
 function rand { echo $((1 + RANDOM % ($1))); }
 
+function talk {
+    local text
+    read -r -d '' text
+
+    local chunk_size=4500
+    local text_length=${#text}
+    local start=1
+    local files=()
+    local file_name=""
+
+    while ((start <= text_length)); do
+        local chunk="${text[start - 1, start + chunk_size - 2]}"
+
+        file_name="$HOME/Desktop/$(cnt | tr -d '[:space:]').mp3"
+        echo "$chunk" | gosling - $file_name -r 1.2
+        files+=("$file_name")
+        ((start += chunk_size))
+    done
+
+    file_name="$HOME/Desktop/$(cnt | tr -d '[:space:]').mp3"
+    cat "${files[@]}" >"$file_name"
+    open $file_name
+    rm "${files[@]}"
+}
+
 function tl {
     local url="https://helagro.se/tools/$1"
     local content=$(curl -s "$url" -b "id=u3o8hiefo" -b "a75h=$A75H")
@@ -106,7 +131,7 @@ function repo {
 
 function csv { conda run -n main python3 "$HOME/.dotfiles/scripts/jsons_to_csv.py" $@ | bat -pPl 'tsv'; }
 
-function sens { curl -sS --max-time 1 "192.168.3.46:8004/$1" | bat -pPl "json"; }
+function sens { curl -sS --connect-timeout 2 "192.168.3.46:8004/$1" | bat -pPl "json"; }
 
 function slope {
     local m="${1:-7}"

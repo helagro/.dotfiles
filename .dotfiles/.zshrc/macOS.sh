@@ -55,31 +55,6 @@ function on_tab {
 
 }
 
-function talk {
-    local text
-    read -r -d '' text
-
-    local chunk_size=4500
-    local text_length=${#text}
-    local start=1
-    local files=()
-    local file_name=""
-
-    while ((start <= text_length)); do
-        local chunk="${text[start - 1, start + chunk_size - 2]}"
-
-        file_name="$HOME/Desktop/$(cnt | tr -d '[:space:]').mp3"
-        echo "$chunk" | gosling - $file_name -r 1.2
-        files+=("$file_name")
-        ((start += chunk_size))
-    done
-
-    file_name="$HOME/Desktop/$(cnt | tr -d '[:space:]').mp3"
-    cat "${files[@]}" >"$file_name"
-    open $file_name
-    rm "${files[@]}"
-}
-
 function pass {
     local passw=$(op item get "$@" --reveal --fields password)
     echo $passw
@@ -189,12 +164,16 @@ function eve {
     short focus sleep
     short night_shift 1
     theme 1
+    short phondo "flight mode"
 
     a "p_ett $(tdis | lines | tr -d '[:space:]') s"
 }
 
 function bedtime {
     wifi off
+    short focus sleep
+    short phondo "flight mode"
+
     ob bedtime
 }
 

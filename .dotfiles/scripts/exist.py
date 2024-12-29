@@ -7,8 +7,6 @@ import math
 
 # ------------------------- VARIABLES ------------------------ #
 
-URL = 'https://exist.io/api/2/attributes/values/'
-
 EXIST_TOKEN_READ = os.getenv("EXIST_TOKEN_READ")
 if EXIST_TOKEN_READ is None:
     print("EXIST_TOKEN environment variable not set.")
@@ -19,7 +17,26 @@ HEADERS = {'Authorization': f'Token {EXIST_TOKEN_READ}'}
 # ------------------------- PUBLIC FUNCTIONS ------------------------ #
 
 
-def main(attr: str, days: int, date_max_input: int | None = None) -> dict:
+def main() -> any:
+    args_len = len(sys.argv)
+
+    attr = sys.argv[1]
+
+    if args_len >= 3:
+        if sys.argv[2].isnumeric():
+            days = int(sys.argv[2])
+        elif sys.argv[2] in ['count', 'cnt', 'len']:
+            return count(attr)
+        elif sys.argv[2] in ['correlations', 'corr']:
+            return correlations(attr)
+    else:
+        days = 7
+
+    date_max_input = sys.argv[3] if args_len >= 4 else None
+    return values(attr, days, date_max_input)
+
+
+def values(attr: str, days: int, date_max_input: int | None = None) -> dict:
 
     if _is_valid_date(date_max_input):
         date_max = datetime.strptime(date_max_input, '%Y-%m-%d')
@@ -33,28 +50,78 @@ def main(attr: str, days: int, date_max_input: int | None = None) -> dict:
     iters = math.floor(days / 100)
 
     for _ in range(iters):
-        result.update(_fetch_attribute_values(attr, 100, date_max.strftime('%Y-%m-%d')))
+        results = _fetch_attribute_values(attr, 100, date_max.strftime('%Y-%m-%d'))['results']
+        result.update(results)
         date_max -= timedelta(days=100)
 
-    result.update(_fetch_attribute_values(attr, days % 100, date_max.strftime('%Y-%m-%d')))
+    results = _fetch_attribute_values(attr, days % 100, date_max.strftime('%Y-%m-%d'))['results']
+    result.update(results)
     return result
+
+
+def count(attr: str) -> int:
+    return _fetch_attribute_values(attr, None, None)['total_count']
+
+
+def correlations(attr: str) -> list:
+    results = _fetch_attribute_correlations(attr)
+    results = sorted(results, key=lambda x: x['value'], reverse=True)
+
+    keys = [
+        'attribute2',
+        'value',
+        'second_person',
+        'offset',
+        'stars',
+        'period',
+    ]
+
+    return [{key: d[key] for key in keys if key in d} for d in results]
 
 
 # ------------------------- PRIVATE FUNCTIONS ------------------------ #
 
 
-def _fetch_attribute_values(attr: str, days: int, date_max: str = None) -> dict:
+def _fetch_attribute_correlations(attr: str) -> list:
+    params = {
+        'attribute': attr,
+        'confident': True,
+    }
+    response = requests.get(f'https://exist.io/api/2/correlations/', params=params, headers=HEADERS)
+
+    if not response.ok:
+        print(f"Fetch failed with status code {response.status_code}")
+        print(response.text)
+        exit(1)
+
+    response_data = response.json()
+    results = response_data['results']
+
+    # Filters
+    results = [result for result in results if result['stars'] >= 4]
+    results = [result for result in results if result['attribute2'] != attr]
+    results = [result for result in results if result['attribute2'] != None]
+    return results
+
+
+def _fetch_attribute_values(attr: str, days: int | None, date_max: str = None) -> dict:
     if days == 0: return {}
 
     params = {'limit': days, 'date_max': date_max, 'attribute': attr}
-    response = requests.get(URL, params=params, headers=HEADERS)
+    response = requests.get('https://exist.io/api/2/attributes/values/', params=params, headers=HEADERS)
 
     if not response.ok:
         print(f"Fetch failed with status code {response.status_code}")
         exit(1)
 
     response_data = response.json()
-    return {value['date']: value['value'] for value in response_data['results']}
+    return {
+        'total_count': response_data['count'],
+        'results': {
+            value['date']: value['value']
+            for value in response_data['results']
+        }
+    }
 
 
 def _is_valid_date(date: str | None) -> bool:
@@ -76,11 +143,5 @@ def is_valid_int(value: str | None) -> bool:
 # --------------------------- START -------------------------- #
 
 if __name__ == "__main__":
-    args_len = len(sys.argv)
-
-    attr = sys.argv[1]
-    days = int(sys.argv[2]) if args_len >= 3 else 7
-    date_max_input = sys.argv[3] if args_len >= 4 else None
-
-    result = main(attr, days, date_max_input)
+    result = main()
     print(json.dumps(result, indent=2), end="")
