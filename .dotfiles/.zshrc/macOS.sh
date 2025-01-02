@@ -24,6 +24,7 @@ alias vi="nvim"
 alias archive="$HOME/Documents/archiver-go/build/macOS"
 alias breake="nvim $doc/break-timer/.env"
 alias wifi="networksetup -setairportpower en0" # NOTE - on/off
+alias is_dark='[[ $(defaults read -g AppleInterfaceStyle 2>/dev/null) == "Dark" ]]'
 
 # ------------------------- OTHER FUNCTIONS ------------------------ #
 
@@ -50,6 +51,12 @@ function on_tab {
     if [[ $role == "a" ]]; then
         a
     elif [[ $role == "ai" ]]; then
+        if is_dark; then
+            export AICHAT_LIGHT_THEME=0
+        else
+            export AICHAT_LIGHT_THEME=1
+        fi
+
         gpt4
     fi
 

@@ -13,10 +13,13 @@ waste="distracting_min"
 
 # ---------------------------- ZSH --------------------------- #
 
-ZSH_HIGHLIGHT_HIGHLIGHTERS+=(main regexp)
+ZSH_HIGHLIGHT_HIGHLIGHTERS+=(regexp main)
 
 typeset -A ZSH_HIGHLIGHT_REGEXP
-ZSH_HIGHLIGHT_REGEXP+=('\$[a-zA-Z_][a-zA-Z0-9_]*' fg=cyan)
+ZSH_HIGHLIGHT_REGEXP+=(
+    '\$[a-zA-Z_][a-zA-Z0-9_]*' fg=cyan
+    '[ \t]-*[0-9]+(\.[0-9]+)?([ \t]|$|\))' fg=blue
+)
 
 # ------------------------- UNCATEGORISED ALIASES ------------------------ #
 

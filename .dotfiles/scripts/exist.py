@@ -1,3 +1,14 @@
+'''
+# TODO:
+- Clean up
+- Export
+- Better error handling
+- Right way of paging for all methods
+- Help menu
+'''
+
+# -------------------------- IMPORTS ------------------------- #
+
 import requests
 import os
 import sys
@@ -22,6 +33,9 @@ def main() -> any:
 
     attr = sys.argv[1]
 
+    if attr in ['l', 'list']:
+        return sorted(list_attributes())
+
     if args_len >= 3:
         if sys.argv[2].isnumeric():
             days = int(sys.argv[2])
@@ -34,6 +48,31 @@ def main() -> any:
 
     date_max_input = sys.argv[3] if args_len >= 4 else None
     return values(attr, days, date_max_input)
+
+
+# ------------------------- ABILITIES ------------------------ #
+
+
+def list_attributes(results=[], url='https://exist.io/api/2/attributes/') -> list:
+    params = {
+        'limit': 100,
+    }
+
+    response = requests.get(url, params=params, headers=HEADERS)
+
+    if not response.ok:
+        print(f"Fetch failed with status code {response.status_code}")
+        exit(1)
+
+    response_data = response.json()
+    results = response_data['results']
+    names = [result['name'] for result in results]
+
+    next = response_data['next']
+    if next is not None:
+        names += list_attributes(results, next)
+
+    return names
 
 
 def values(attr: str, days: int, date_max_input: int | None = None) -> dict:
@@ -70,7 +109,7 @@ def count(attr: str) -> int:
     return _fetch_attribute_values(attr, None, None)['total_count']
 
 
-def correlations(attr: str) -> list:
+def correlations(attr: str) -> list_attributes:
     results = _fetch_attribute_correlations(attr)
     results = sorted(results, key=lambda x: x['value'], reverse=True)
 
@@ -89,7 +128,7 @@ def correlations(attr: str) -> list:
 # ------------------------- PRIVATE FUNCTIONS ------------------------ #
 
 
-def _fetch_attribute_correlations(attr: str) -> list:
+def _fetch_attribute_correlations(attr: str) -> list_attributes:
     params = {
         'attribute': attr,
         'confident': True,
