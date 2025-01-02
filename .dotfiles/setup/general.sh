@@ -12,7 +12,7 @@ git config --global core.excludesFile "$HOME/.gitignore"
 yadm -C $HOME/.dotfiles remote set-url origin git@github.com:helagro/.dotfiles.git
 mkdir -p Developer
 zstyle ':omz:update' mode disabled
-conda env create -f $HOME/.dotfiles/environment.yml
+conda env create -f $HOME/.dotfiles/config/environment.yml
 
 # ----------------- ADDS MY ZSH CONFIGURATION ----------------- #
 
@@ -21,9 +21,19 @@ addIfMissing 'source "$HOME/.dotfiles/.zshrc/router.sh"'
 # ----------------------- ADDS OH MY ZSH ---------------------- #
 
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
-    git clone https://github.com/helagro/ohmyzsh.git $HOME/.oh-my-zsh
-    git -C $HOME/.oh-my-zsh remote set-url origin git@github.com:helagro/ohmyzsh.git
+    (
+        export CHSH=no KEEP_ZSHRC=yes
+        sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+    )
 fi
+
+echo "Waiting for Oh My Zsh to install..."
+sleep 10
+
+rm -rf $HOME/.oh-my-zsh/custom/*
+cp -r $HOME/.dotfiles/config/ohmyzsh/* $HOME/.oh-my-zsh/custom/
 
 addIfMissing 'export ZSH="$HOME/.oh-my-zsh"'
 addIfMissing 'source "$ZSH/oh-my-zsh.sh"'
+
+exec zsh
