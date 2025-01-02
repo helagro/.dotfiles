@@ -1,3 +1,6 @@
-my_array=("apple" "banana" "cherry")
-joined_string="${(j:,:)my_array}"
-echo "$joined_string"
+if [[ ! " $@ " == *" -c "* ]]; then
+    echo "Arguments do not contain -c. Doing something..."
+    # Add your actions here
+else
+    echo "Arguments contain -c."
+fi

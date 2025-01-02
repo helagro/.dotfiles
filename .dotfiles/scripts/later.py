@@ -25,11 +25,7 @@ def run_later():
 def handle_line(line):
     action = input(f'"{line}" :', )
     if action == 'y':
-        subprocess.run(["zsh", "-c", f"source ~/.zshrc && {line}"],
-                       stdout=sys.stdout,
-                       stderr=sys.stderr,
-                       text=True,
-                       shell=False)
+        subprocess.run(["zsh", "-i", "-c", f"{line}"], stdout=sys.stdout, stderr=sys.stderr, text=True, shell=False)
     elif action == 'n':
         return
     elif action == 'q':

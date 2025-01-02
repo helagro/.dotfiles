@@ -49,14 +49,21 @@ def values(attr: str, days: int, date_max_input: int | None = None) -> dict:
     result = {}
     iters = math.floor(days / 100)
 
-    for _ in range(iters):
-        results = _fetch_attribute_values(attr, 100, date_max.strftime('%Y-%m-%d'))['results']
-        result.update(results)
-        date_max -= timedelta(days=100)
+    try:
+        for _ in range(iters):
+            returned = _fetch_attribute_values(attr, 100, date_max.strftime('%Y-%m-%d'))
+            result.update(returned['results'])
+            date_max -= timedelta(days=100)
 
-    results = _fetch_attribute_values(attr, days % 100, date_max.strftime('%Y-%m-%d'))['results']
-    result.update(results)
-    return result
+        if days % 100 != 0:
+            returned = _fetch_attribute_values(attr, days % 100, date_max.strftime('%Y-%m-%d'))
+            result.update(returned['results'])
+
+        return result
+    except KeyError as e:
+        print(f"KeyError: {e}")
+        print(returned)
+        exit(1)
 
 
 def count(attr: str) -> int:

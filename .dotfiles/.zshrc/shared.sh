@@ -1,4 +1,6 @@
 # ------------------------- VARIABLES ------------------------ #
+export GPG_TTY=$(tty)
+export PATH="$HOME/.dotfiles/scripts/path:$PATH"
 
 doc="$HOME/Documents"
 dev="$HOME/Developer"
@@ -6,14 +8,15 @@ vault="$HOME/vault"
 DISABLE_AUTO_UPDATE="true"
 
 export DISABLED_TD_APP_ITEMS="---,ob," # Items must end with a comma, even last one
-export GPG_TTY=$(tty)
-export PATH="$HOME/.dotfiles/scripts/path:$PATH"
+
+waste="distracting_min"
 
 # ------------------------- UNCATEGORISED ALIASES ------------------------ #
 
 alias c="qalc"
 alias lines="grep -v '^$' | wc -l"
 alias gpt4="aichat -s -m openai:gpt-4o"
+alias year_day="date +%j"
 
 alias hm="python3 $HOME/.dotfiles/scripts/hm.py | bat -pPl 'json'"
 alias st="python3 $HOME/.dotfiles/scripts/st.py"
@@ -25,7 +28,16 @@ if ! command -v bat >/dev/null 2>&1; then
     function bat { cat; }
 fi
 
-function rand { echo $((1 + RANDOM % ($1))); }
+function rand {
+    local result=$((1 + RANDOM % ($1)))
+    echo $result
+
+    if [[ result -eq 1 ]]; then
+        return 0
+    else
+        return 1
+    fi
+}
 
 function talk {
     local text
@@ -157,9 +169,14 @@ function slope {
 function is {
     if [ $# -gt 0 ]; then
         is_output=$(conda run -n main python3 "$HOME/.dotfiles/scripts/exist.py" $@)
+        local code=$?
     fi
 
-    echo $is_output | bat -pPl 'json'
+    echo $is_output | bat -pl 'json'
+
+    if [ -n "$code" ]; then
+        return $code
+    fi
 }
 
 # -------------------------- TODOIST ------------------------- #

@@ -151,12 +151,14 @@ function eve {
     day tom
     echo
 
-    echo temp: $(sens temp 2>&1)
-    echo "podd: $(is podd 1)"
-    echo "tv_min: $(is tv_min 1)"
+    echo -n temp:
+    sens temp
+    echo "podd:"
+    is podd 1
+    echo "tv_min:"
+    is tv_min 1
 
     tl hb
-    echo
 
     echo
     ob eve
@@ -164,16 +166,30 @@ function eve {
     short focus sleep
     short night_shift 1
     theme 1
-    short phondo "flight mode"
 
     a "p_ett $(tdis | lines | tr -d '[:space:]') s"
+
+    if [[ ! " $@ " == *" -l "* ]]; then
+        sleep 1
+        short phondo "flight mode"
+    else
+        echo "-l SO no phone flight mode"
+    fi
+
 }
 
 function bedtime {
-    wifi off
-    short focus sleep
-    short phondo "flight mode"
+    sens temp
 
+    if [[ ! " $@ " == *" -l "* ]]; then
+        wifi off
+        short phondo "flight mode"
+    else
+        echo "-l SO not turning off wifi"
+        echo "-l so no phone flight mode"
+    fi
+
+    short focus sleep
     ob bedtime
 }
 
