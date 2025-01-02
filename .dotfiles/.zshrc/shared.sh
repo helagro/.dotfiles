@@ -11,6 +11,13 @@ export DISABLED_TD_APP_ITEMS="---,ob," # Items must end with a comma, even last 
 
 waste="distracting_min"
 
+# ---------------------------- ZSH --------------------------- #
+
+ZSH_HIGHLIGHT_HIGHLIGHTERS+=(main regexp)
+
+typeset -A ZSH_HIGHLIGHT_REGEXP
+ZSH_HIGHLIGHT_REGEXP+=('\$[a-zA-Z_][a-zA-Z0-9_]*' fg=cyan)
+
 # ------------------------- UNCATEGORISED ALIASES ------------------------ #
 
 alias c="qalc"
