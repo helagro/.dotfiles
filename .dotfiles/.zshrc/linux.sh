@@ -1,1 +1,1 @@
-alias vsrc="source $HOME/Developer/ent-tracker/.venv/bin/activate"
+alias vsrc="source $HOME/Developer/env-tracker/.venv/bin/activate"
