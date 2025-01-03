@@ -49,6 +49,14 @@ function on_tab {
     clr
 
     if [[ $role == "a" ]]; then
+        ZSH_HIGHLIGHT_REGEXP+=(
+            '#[a-z0-9]+[a-zA-Z0-9]*' fg=green,bold
+            'p3' fg=yellow,underline
+            'p1' fg=red,bold
+            '\*\*.+\*\*' fg=red,bold
+            '(?<!\*)\*[^*]+\*(?!\*)' fg=yellow,underline
+        )
+
         a
     elif [[ $role == "ai" ]]; then
         if is_dark; then

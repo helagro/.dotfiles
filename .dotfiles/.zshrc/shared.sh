@@ -20,7 +20,6 @@ typeset -A ZSH_HIGHLIGHT_REGEXP
 ZSH_HIGHLIGHT_REGEXP+=(
     '\$[a-zA-Z_][a-zA-Z0-9_]*' fg=cyan
     '[ \t]-*[0-9]+(\.[0-9]+)*(?=([ \t]|$|\)))' fg=blue
-    '#[a-z0-9]+[a-zA-Z0-9]*' fg=magenta
 )
 
 # ------------------------- UNCATEGORISED ALIASES ------------------------ #
@@ -29,6 +28,7 @@ alias c="qalc"
 alias lines="grep -v '^$' | wc -l"
 alias gpt4="aichat -s -m openai:gpt-4o"
 alias year_day="date +%j"
+alias rand="rand.sh"
 
 alias hm="python3 $HOME/.dotfiles/scripts/hm.py | bat -pPl 'json'"
 alias st="python3 $HOME/.dotfiles/scripts/st.py"
@@ -260,11 +260,24 @@ function a {
 
             # Ask for lines until 'q' is entered
             while [[ $line != 'q' ]]; do
-                line=$(echo "$line" | tr -d '\\')
-                local expanded_line=$(eval echo "$line")
-                a "$expanded_line"
+                echo $line >>"$HOME/.dotfiles/logs/a_raw.log"
+                local escaped=$(echo "$line" | sed -E \
+                    -e "s/'/\\'/g" \
+                    -e 's/`/\\`/g' \
+                    -e 's/"/\\"/g')
+                local expanded_line=$(eval echo \"$escaped\" | tr -d '\\')
+
+                if [[ "$expanded_line" == "$line" ]]; then
+                    did_expand_a=false
+                else
+                    did_expand_a=true
+                fi
+
+                (nohup a.sh "$expanded_line" >>$HOME/.dotfiles/logs/a.log 2>&1 &)
                 m_vared
             done
+
+            echo "quit"
 
         # If piped
         else
@@ -285,13 +298,20 @@ function a {
 function m_vared {
     line=""
     local offline_amt=$(cat "$HOME/.dotfiles/tmp/a.txt" | wc -l | tr -d '[:space:]')
+    local sign="-"
+
+    if [[ $did_expand_a == true ]]; then
+        sign="!"
+    fi
 
     if [[ $offline_amt != '0' ]]; then
         local padded_offline_amt=$(printf "%02d" $offline_amt)
-        vared -p "%B%F{red}($padded_offline_amt) -%f%b " line
+        vared -p "%B%F{red}($padded_offline_amt) $sign%f%b " line
     else
-        vared -p "%B%F{red}-%f%b " line
+        vared -p "%B%F{red}$sign%f%b " line
     fi
+
+    line=$(echo "$line" | tr -d '\\')
 }
 
 # ------------------------- OBSIDIAN ------------------------- #
