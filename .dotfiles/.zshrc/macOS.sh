@@ -131,16 +131,34 @@ function day {
 # -------------------------- ROUTINE ------------------------- #
 
 function dawn {
-    local focus_mode=$1
+    local focus_mode="off"
+    local theme=0
 
-    if [ -z "$focus_mode" ]; then
-        focus_mode="off"
-    fi
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+        -f | --focus)
+            focus_mode="$2"
+            shift 2
+            ;;
+        -t | --theme)
+            theme="$2"
+            shift 2
+            ;;
+        -h | --help)
+            echo "Usage: dawn [-f <focus_mode>] [-t <theme>]"
+            return 0
+            ;;
+        *)
+            echo "Unknown option: $1"
+            exit 1
+            ;;
+        esac
+    done
 
     short focus "$focus_mode"
     short night_shift 0
     short focus
-    theme 0
+    theme $theme
     wifi on
 
     a dawn
@@ -177,7 +195,7 @@ function eve {
     a "p_ett $(tdis | lines | tr -d '[:space:]') s"
 
     if [[ ! " $@ " == *" -l "* ]]; then
-        sleep 1
+        sleep 3
         short phondo "flight mode"
     else
         echo "-l SO no phone flight mode"
@@ -205,9 +223,15 @@ function bedtime {
 alias timer="short timer"
 
 function medd {
-    short focus on
+    if [[ ! $2 == "-l" ]]; then
+        short focus on
+    fi
+
     sw $1 "medd"
-    short focus off
+
+    if [[ ! $2 == "-l" ]]; then
+        short focus off
+    fi
 }
 
 function sw {

@@ -19,5 +19,6 @@ fi
 if [[ -n "$ZSH_HIGHLIGHT_STYLES" ]]; then
     ZSH_HIGHLIGHT_STYLES+=(
         single-hyphen-option 'fg=red'
+        double-hyphen-option 'fg=red'
     )
 fi
