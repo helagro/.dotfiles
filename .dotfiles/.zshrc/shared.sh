@@ -15,10 +15,12 @@ waste="distracting_min"
 
 ZSH_HIGHLIGHT_HIGHLIGHTERS+=(regexp main)
 
+setopt RE_MATCH_PCRE
 typeset -A ZSH_HIGHLIGHT_REGEXP
 ZSH_HIGHLIGHT_REGEXP+=(
     '\$[a-zA-Z_][a-zA-Z0-9_]*' fg=cyan
-    '[ \t]-*[0-9]+(\.[0-9]+)?([ \t]|$|\))' fg=blue
+    '[ \t]-*[0-9]+(\.[0-9]+)*(?=([ \t]|$|\)))' fg=blue
+    '#[a-z0-9]+[a-zA-Z0-9]*' fg=magenta
 )
 
 # ------------------------- UNCATEGORISED ALIASES ------------------------ #
@@ -37,17 +39,6 @@ alias later="python3 $HOME/.dotfiles/scripts/later.py"
 if ! command -v bat >/dev/null 2>&1; then
     function bat { cat; }
 fi
-
-function rand {
-    local result=$((1 + RANDOM % ($1)))
-    echo $result
-
-    if [[ result -eq 1 ]]; then
-        return 0
-    else
-        return 1
-    fi
-}
 
 function talk {
     local text
@@ -270,7 +261,8 @@ function a {
             # Ask for lines until 'q' is entered
             while [[ $line != 'q' ]]; do
                 line=$(echo "$line" | tr -d '\\')
-                a "$line"
+                local expanded_line=$(eval echo "$line")
+                a "$expanded_line"
                 m_vared
             done
 
