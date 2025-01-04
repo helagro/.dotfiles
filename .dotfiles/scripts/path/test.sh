@@ -1,6 +1,4 @@
-if [[ ! " $@ " == *" -c "* ]]; then
-    echo "Arguments do not contain -c. Doing something..."
-    # Add your actions here
-else
-    echo "Arguments contain -c."
-fi
+vault="$HOME/vaudlt"
+(! command -v ob.sh >/dev/null 2>&1 || [ ! -e "$vault" ]) && exit 1
+
+echo fine

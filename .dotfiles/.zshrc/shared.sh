@@ -5,7 +5,7 @@ export PATH="$HOME/.dotfiles/scripts/path:$PATH"
 doc="$HOME/Documents"
 dev="$HOME/Developer"
 vault="$HOME/vault"
-DISABLE_AUTO_UPDATE="true"
+my_scripts="$HOME/.dotfiles/scripts"
 
 export DISABLED_TD_APP_ITEMS="---,ob," # Items must end with a comma, even last one
 
@@ -28,7 +28,9 @@ alias c="qalc"
 alias lines="grep -v '^$' | wc -l"
 alias gpt4="aichat -s -m openai:gpt-4o"
 alias year_day="date +%j"
+
 alias rand="rand.sh"
+alias ob="ob.sh"
 
 alias hm="python3 $HOME/.dotfiles/scripts/hm.py | bat -pPl 'json'"
 alias st="python3 $HOME/.dotfiles/scripts/st.py"
@@ -306,9 +308,9 @@ function m_vared {
 
     if [[ $offline_amt != '0' ]]; then
         local padded_offline_amt=$(printf "%02d" $offline_amt)
-        vared -p "%B%F{red}($padded_offline_amt) $sign%f%b " line
+        vared -p "%B%F{yellow}($padded_offline_amt) $sign%f%b " line
     else
-        vared -p "%B%F{red}$sign%f%b " line
+        vared -p "%B%F{yellow}$sign%f%b " line
     fi
 
     line=$(echo "$line" | tr -d '\\')
@@ -331,16 +333,6 @@ function do_now {
         echo $content | tac | awk '/---/ {found = 1; next} found' >"$file_name"
         echo "---" >>"$file_name"
     fi
-}
-
-function ob {
-    bat -P "$vault/i/$*.md" 2>/dev/null
-    bat -P "$vault/p/$*.md" 2>/dev/null
-    bat -P "$vault/tmp/$*.md" 2>/dev/null
-    bat -P "$vault/_/log/$*.md" 2>/dev/null
-    bat -P "$vault/$*.md" 2>/dev/null
-
-    a ob
 }
 
 function randote {

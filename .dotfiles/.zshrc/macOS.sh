@@ -49,13 +49,17 @@ function on_tab {
     clr
 
     if [[ $role == "a" ]]; then
-        ZSH_HIGHLIGHT_REGEXP+=(
-            '#[a-z0-9]+[a-zA-Z0-9]*' fg=green,bold
-            'p3' fg=yellow,underline
-            'p1' fg=red,bold
-            '\*\*.+\*\*' fg=red,bold
-            '(?<!\*)\*[^*]+\*(?!\*)' fg=yellow,underline
-        )
+        if [[ -z "$has_setup_highlight" ]]; then
+            has_setup_highlight=1
+            ZSH_HIGHLIGHT_REGEXP+=(
+                '#[a-z0-9]+[a-zA-Z0-9]*' fg=green,bold
+                'p3' fg=magenta,underline
+                'p1' fg=red,bold
+                '\*\*.+\*\*' fg=red,bold
+                '(?<!\*)\*[^*]+\*(?!\*)' fg=magenta,underline
+                ';' fg=yellow,bold
+            )
+        fi
 
         a
     elif [[ $role == "ai" ]]; then
@@ -169,7 +173,7 @@ function dawn {
     theme $theme
     wifi on
 
-    a dawn
+    a "dawn #u"
     day tod
     ob dawn
 
@@ -180,7 +184,7 @@ function dawn {
 }
 
 function eve {
-    a eve
+    a "eve #u"
     day tom
     echo
 
@@ -200,7 +204,7 @@ function eve {
     short night_shift 1
     theme 1
 
-    a "p_ett $(tdis | lines | tr -d '[:space:]') s"
+    a "p_ett $(tdis | lines | tr -d '[:space:]') s #u"
 
     if [[ ! " $@ " == *" -l "* ]]; then
         sleep 3
@@ -255,6 +259,6 @@ function sw {
     local min=$((($end_time - $start_time) / 60))
 
     if [ -n "$2" ] && [ "$min" -ne 0 ]; then
-        a "$2 $min"
+        a "$2 $min #u"
     fi
 }

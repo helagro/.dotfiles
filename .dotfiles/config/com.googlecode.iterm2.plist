@@ -424,13 +424,13 @@
 				<key>Alpha Component</key>
 				<real>1</real>
 				<key>Blue Component</key>
-				<real>0.75728386640548706</real>
+				<real>0.89353024959564209</real>
 				<key>Color Space</key>
 				<string>P3</string>
 				<key>Green Component</key>
-				<real>0.2433738112449646</real>
+				<real>0.16916045546531677</real>
 				<key>Red Component</key>
-				<real>0.72764462232589722</real>
+				<real>0.7988547682762146</real>
 			</dict>
 			<key>Ansi 5 Color (Dark)</key>
 			<dict>
@@ -447,12 +447,16 @@
 			</dict>
 			<key>Ansi 5 Color (Light)</key>
 			<dict>
+				<key>Alpha Component</key>
+				<real>1</real>
 				<key>Blue Component</key>
-				<real>0.73333334922790527</real>
+				<real>0.89353024959564209</real>
+				<key>Color Space</key>
+				<string>P3</string>
 				<key>Green Component</key>
-				<real>0.0</real>
+				<real>0.16916045546531677</real>
 				<key>Red Component</key>
-				<real>0.73333334922790527</real>
+				<real>0.7988547682762146</real>
 			</dict>
 			<key>Ansi 6 Color</key>
 			<dict>
@@ -2754,12 +2758,16 @@
 			</dict>
 			<key>Ansi 5 Color (Light)</key>
 			<dict>
+				<key>Alpha Component</key>
+				<real>1</real>
 				<key>Blue Component</key>
-				<real>0.73333334922790527</real>
+				<real>0.89353024959564209</real>
+				<key>Color Space</key>
+				<string>P3</string>
 				<key>Green Component</key>
-				<real>0.0</real>
+				<real>0.16916045546531677</real>
 				<key>Red Component</key>
-				<real>0.73333334922790527</real>
+				<real>0.7988547682762146</real>
 			</dict>
 			<key>Ansi 6 Color</key>
 			<dict>
@@ -8546,7 +8554,7 @@
 	<key>findMode_iTerm</key>
 	<integer>0</integer>
 	<key>kCPKSelectionViewPreferredModeKey</key>
-	<integer>1</integer>
+	<integer>2</integer>
 	<key>kCPKSelectionViewShowHSBTextFieldsKey</key>
 	<true/>
 </dict>
