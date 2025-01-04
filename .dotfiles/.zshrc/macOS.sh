@@ -58,6 +58,7 @@ function on_tab {
                 '\*\*.+\*\*' fg=red,bold
                 '(?<!\*)\*[^*]+\*(?!\*)' fg=magenta,underline
                 ';' fg=yellow,bold
+                '@\w+' fg=blue
             )
         fi
 
@@ -178,16 +179,23 @@ function dawn {
     ob dawn
 
     tl streaks
+    ob rule
     ob p
+    ob b
 
     later
 }
 
 function eve {
+    # Silent tasks
     a "eve #u"
+    echo "" >$vault/p/rule.md
+    echo "" >$vault/p/p.md
+
     day tom
     echo
 
+    # Show stats
     echo -n temp:
     sens temp
     echo "podd:"
@@ -247,6 +255,11 @@ function medd {
 }
 
 function sw {
+    if [[ $1 == "help" ]]; then
+        echo "Usage: sw <duration> <activity>"
+        return 0
+    fi
+
     local start_time=$(date +%s)
 
     caffeinate -disu -i $doc/stopwatch/main "$1"

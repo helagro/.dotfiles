@@ -34,7 +34,9 @@ def main() -> any:
     attr = sys.argv[1]
 
     if attr in ['l', 'list']:
-        return sorted(list_attributes())
+        groups = sys.argv[2] if args_len >= 3 else ''
+
+        return sorted(list_attributes(groups=groups))
 
     if args_len >= 3:
         if sys.argv[2].isnumeric():
@@ -53,9 +55,10 @@ def main() -> any:
 # ------------------------- ABILITIES ------------------------ #
 
 
-def list_attributes(results=[], url='https://exist.io/api/2/attributes/') -> list:
+def list_attributes(results=[], url='https://exist.io/api/2/attributes/', groups='') -> list:
     params = {
         'limit': 100,
+        'groups': groups,
     }
 
     response = requests.get(url, params=params, headers=HEADERS)
@@ -66,11 +69,12 @@ def list_attributes(results=[], url='https://exist.io/api/2/attributes/') -> lis
 
     response_data = response.json()
     results = response_data['results']
+
     names = [result['name'] for result in results]
 
     next = response_data['next']
     if next is not None:
-        names += list_attributes(results, next)
+        names += list_attributes(results, next, groups)
 
     return names
 

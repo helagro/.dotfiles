@@ -19,7 +19,7 @@ function process {
     (
         process_local "$1" ||
             process_server "$1" ||
-            todoist q "$1" 2>/dev/null
+            process_todoist_cli "$1"
     ) && return 0
 
     echo "$1" >>"$file_path"
@@ -48,9 +48,14 @@ function process_server {
 
     local resCode=$(curl -s -b "a75h=$A75H" -o /dev/null -w "%{http_code}" -X POST -d "$1" $TDA_URL)
 
-    if [ "$resCode" -eq 200 ]; then
-        return 0
-    fi
+    return $((resCode != 200))
+}
+
+function process_todoist_cli {
+    # return 1 # Disable todoist cli processing
+
+    todoist q "$1" 2>/dev/null
+    return $?
 }
 
 # --------------------------- UPLOAD -------------------------- #

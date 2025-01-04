@@ -27,7 +27,6 @@ ZSH_HIGHLIGHT_REGEXP+=(
 alias c="qalc"
 alias lines="grep -v '^$' | wc -l"
 alias gpt4="aichat -s -m openai:gpt-4o"
-alias year_day="date +%j"
 
 alias rand="rand.sh"
 alias ob="ob.sh"
@@ -41,6 +40,17 @@ alias later="python3 $HOME/.dotfiles/scripts/later.py"
 if ! command -v bat >/dev/null 2>&1; then
     function bat { cat; }
 fi
+
+function year_day {
+    local this_year_day=$(date +%j)
+
+    if [ -z "$1" ]; then
+        echo $this_year_day
+    else
+        echo $((this_year_day + $1 * 365))
+    fi
+
+}
 
 function talk {
     local text
