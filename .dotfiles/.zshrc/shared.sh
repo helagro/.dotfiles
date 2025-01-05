@@ -18,7 +18,7 @@ ZSH_HIGHLIGHT_HIGHLIGHTERS+=(regexp main)
 setopt RE_MATCH_PCRE
 typeset -A ZSH_HIGHLIGHT_REGEXP
 ZSH_HIGHLIGHT_REGEXP+=(
-    '\$[a-zA-Z_][a-zA-Z0-9_]*' fg=cyan
+    '\$[a-zA-Z0-9_][a-zA-Z0-9_]*' fg=cyan
     '[ \t]-*[0-9]+(\.[0-9]+)*(?=([ \t]|$|\)))' fg=blue
 )
 
@@ -201,6 +201,7 @@ function is {
 # -------------------------- TODOIST ------------------------- #
 
 alias td="todoist"
+alias tdl="tdl.sh"
 alias tdi="tdl '(tod | od | p1)'"
 
 alias tdis='td s && tdi'
@@ -234,14 +235,6 @@ function tdup {
     local id_list=($(tdl "$last_todoist_project" | peco | awk '{print $1}' ORS=' ' | sed 's/\x1b\[[0-9;]*m//g'))
     tdu "$last_todoist_project $1" "${id_list[@]}"
     echo "${id_list[@]}"
-}
-
-function tdl {
-    if [ -n "$1" ]; then
-        last_todoist_project="$1"
-    fi
-
-    tdl.sh "$last_todoist_project"
 }
 
 function tdu {

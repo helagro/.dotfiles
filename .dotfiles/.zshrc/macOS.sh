@@ -59,6 +59,7 @@ function on_tab {
                 '(?<!\*)\*[^*]+\*(?!\*)' fg=magenta,underline
                 ';' fg=yellow,bold
                 '@\w+' fg=blue
+                '\$\(.*\)' fg=cyan
             )
         fi
 

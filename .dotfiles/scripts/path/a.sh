@@ -43,7 +43,7 @@ function process_local {
     local escaped_input=$(echo "$1" | sed 's/#/\\#/g')
 
     if ob.sh "${tag#?}" >/dev/null 2>&1; then
-        echo "$escaped_input" >>"$vault/local/in.md"
+        echo "$escaped_input" >>"$vault/_/local/in.md"
         return 0
     else
         return 1

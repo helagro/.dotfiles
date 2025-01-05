@@ -12,19 +12,51 @@ NORMAL='\033[0;39m'
 
 # --------------------------- SETUP -------------------------- #
 
-source $HOME/.dotfiles/.zshrc/shared.sh
-td s
+if [[ -t 0 ]]; then # Run from terminal
+    
+    # Choose project
+    project="#inbox"
+    if [ -n "$1" ]; then
+        project="$1"
+    fi
+    echo "Using project $project"
 
-td l -f "$project" >$HOME/.dotfiles/logs/inbox.log # For logging
+    todoist s
+    task_string=$(todoist l -f "$project")
 
-# Choose project
-project="#inbox"
-if [ -n "$1" ]; then
-    project="$1"
+else # Read from pipe
+
+    # Reads from stdin, ignoring ansii codes
+    task_string=$(cat | sed -E 's/\x1B\[[0-9;]*[a-zA-Z]//g')
 fi
-echo "$project"
+
+readonly task_string
 
 # ------------------------- FUNCTIONS ------------------------ #
+
+function menu {
+    # Take input
+    printf "\033[33m($(printf "%02d" $amt_left))\033[0m $(echo "$line" | sed 's/%/%%/g' | colorize) \033[33m-:\033[0m"
+    local input="$1"
+    read action </dev/tty
+
+    # IFs through actions
+    if [[ "$action" == "d" ]]; then
+        local id=$(echo "$1" | grep -o '^[0-9]*')
+        (nohup todoist c "$id" >/dev/null 2>&1 &)
+    elif [[ "$action" == "u" ]]; then
+        do_update "$(echo "$input" | sed 's/#\([A-Za-z0-9/]*\)//' | sed 's/p4//')"
+    elif [[ "$action" == "m" ]]; then
+        do_update "$input"
+    elif [[ "$action" == "q" ]]; then
+        exit 0
+    elif [[ "$action" == "s" || "$action" == "n" ]]; then
+        return
+    else
+        echo "(d)elete, (u)pdate, (m)modify, (s)kip, (q)uit"
+        menu "$input" # NOTE - recursion
+    fi
+}
 
 function colorize {
     awk -v blue="$BLUE" -v red="$RED" -v normal="$NORMAL" -v reset="$RESET" -v yellow="$YELLOW" -v green="$GREEN" '
@@ -36,38 +68,13 @@ function colorize {
     }'
 }
 
-function menu {
-    printf "$(echo "$line" | colorize) -:"
-
-    # Take input
-    local input="$1"
-    read action </dev/tty
-
-    # IFs through actions
-    if [[ "$action" == "d" ]]; then
-        local id=$(echo "$1" | grep -o '^[0-9]*')
-        tdc "$id"
-    elif [[ "$action" == "u" ]]; then
-        do_update "$(echo "$input" | sed 's/#\([A-Za-z0-9/]*\)//' | sed 's/p4//')"
-    elif [[ "$action" == "m" ]]; then
-        do_update "$input"
-    elif [[ "$action" == "q" ]]; then
-        exit 0
-    elif [[ "$action" == "s" ]]; then
-        continue
-    else
-        echo "(d)elete, (u)pdate, (m)modify, (s)kip, (q)uit"
-        menu "$input" # NOTE - recursion
-    fi
-}
-
 function do_update {
 
     # Parse parts
     local id=$(echo "$1" | grep -o '^[0-9]*')
-    item=$(echo "$1" | sed 's/^[0-9]*//' | tr -s '[:space:]' ' ')
+    item=$(echo "$1" | tr -s '[:space:]' ' ' | sed 's/^[0-9]*\ //')
 
-    vared item </dev/tty
+    vared -p " " item </dev/tty
 
     if [ -n "$item" ]; then
         # Very neccessary, some runaway otherwise
@@ -75,15 +82,21 @@ function do_update {
 
         (nohup a.sh "$item_copy" >>$HOME/.dotfiles/logs/a.log 2>&1 &)
         item_copy=""
-        tdc "$id"
+        (nohup todoist c "$id" >/dev/null 2>&1 &)
     else
         echo "WARN - empty item, ignoring"
     fi
 }
 
+# --------------------------- RUN -------------------------- #
+
+amt_left=$(echo "$task_string" | wc -l | tr -d '[:space:]')
+tasks=("${(f)task_string}")
+
 IFS=$'\n'
-for line in $(td l -f "$project"); do
+for line in "${tasks[@]}"; do
     menu "$line"
+    amt_left=$((amt_left - 1))
 done
 
-echo "You've reached inbox zero!"
+echo "\nYou've reached inbox zero!"

@@ -1,3 +1,5 @@
+# ------------------------- VARIABLES ------------------------ #
+
 BLUE='\033[34m'
 RED='\033[0;31m'
 YELLOW='\033[0;33m'
@@ -5,6 +7,8 @@ GREEN='\033[0;32m'
 
 RESET='\033[0m'
 NORMAL='\033[0;39m'
+
+# ------------------------- FUNCTIONS ------------------------ #
 
 function colorize {
     awk -v blue="$BLUE" -v red="$RED" -v normal="$NORMAL" -v reset="$RESET" -v yellow="$YELLOW" -v green="$GREEN" '
@@ -23,12 +27,45 @@ function colorize {
     }'
 }
 
-# defaults to Inbox if no previous project
-if [ -n "$1" ]; then
-    input=$(echo "$1" | sed 's/:/#/g')
-else
-    input="#inbox"
-fi
+# ------------------------ PARSE INPUT ----------------------- #
+
+do_es=false
+filter=""
+input="#inbox"
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+    --es)
+        do_es=true
+        shift 1
+        ;;
+    -f | --filter)
+        filter="$2"
+
+        if [[ -z "$filter" ]]; then
+            echo "Missing filter"
+            exit 1
+        fi
+
+        shift 2
+        ;;
+    -h | --help)
+        echo "Usage: tdl [ --es | -f <filter> | -h ]"
+        exit 0
+        ;;
+    *)
+        if [[ "$input" == "#inbox" ]]; then
+            input=$(echo "$1" | sed 's/:/#/g')
+            shift
+        else
+            echo "Unknown option: $1"
+            exit 1
+        fi
+        ;;
+    esac
+done
+
+# ---------------------------- RUN --------------------------- #
 
 # if input contains a slash, list all tasks and grep instead
 if [[ "$1" == *"/"* ]]; then
@@ -36,5 +73,42 @@ if [[ "$1" == *"/"* ]]; then
 else
     output="$(todoist --indent list --filter "$input")"
 fi
+
+# ---------------------------- ES ---------------------------- #
+
+if [[ "$do_es" == true ]]; then
+
+    output_copy="$output"
+    output=""
+
+    # Loop through each line of output
+    while IFS= read -r line; do
+
+        if echo "$line" | awk -v today="$(date +%Y-%m-%d)" '
+            {
+                for (i=1; i<=NF; i++) {
+                    if (substr($i, 1, 3) == "ES-" && substr($i, 4) > today) {
+                        exit 1;
+                    }
+                }
+            }'; then
+
+            if [[ -n "$output" ]]; then
+                output+="\n"
+            fi
+
+            output+="$line"
+        fi
+
+    done <<<"$output_copy"
+fi
+
+# -------------------------- FILTER -------------------------- #
+
+if [[ -n "$filter" ]]; then
+    output=$(echo "$output" | grep -vE "$filter")
+fi
+
+# -------------------------- OUTPUT -------------------------- #
 
 echo "$output" | colorize
