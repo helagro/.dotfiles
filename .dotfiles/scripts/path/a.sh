@@ -1,6 +1,7 @@
 #!/bin/zsh
 file_path="$HOME/.dotfiles/tmp/a.txt"
 vault="$HOME/vault"
+did_local=false
 
 # -------------------------- PROCESS ------------------------- #
 
@@ -15,10 +16,17 @@ function process {
 
     echo "$1" # For logging
 
+    # Do process local
+    if process_local "$1"; then
+        did_local=true
+        return 0
+    else
+        did_local=false
+    fi
+
     # Do process
     (
-        process_local "$1" ||
-            process_server "$1" ||
+        process_server "$1" ||
             process_todoist_cli "$1"
     ) && return 0
 
@@ -36,7 +44,6 @@ function process_local {
 
     if ob.sh "${tag#?}" >/dev/null 2>&1; then
         echo "$escaped_input" >>"$vault/local/in.md"
-        echo "Added directly to local vault"
         return 0
     else
         return 1
@@ -71,6 +78,6 @@ function upload_stored {
 
 # --------------------------- START -------------------------- #
 
-if process "$@"; then
+if process "$*" && [ "$did_local" = false ]; then
     upload_stored
 fi

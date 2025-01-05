@@ -215,7 +215,7 @@ function eve {
     a "p_ett $(tdis | lines | tr -d '[:space:]') s #u"
 
     if [[ ! " $@ " == *" -l "* ]]; then
-        sleep 3
+        sleep 6
         short phondo "flight mode"
     else
         echo "-l SO no phone flight mode"
