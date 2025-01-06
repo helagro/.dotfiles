@@ -26,7 +26,10 @@ ZSH_HIGHLIGHT_REGEXP+=(
 
 alias c="qalc"
 alias lines="grep -v '^$' | wc -l"
+alias weather="curl 'wttr.in?2AMn'"
+
 alias gpt4="aichat -s -m openai:gpt-4o"
+alias gpt3="aichat -s -m openai:gpt-3"
 
 alias rand="rand.sh"
 alias ob="ob.sh"
@@ -41,15 +44,34 @@ if ! command -v bat >/dev/null 2>&1; then
     function bat { cat; }
 fi
 
-function year_day {
-    local this_year_day=$(date +%j)
-
-    if [ -z "$1" ]; then
-        echo $this_year_day
-    else
-        echo $((this_year_day + $1 * 365))
+function cht {
+    if is_help $*; then
+        echo "cht <language> <query>" \
+            "\n query is separated by +"
+        return 0
     fi
 
+    if [ -z "$1" ]; then
+        echo "No language specified"
+        return 1
+    fi
+
+    if [ -z "$2" ]; then
+        echo "No query specified"
+        return 1
+    fi
+
+    curl "cht.sh/$1/$2"
+}
+
+function is_help {
+    for arg in "$@"; do
+        if [[ "$arg" == "-h" || "$arg" == "--help" || "$arg" == "help" ]]; then
+            return 0
+        fi
+    done
+
+    return 1
 }
 
 function talk {
@@ -152,7 +174,52 @@ function repo {
     open $url
 }
 
+# --------------------------- DATES -------------------------- #
+
+alias tod="date +'%Y-%m-%d'"
+
+function in_days {
+    if [[ "$1" == *-* ]]; then
+        date -v"$1"d +"%Y-%m-%d"
+    else
+        date -v+"$1"d +"%Y-%m-%d"
+    fi
+}
+
+function time_diff {
+    local seconds1=$(date -j -f "%H:%M" "$2" +"%s" 2>/dev/null)
+    local seconds2=$(date -j -f "%H:%M" "$1" +"%s" 2>/dev/null)
+    local diff=$((seconds1 - seconds2))
+
+    if [ $diff -lt 0 ]; then
+        return 1
+    fi
+
+    printf "%02d:%02d\n" $((diff / 3600)) $(((diff % 3600) / 60))
+}
+
+function year_day {
+    local this_year_day=$(date +%j)
+
+    if [ -z "$1" ]; then
+        echo $this_year_day
+    else
+        echo $((this_year_day + $1 * 365))
+    fi
+
+}
+
 # ------------------------- TRACKING ------------------------- #
+
+function fall_asleep_delay {
+    local bedtime=$(curl -s "$ROUTINE_ENDPOINT?q=bed_time" | sed 's/\./:/g')
+    local sleep_time=$(is sleep_start 1 | hm | jq '.[]' | sed 's/"//g')
+    local time=$(time_diff $sleep_time $bedtime)
+
+    local hours=${time%%:*}
+    local minutes=${time#*:}
+    echo $((hours * 60 + minutes))
+}
 
 function csv { conda run -n main python3 "$HOME/.dotfiles/scripts/jsons_to_csv.py" $@ | bat -pPl 'tsv'; }
 
@@ -203,6 +270,7 @@ function is {
 alias td="todoist"
 alias tdl="tdl.sh"
 alias tdi="tdl '(tod | od | p1)'"
+alias tundo="tdls :inbox | tac | inbox.sh "
 
 alias tdis='td s && tdi'
 alias tdls='td s && tdl'

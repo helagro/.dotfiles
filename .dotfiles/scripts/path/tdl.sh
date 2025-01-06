@@ -1,12 +1,17 @@
 # ------------------------- VARIABLES ------------------------ #
 
+# Colors
 BLUE='\033[34m'
 RED='\033[0;31m'
 YELLOW='\033[0;33m'
 GREEN='\033[0;32m'
-
 RESET='\033[0m'
 NORMAL='\033[0;39m'
+
+# Inputs
+do_es=false
+filter=""
+input="#inbox"
 
 # ------------------------- FUNCTIONS ------------------------ #
 
@@ -27,19 +32,33 @@ function colorize {
     }'
 }
 
-# ------------------------ PARSE INPUT ----------------------- #
+# ------------------------ EXPAND FLAGS ----------------------- #
 
-do_es=false
-filter=""
-input="#inbox"
+expanded_args=()
+for arg in "$@"; do
+    if [[ "$arg" =~ ^-([eFh]+)$ && ! "$arg" =~ ^-- ]]; then
+        # Extract flags without using BASH_REMATCH
+        flags="${arg:1}"
+        for ((i = 0; i < ${#flags}; i++)); do
+            expanded_args+=("-${flags:i:1}")
+        done
+    else
+        expanded_args+=("$arg")
+    fi
+done
+
+# Replace original arguments with expanded ones
+set -- "${expanded_args[@]}"
+
+# ------------------------- PARSE ARGUMENTS ------------------------ #
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
-    --es)
+    -e | --es)
         do_es=true
         shift 1
         ;;
-    -f | --filter)
+    -F | --filter)
         filter="$2"
 
         if [[ -z "$filter" ]]; then
@@ -50,7 +69,7 @@ while [[ $# -gt 0 ]]; do
         shift 2
         ;;
     -h | --help)
-        echo "Usage: tdl [ --es | -f <filter> | -h ]"
+        echo "Usage: tdl [ --es | -F <filter> | -h ]"
         exit 0
         ;;
     *)

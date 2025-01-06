@@ -2,6 +2,8 @@
 
 # ------------------------- VARIABLES ------------------------ #
 
+LATER_TASKS_INIT=$( cat $HOME/.dotfiles/tmp/later.txt | wc -l | tr -d '[:space:]' )
+
 # Colors
 BLUE='\033[34m'
 RED='\033[0;31m'
@@ -35,15 +37,27 @@ readonly task_string
 # ------------------------- FUNCTIONS ------------------------ #
 
 function menu {
+    
+    # Print prompt
+    local task=$(echo "$line" | sed 's/%/%%/g' | colorize)
+    local curr_later_tasks=$( cat $HOME/.dotfiles/tmp/later.txt | wc -l | tr -d '[:space:]' )
+    local later_tasks_added=$((curr_later_tasks - LATER_TASKS_INIT))
+
+    if [[ "$later_tasks_added" -gt 0 ]]; then
+        printf "\033[33m($(printf "%02d" $amt_left))\033[0m $task \033[33m($later_tasks_added):\033[0m"
+    else
+        printf "\033[33m($(printf "%02d" $amt_left))\033[0m $task \033[33m-:\033[0m"
+    fi
+    
     # Take input
-    printf "\033[33m($(printf "%02d" $amt_left))\033[0m $(echo "$line" | sed 's/%/%%/g' | colorize) \033[33m-:\033[0m"
     local input="$1"
     read action </dev/tty
 
     # IFs through actions
     if [[ "$action" == "d" ]]; then
         local id=$(echo "$1" | grep -o '^[0-9]*')
-        (nohup todoist c "$id" >/dev/null 2>&1 &)
+        close "$id" &
+        
     elif [[ "$action" == "u" ]]; then
         do_update "$(echo "$input" | sed 's/#\([A-Za-z0-9/]*\)//' | sed 's/p4//')"
     elif [[ "$action" == "m" ]]; then
@@ -53,7 +67,7 @@ function menu {
     elif [[ "$action" == "s" || "$action" == "n" ]]; then
         return
     else
-        echo "(d)elete, (u)pdate, (m)modify, (s)kip, (q)uit"
+        echo "(d)elete, (u)pdate, (m)modify, (n)ext, (q)uit"
         menu "$input" # NOTE - recursion
     fi
 }
@@ -66,6 +80,16 @@ function colorize {
         gsub(/ p3 /, blue "&" normal)
         printf "%s%s%s\n", normal, $0, reset
     }'
+}
+
+# -------------------------- ACTIONS ------------------------- #
+
+function close {
+    if ping -c 1 -t 1 8.8.8.8 &>/dev/null; then
+        (nohup todoist c "$1" >/dev/null 2>&1 &)
+    else
+        python3 $HOME/.dotfiles/scripts/later.py "tdc $1" 
+    fi
 }
 
 function do_update {
@@ -82,7 +106,7 @@ function do_update {
 
         (nohup a.sh "$item_copy" >>$HOME/.dotfiles/logs/a.log 2>&1 &)
         item_copy=""
-        (nohup todoist c "$id" >/dev/null 2>&1 &)
+        close "$id" &
     else
         echo "WARN - empty item, ignoring"
     fi
@@ -95,6 +119,10 @@ tasks=("${(f)task_string}")
 
 IFS=$'\n'
 for line in "${tasks[@]}"; do
+    if [[ -z "$line" ]]; then
+        continue
+    fi
+    
     menu "$line"
     amt_left=$((amt_left - 1))
 done

@@ -53,8 +53,8 @@ function on_tab {
             has_setup_highlight=1
             ZSH_HIGHLIGHT_REGEXP+=(
                 '#[a-z0-9]+[a-zA-Z0-9]*' fg=green,bold
-                'p3' fg=magenta,underline
-                'p1' fg=red,bold
+                '(\s|^)p3(\s|$)' fg=magenta,underline
+                '(\s|^)p1(\s|$)' fg=red,bold
                 '\*\*.+\*\*' fg=red,bold
                 '(?<!\*)\*[^*]+\*(?!\*)' fg=magenta,underline
                 ';' fg=yellow,bold
@@ -175,7 +175,6 @@ function dawn {
     theme $theme
     wifi on
 
-    a "dawn #u"
     day tod
     ob dawn
 
@@ -183,6 +182,12 @@ function dawn {
     ob rule
     ob p
     ob b
+
+    a "dawn #u"
+    local sleep_delay=$(fall_asleep_delay)
+    if [ -n "$sleep_delay" ]; then
+        a "$(in_days -1) sleep_delay $sleep_delay s #u"
+    fi
 
     later
 }
@@ -204,6 +209,11 @@ function eve {
     echo "tv_min:"
     is tv_min 1
 
+    # Show other info
+    forecast=$(weather)
+    if forecast | grep -q "snow"; then
+        echo "$forecast"
+    fi
     tl hb
 
     echo
@@ -216,7 +226,7 @@ function eve {
     a "p_ett $(tdis | lines | tr -d '[:space:]') s #u"
 
     if [[ ! " $@ " == *" -l "* ]]; then
-        sleep 6
+        sleep 9
         short phondo "flight mode"
     else
         echo "-l SO no phone flight mode"
@@ -256,7 +266,7 @@ function medd {
 }
 
 function sw {
-    if [[ $1 == "help" ]]; then
+    if is_help $*; then
         echo "Usage: sw <duration> <activity>"
         return 0
     fi
