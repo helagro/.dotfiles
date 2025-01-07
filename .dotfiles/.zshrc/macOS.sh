@@ -28,6 +28,24 @@ alias is_dark='[[ $(defaults read -g AppleInterfaceStyle 2>/dev/null) == "Dark" 
 
 # ------------------------- OTHER FUNCTIONS ------------------------ #
 
+function act {
+    local local_online_tools="$HOME/Documents/online-tools"
+    local query=$(echo "$*" | tr ' ' '/')
+
+    if rand 5 >/dev/null; then
+        local table=$(curl -s --connect-timeout 2 "$MY_CONFIG_URL/online-tools/act.tsv")
+
+        if [ -n "$table" ]; then
+            echo "$table" >$local_online_tools/data/act.tsv
+        fi
+    fi
+
+    (
+        cd $local_online_tools/dist/act
+        NODE_NO_WARNINGS=1 node index.js "$query" | bat -pPl "json"
+    )
+}
+
 function theme {
     local new_mode=$1
 
@@ -145,8 +163,11 @@ function day {
 # -------------------------- ROUTINE ------------------------- #
 
 function dawn {
+    wifi on
+
     local focus_mode="off"
     local theme=0
+    local night_shift=0
 
     while [[ $# -gt 0 ]]; do
         case "$1" in
@@ -158,8 +179,12 @@ function dawn {
             theme="$2"
             shift 2
             ;;
+        -n | --night)
+            night_shift=1
+            shift
+            ;;
         -h | --help)
-            echo "Usage: dawn [-f <focus_mode>] [-t <theme>]"
+            echo "Usage: dawn [-f <focus_mode>] [-t <theme>] -n (night shift)"
             return 0
             ;;
         *)
@@ -169,11 +194,12 @@ function dawn {
         esac
     done
 
+    sleep 2
+
     short focus "$focus_mode"
-    short night_shift 0
+    short night_shift "$night_shift"
     short focus
     theme $theme
-    wifi on
 
     day tod
     ob dawn
@@ -181,7 +207,6 @@ function dawn {
     tl streaks
     ob rule
     ob p
-    ob b
 
     a "dawn #u"
     local sleep_delay=$(fall_asleep_delay)
@@ -211,7 +236,7 @@ function eve {
 
     # Show other info
     forecast=$(weather)
-    if forecast | grep -q "snow"; then
+    if [ -n "$forecast" ] | grep -q "snow"; then
         echo "$forecast"
     fi
     tl hb
@@ -224,6 +249,8 @@ function eve {
     theme 1
 
     a "p_ett $(tdis | lines | tr -d '[:space:]') s #u"
+    # Deletes tasks tagged @rm. NOTE - Has safeties and redundancies
+    tdc $(tdls '@rm' -epF 'p1' | grep '@rm' | head -n 10 | grep -o '^[0-9]*' | tr -s '[:space:]' ' ') || echo 'Auto task deletion failed'
 
     if [[ ! " $@ " == *" -l "* ]]; then
         sleep 9

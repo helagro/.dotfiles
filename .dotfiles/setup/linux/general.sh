@@ -10,6 +10,7 @@ ask() {
 
 # ------------------------- COMMANDS ------------------------- #
 
+sudo journalctl --vacuum-size=50M
 chsh -s $(which zsh)
 
 if ask "Setup login hook?"; then

@@ -12,6 +12,7 @@ NORMAL='\033[0;39m'
 do_es=false
 filter=""
 input="#inbox"
+plain=false
 
 # ------------------------- FUNCTIONS ------------------------ #
 
@@ -36,7 +37,7 @@ function colorize {
 
 expanded_args=()
 for arg in "$@"; do
-    if [[ "$arg" =~ ^-([eFh]+)$ && ! "$arg" =~ ^-- ]]; then
+    if [[ "$arg" =~ ^-([eFhp]+)$ && ! "$arg" =~ ^-- ]]; then
         # Extract flags without using BASH_REMATCH
         flags="${arg:1}"
         for ((i = 0; i < ${#flags}; i++)); do
@@ -58,6 +59,10 @@ while [[ $# -gt 0 ]]; do
         do_es=true
         shift 1
         ;;
+    -p | --plain)
+        plain=true
+        shift 1
+        ;;
     -F | --filter)
         filter="$2"
 
@@ -69,7 +74,7 @@ while [[ $# -gt 0 ]]; do
         shift 2
         ;;
     -h | --help)
-        echo "Usage: tdl [ --es | -F <filter> | -h ]"
+        echo "Usage: tdl [ --es | -F <filter> | -h | -p ] [ <input> ]"
         exit 0
         ;;
     *)
@@ -130,4 +135,8 @@ fi
 
 # -------------------------- OUTPUT -------------------------- #
 
-echo "$output" | colorize
+if [[ "$plain" == true ]]; then
+    echo "$output"
+else
+    echo "$output" | colorize
+fi

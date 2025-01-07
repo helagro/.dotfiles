@@ -26,7 +26,7 @@ ZSH_HIGHLIGHT_REGEXP+=(
 
 alias c="qalc"
 alias lines="grep -v '^$' | wc -l"
-alias weather="curl 'wttr.in?2AMn'"
+alias weather="curl -s 'wttr.in?2AMn'"
 
 alias gpt4="aichat -s -m openai:gpt-4o"
 alias gpt3="aichat -s -m openai:gpt-3"
@@ -212,9 +212,18 @@ function year_day {
 # ------------------------- TRACKING ------------------------- #
 
 function fall_asleep_delay {
-    local bedtime=$(curl -s "$ROUTINE_ENDPOINT?q=bed_time" | sed 's/\./:/g')
-    local sleep_time=$(is sleep_start 1 | hm | jq '.[]' | sed 's/"//g')
-    local time=$(time_diff $sleep_time $bedtime)
+    local bedtime=$(curl -s "$ROUTINE_ENDPOINT?q=bed_time" | sed 's/\./:/g' 2>/dev/null)
+    if [ $? -ne 0 ] || [ -z "$bedtime" ]; then
+        return 1
+    fi
+
+    local sleep_time=$(is sleep_start 1 | hm | jq '.[]' | sed 's/"//g' 2>/dev/null)
+    if [ $? -ne 0 ] || [ -z "$sleep_time" ]; then
+        return 1
+    fi
+    sleep_time=$(date -j -f "%I:%M %p" "$sleep_time pm" +"%H:%M")
+
+    local time=$(time_diff $bedtime $sleep_time)
 
     local hours=${time%%:*}
     local minutes=${time#*:}

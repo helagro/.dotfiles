@@ -59,6 +59,7 @@ function menu {
         close "$id" &
         
     elif [[ "$action" == "u" ]]; then
+        # NOTE - Removes project and p4 priority
         do_update "$(echo "$input" | sed 's/#\([A-Za-z0-9/]*\)//' | sed 's/p4//')"
     elif [[ "$action" == "m" ]]; then
         do_update "$input"
@@ -96,6 +97,8 @@ function do_update {
 
     # Parse parts
     local id=$(echo "$1" | grep -o '^[0-9]*')
+
+    # NOTE - Removes long spaces and IDs
     item=$(echo "$1" | tr -s '[:space:]' ' ' | sed 's/^[0-9]*\ //')
 
     vared -p " " item </dev/tty
