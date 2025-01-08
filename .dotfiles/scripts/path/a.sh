@@ -6,13 +6,10 @@ did_local=false
 # -------------------------- PROCESS ------------------------- #
 
 function process {
-    if [ -z "$1" ]; then
-        return 1
-    fi
 
-    if [[ "$DISABLED_TD_APP_ITEMS" == *"$1"* ]]; then
-        return 0
-    fi
+    # Check conditions
+    [ -z "$1" ] && return 1
+    [[ "$DISABLED_TD_APP_ITEMS" == *"$1"* ]] && return 0
 
     echo "$1" # For logging
 

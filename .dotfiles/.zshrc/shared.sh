@@ -45,7 +45,7 @@ if ! command -v bat >/dev/null 2>&1; then
 fi
 
 function cht {
-    if is_help $*; then
+    if $my_scripts/lang/shell/is_help.sh $*; then
         echo "cht <language> <query>" \
             "\n query is separated by +"
         return 0
@@ -62,16 +62,6 @@ function cht {
     fi
 
     curl "cht.sh/$1/$2"
-}
-
-function is_help {
-    for arg in "$@"; do
-        if [[ "$arg" == "-h" || "$arg" == "--help" || "$arg" == "help" ]]; then
-            return 0
-        fi
-    done
-
-    return 1
 }
 
 function talk {
@@ -100,8 +90,13 @@ function talk {
 }
 
 function tl {
-    local url="https://helagro.se/tools/$1"
+    local url="$TOOLS_URL/$1"
     local content=$(curl -s "$url" -b "id=u3o8hiefo" -b "a75h=$A75H")
+    local return_code=$?
+
+    if [ "$return_code" -ne 0 ]; then
+        return "$return_code"
+    fi
 
     # If bat is installed
     if command -v bat &>/dev/null; then

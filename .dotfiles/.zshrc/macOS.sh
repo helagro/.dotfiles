@@ -1,3 +1,5 @@
+#!/bin/zsh
+
 # ------------------------- OTHER ------------------------ #
 
 export PATH="/Users/h/Library/Python/3.9/bin:$PATH"
@@ -169,6 +171,7 @@ function dawn {
     local theme=0
     local night_shift=0
 
+    set -- $($my_scripts/lang/shell/expand_args.sh $*)
     while [[ $# -gt 0 ]]; do
         case "$1" in
         -f | --focus)
@@ -189,7 +192,7 @@ function dawn {
             ;;
         *)
             echo "Unknown option: $1"
-            exit 1
+            return 1
             ;;
         esac
     done
@@ -218,11 +221,19 @@ function dawn {
 }
 
 function eve {
+    if $my_scripts/lang/shell/is_help.sh $*; then
+        print 'Usage: eve [options...]'
+        printf " %-3s %-20s %s\n" "-l," "" "Skip enabling flight mode on phone"
+        printf " %-3s %-20s %s\n" "-h," "--help" "Show this help message"
+        return 0
+    fi
+
     # Silent tasks
     a "eve #u"
     echo "" >$vault/p/rule.md
     echo "" >$vault/p/p.md
 
+    # Tasks
     day tom
     echo
 
@@ -244,32 +255,69 @@ function eve {
     echo
     ob eve
 
+    # Setup environment
     short focus sleep
     short night_shift 1
     theme 1
 
     a "p_ett $(tdis | lines | tr -d '[:space:]') s #u"
+
     # Deletes tasks tagged @rm. NOTE - Has safeties and redundancies
-    tdc $(tdls '@rm' -epF 'p1' | grep '@rm' | head -n 10 | grep -o '^[0-9]*' | tr -s '[:space:]' ' ') || echo 'Auto task deletion failed'
+    local id_lines=$(tdls '@rm' -epF 'p1' | grep '@rm' | head -n 10 | grep -o '^[0-9]*')
+    if tdc $(echo "$id_lines" | tr -s '[:space:]' ' '); then
+        echo "Auto-deleted $(echo "$id_lines" | wc -l | tr -d '[:space:]') tasks"
+    else
+        echo 'Auto task deletion failed'
+    fi
 
     if [[ ! " $@ " == *" -l "* ]]; then
         sleep 9
         short phondo "flight mode"
-    else
-        echo "-l SO no phone flight mode"
     fi
 
 }
 
 function bedtime {
+    set -- $($my_scripts/lang/shell/expand_args.sh $*)
+
+    local do_phone=1
+    local wifi=0
+
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+        -p)
+            do_phone="$2"
+            shift 2
+            ;;
+        -w)
+            wifi="$2"
+            shift 2
+            ;;
+        -h | --help)
+            print 'Usage: bedtime [options...]'
+            printf " %-3s %-20s %s\n" "-p" "<1/0>" "Do set phone settings"
+            printf " %-3s %-20s %s\n" "-w" "<1/0>" "Wifi on/off"
+            printf " %-3s %-20s %s\n" "-h," "--help" "Show this help message"
+            return 0
+            ;;
+        *)
+            echo "Unknown option: $1"
+            return 1
+            ;;
+        esac
+    done
+
     sens temp
 
-    if [[ ! " $@ " == *" -l "* ]]; then
-        wifi off
+    if [[ $do_phone -eq 1 ]]; then
         short phondo "flight mode"
+    fi
+
+    if [[ $wifi -eq 1 ]]; then
+        wifi on
     else
-        echo "-l SO not turning off wifi"
-        echo "-l so no phone flight mode"
+        sleep 2
+        wifi off
     fi
 
     short focus sleep
@@ -281,35 +329,65 @@ function bedtime {
 alias timer="short timer"
 
 function medd {
-    if [[ ! $2 == "-l" ]]; then
+    set -- $($my_scripts/lang/shell/expand_args.sh $*)
+
+    local do_focus=false
+    local time=-1
+
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+        -f | --focus)
+            do_focus=true
+            shift
+            ;;
+        -h | --help)
+            print 'Usage: medd [options...] <duration>'
+            printf " %-3s %-20s %s\n" "-f" "" "Do set focus"
+            printf " %-3s %-20s %s\n" "-h," "--help" "Show this help message"
+            return 0
+            ;;
+        *)
+            time=$1
+            shift
+            ;;
+        esac
+    done
+
+    if $do_focus; then
         short focus on
     fi
 
-    sw $1 "medd"
+    sw $time "medd"
 
-    if [[ ! $2 == "-l" ]]; then
+    if $do_focus; then
         short focus off
     fi
 }
 
 function sw {
-    if is_help $*; then
-        echo "Usage: sw <duration> <activity>"
+    if $my_scripts/lang/shell/is_help.sh $*; then
+        echo "Usage: sw <duration> [ <activity> | -s ]"
         return 0
     fi
 
     local start_time=$(date +%s)
 
-    caffeinate -disu -i $doc/stopwatch/main "$1"
+    if [[ $2 == "-s" ]]; then
+        caffeinate -disu -i $doc/stopwatch/main "$1" 1>&2
+    else
+        caffeinate -disu -i $doc/stopwatch/main "$1"
 
-    if [ $? -ne 2 ]; then
-        asciiquarium
+        if [ $? -ne 2 ]; then
+            asciiquarium
+        fi
     fi
 
     local end_time=$(date +%s)
     local min=$((($end_time - $start_time) / 60))
 
-    if [ -n "$2" ] && [ "$min" -ne 0 ]; then
+    if [[ "$2" == "-s" ]]; then
+        echo -n "$min"
+    elif [ -n "$2" ] && [ "$min" -ne 0 ]; then
         a "$2 $min #u"
     fi
 }

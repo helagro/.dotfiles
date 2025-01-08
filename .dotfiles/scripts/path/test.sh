@@ -1,9 +1,10 @@
-echo "$1"
-echo "$1" | awk -v today="$(date +%Y-%m-%d)" '
-{
-    for (i=1; i<=NF; i++) {
-        if (substr($i, 1, 3) == "ES-" && substr($i, 4) < today) {
-            exit 1;
-        }
-    }
-}'
+#!/bin/zsh
+
+test=true
+echo -n "$*"forth
+
+if $test; then
+    echo "true"
+else
+    echo "false"
+fi

@@ -76,7 +76,7 @@ function menu {
 function colorize {
     awk -v blue="$BLUE" -v red="$RED" -v normal="$NORMAL" -v reset="$RESET" -v yellow="$YELLOW" -v green="$GREEN" '
     {
-        gsub(/ p1 /, yellow "&" normal)
+        gsub(/ p1 /, red "&" normal)
         gsub(/ p2 /, green "&" normal)
         gsub(/ p3 /, blue "&" normal)
         printf "%s%s%s\n", normal, $0, reset

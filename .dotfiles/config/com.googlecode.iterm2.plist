@@ -3544,7 +3544,7 @@
 			<key>Non-ASCII Anti Aliased</key>
 			<true/>
 			<key>Normal Font</key>
-			<string>JetBrainsMonoNFM-Regular 12</string>
+			<string>JetBrainsMonoNFM-Regular 13</string>
 			<key>Only The Default BG Color Uses Transparency</key>
 			<false/>
 			<key>Option Key Sends</key>
@@ -3945,7 +3945,7 @@
 			<key>Close Sessions On End</key>
 			<true/>
 			<key>Columns</key>
-			<integer>60</integer>
+			<integer>80</integer>
 			<key>Command</key>
 			<string></string>
 			<key>Cursor Color</key>
@@ -4454,7 +4454,7 @@
 				<key>Has Toolbelt</key>
 				<false/>
 				<key>Height</key>
-				<real>634</real>
+				<real>708</real>
 				<key>Hide After Opening</key>
 				<false/>
 				<key>Hiding Toolbelt Should Resize Window</key>
@@ -4470,7 +4470,7 @@
 				<key>Scroller Width</key>
 				<real>0.0</real>
 				<key>Selected Tab Index</key>
-				<integer>1</integer>
+				<integer>0</integer>
 				<key>Tabs</key>
 				<array>
 					<dict>
@@ -5395,7 +5395,7 @@
 												<real>0.0</real>
 											</dict>
 											<key>Guid</key>
-											<string>DED7C7DC-1AC8-44C7-8B79-D49D308CA8D7</string>
+											<string>6B481A6C-BD13-4BA9-AA0A-398117DC62EA</string>
 											<key>Has Hotkey</key>
 											<false/>
 											<key>Horizontal Spacing</key>
@@ -5706,11 +5706,11 @@
 											<key>Name</key>
 											<string>Default</string>
 											<key>Non Ascii Font</key>
-											<string>Monaco 12</string>
+											<string>JetBrainsMonoNFM-Regular 13</string>
 											<key>Non-ASCII Anti Aliased</key>
 											<true/>
 											<key>Normal Font</key>
-											<string>JetBrainsMonoNFM-Regular 12</string>
+											<string>JetBrainsMonoNFM-Regular 13</string>
 											<key>Only The Default BG Color Uses Transparency</key>
 											<false/>
 											<key>Option Key Sends</key>
@@ -5933,16 +5933,123 @@
 											<string>/Users/h/.dotfiles/tabs/a</string>
 											<string>/Users/h/.dotfiles/tabs/a</string>
 											<string>/Users/h/.dotfiles/tabs/a</string>
+											<string>/Users/h/.dotfiles/tabs/a</string>
+											<string>/Users/h/.dotfiles/tabs/a</string>
+											<string>/Users/h/.dotfiles/tabs/a</string>
+											<string>/Users/h/.dotfiles/tabs/a</string>
+											<string>/Users/h/.dotfiles/tabs/a</string>
+											<string>/Users/h/.dotfiles/tabs/a</string>
+											<string>/Users/h/.dotfiles/tabs/a</string>
+											<string>/Users/h/.dotfiles/config/tabs</string>
+											<string>/Users/h/.dotfiles/config</string>
+											<string>/Users/h/.dotfiles/config/tabs</string>
+											<string>/Users/h/.dotfiles/config/tabs/a</string>
+											<string>/Users/h/.dotfiles/config/tabs/a</string>
+											<string>/Users/h/.dotfiles/config/tabs/a</string>
+											<string>/Users/h/.dotfiles/config/tabs/a</string>
+											<string>/Users/h/.dotfiles/config/tabs/a</string>
+											<string>/Users/h/.dotfiles/config/tabs/a</string>
+											<string>/Users/h/.dotfiles/config/tabs/a</string>
 										</array>
 										<key>Environment</key>
 										<dict>
 											<key>PWD</key>
-											<string>/Users/h/.dotfiles/tabs/a</string>
+											<string>/Users/h/.dotfiles/config/tabs/a</string>
 										</dict>
 										<key>Hostname to Shell</key>
 										<dict/>
 										<key>Hosts</key>
 										<array>
+											<dict>
+												<key>Host name</key>
+												<string>Macbook-Air-3.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Macbook-Air-3.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Macbook-Air-3.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Macbook-Air-3.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Macbook-Air-3.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Macbook-Air-3.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Macbook-Air-3.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Macbook-Air-3.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Macbook-Air-3.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Macbook-Air-3.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Macbook-Air-3.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Macbook-Air-3.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Macbook-Air-3.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Macbook-Air-3.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Macbook-Air-3.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
 											<dict>
 												<key>Host name</key>
 												<string>Macbook-Air-3.local</string>
@@ -6107,6 +6214,8 @@
 										</dict>
 										<key>Overridden Fields</key>
 										<array>
+											<string>Normal Font</string>
+											<string>Non Ascii Font</string>
 											<string>Tab Color</string>
 											<string>Original Guid</string>
 											<string>Guid</string>
@@ -6133,7 +6242,7 @@
 											<string>$$</string>
 										</dict>
 										<key>Working Directory</key>
-										<string>/Users/h/.dotfiles/tabs/a</string>
+										<string>/Users/h/.dotfiles/config/tabs/a</string>
 										<key>Working Directory Poller Disabled</key>
 										<true/>
 									</dict>
@@ -6142,9 +6251,9 @@
 									<key>frame</key>
 									<dict>
 										<key>height</key>
-										<real>596</real>
+										<real>670</real>
 										<key>width</key>
-										<real>990</real>
+										<real>1130</real>
 										<key>x</key>
 										<real>0.0</real>
 										<key>y</key>
@@ -6157,9 +6266,9 @@
 							<key>frame</key>
 							<dict>
 								<key>height</key>
-								<real>596</real>
+								<real>670</real>
 								<key>width</key>
-								<real>990</real>
+								<real>1130</real>
 								<key>x</key>
 								<real>0.0</real>
 								<key>y</key>
@@ -7095,7 +7204,7 @@
 												<real>0.0</real>
 											</dict>
 											<key>Guid</key>
-											<string>051C89F3-E7D9-443A-B6D6-4C1578582F5F</string>
+											<string>D6E124A6-E8C3-4448-8B86-E35B4076921D</string>
 											<key>Has Hotkey</key>
 											<false/>
 											<key>Horizontal Spacing</key>
@@ -7599,7 +7708,7 @@
 											<string>/Users/h</string>
 										</dict>
 										<key>Columns</key>
-										<integer>140</integer>
+										<integer>160</integer>
 										<key>Commands</key>
 										<array/>
 										<key>Directories</key>
@@ -7642,40 +7751,40 @@
 											<string>/Users/h</string>
 											<string>/Users/h</string>
 											<string>/Users/h</string>
-											<string>/Users/h/Developer/ai</string>
-											<string>/Users/h/Developer/ai</string>
-											<string>/Users/h/Developer/ai</string>
-											<string>/Users/h/Developer/ai</string>
-											<string>/Users/h/Developer/ai</string>
-											<string>/Users/h/Developer/ai</string>
-											<string>/Users/h/Developer/ai</string>
-											<string>/Users/h/Developer/ai</string>
-											<string>/Users/h/Developer/ai</string>
-											<string>/Users/h/Developer/ai</string>
-											<string>/Users/h/Developer/ai</string>
-											<string>/Users/h/Developer/ai</string>
-											<string>/Users/h/Developer/ai</string>
-											<string>/Users/h/Developer/ai</string>
-											<string>/Users/h/Developer/ai</string>
-											<string>/Users/h/Developer/ai</string>
-											<string>/Users/h/Developer/ai</string>
-											<string>/Users/h/Developer/ai</string>
-											<string>/Users/h/Developer/ai</string>
-											<string>/Users/h/Developer/ai</string>
-											<string>/Users/h/Developer/ai</string>
-											<string>/Users/h/Developer/ai</string>
-											<string>/Users/h/Developer/ai</string>
-											<string>/Users/h/Developer/ai</string>
-											<string>/Users/h/Developer/ai</string>
-											<string>/Users/h/Developer/ai</string>
-											<string>/Users/h/Developer/ai</string>
-											<string>/Users/h/Developer/ai</string>
-											<string>/Users/h/Developer/ai</string>
-											<string>/Users/h/Developer/ai</string>
-											<string>/Users/h/Developer/ai</string>
-											<string>/Users/h/Developer/ai</string>
-											<string>/Users/h/Developer/ai</string>
-											<string>/Users/h/Developer/ai</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
 											<string>/Users/h</string>
 											<string>/Users/h</string>
 											<string>/Users/h</string>
@@ -8339,7 +8448,7 @@
 											<string>Shell Launcher</string>
 										</dict>
 										<key>Rows</key>
-										<integer>37</integer>
+										<integer>41</integer>
 										<key>Session GUID</key>
 										<string>E5349A8E-7B05-4E75-A09E-867480476257</string>
 										<key>Short Lived Single Use</key>
@@ -8363,9 +8472,9 @@
 									<key>frame</key>
 									<dict>
 										<key>height</key>
-										<real>596</real>
+										<real>670</real>
 										<key>width</key>
-										<real>990</real>
+										<real>1130</real>
 										<key>x</key>
 										<real>0.0</real>
 										<key>y</key>
@@ -8378,9 +8487,9 @@
 							<key>frame</key>
 							<dict>
 								<key>height</key>
-								<real>596</real>
+								<real>670</real>
 								<key>width</key>
-								<real>990</real>
+								<real>1130</real>
 								<key>x</key>
 								<real>0.0</real>
 								<key>y</key>
@@ -8396,7 +8505,7 @@
 						<key>Root</key>
 						<dict>
 							<key>Splitter ID</key>
-							<string>CA6FEED7-F5B3-4440-AE87-996827AD5049</string>
+							<string>B0E9D281-453B-4782-A472-1C0D0A1E52DF</string>
 							<key>Subviews</key>
 							<array>
 								<dict>
@@ -9314,7 +9423,7 @@
 												<real>0.0</real>
 											</dict>
 											<key>Guid</key>
-											<string>799CD648-2194-41CC-8DB4-EFB94BE90566</string>
+											<string>ED238B72-801B-4C66-A72F-A385877026C5</string>
 											<key>Has Hotkey</key>
 											<false/>
 											<key>Horizontal Spacing</key>
@@ -9818,26 +9927,11 @@
 											<string>/Users/h</string>
 										</dict>
 										<key>Columns</key>
-										<integer>140</integer>
+										<integer>160</integer>
 										<key>Commands</key>
 										<array/>
 										<key>Directories</key>
 										<array>
-											<string>/Users/h</string>
-											<string>/Users/h</string>
-											<string>/Users/h/.dotfiles/tabs</string>
-											<string>/Users/h/.dotfiles/tabs</string>
-											<string>/Users/h/.dotfiles/tabs/ssh</string>
-											<string>/Users/h/.dotfiles/tabs/ssh</string>
-											<string>/Users/h/.dotfiles/tabs/ssh</string>
-											<string>/Users/h/.dotfiles/tabs/ssh</string>
-											<string>/Users/h/.dotfiles/tabs/ssh</string>
-											<string>/Users/h/.dotfiles/tabs/ssh</string>
-											<string>/Users/h/.dotfiles/tabs/ssh</string>
-											<string>/Users/h/.dotfiles/tabs/ssh</string>
-											<string>/Users/h/.dotfiles/tabs/ssh</string>
-											<string>/Users/h/.dotfiles/tabs/ssh</string>
-											<string>/Users/h</string>
 											<string>/Users/h</string>
 											<string>/Users/h</string>
 											<string>/Users/h</string>
@@ -9858,96 +9952,6 @@
 										<dict/>
 										<key>Hosts</key>
 										<array>
-											<dict>
-												<key>Host name</key>
-												<string>Macbook-Air-3.local</string>
-												<key>User name</key>
-												<string></string>
-											</dict>
-											<dict>
-												<key>Host name</key>
-												<string>Macbook-Air-3.local</string>
-												<key>User name</key>
-												<string></string>
-											</dict>
-											<dict>
-												<key>Host name</key>
-												<string>Macbook-Air-3.local</string>
-												<key>User name</key>
-												<string></string>
-											</dict>
-											<dict>
-												<key>Host name</key>
-												<string>Macbook-Air-3.local</string>
-												<key>User name</key>
-												<string></string>
-											</dict>
-											<dict>
-												<key>Host name</key>
-												<string>Macbook-Air-3.local</string>
-												<key>User name</key>
-												<string></string>
-											</dict>
-											<dict>
-												<key>Host name</key>
-												<string>Macbook-Air-3.local</string>
-												<key>User name</key>
-												<string></string>
-											</dict>
-											<dict>
-												<key>Host name</key>
-												<string>Macbook-Air-3.local</string>
-												<key>User name</key>
-												<string></string>
-											</dict>
-											<dict>
-												<key>Host name</key>
-												<string>Macbook-Air-3.local</string>
-												<key>User name</key>
-												<string></string>
-											</dict>
-											<dict>
-												<key>Host name</key>
-												<string>Macbook-Air-3.local</string>
-												<key>User name</key>
-												<string></string>
-											</dict>
-											<dict>
-												<key>Host name</key>
-												<string>Macbook-Air-3.local</string>
-												<key>User name</key>
-												<string></string>
-											</dict>
-											<dict>
-												<key>Host name</key>
-												<string>Macbook-Air-3.local</string>
-												<key>User name</key>
-												<string></string>
-											</dict>
-											<dict>
-												<key>Host name</key>
-												<string>Macbook-Air-3.local</string>
-												<key>User name</key>
-												<string></string>
-											</dict>
-											<dict>
-												<key>Host name</key>
-												<string>Macbook-Air-3.local</string>
-												<key>User name</key>
-												<string></string>
-											</dict>
-											<dict>
-												<key>Host name</key>
-												<string>Macbook-Air-3.local</string>
-												<key>User name</key>
-												<string></string>
-											</dict>
-											<dict>
-												<key>Host name</key>
-												<string>Macbook-Air-3.local</string>
-												<key>User name</key>
-												<string></string>
-											</dict>
 											<dict>
 												<key>Host name</key>
 												<string>Macbook-Air-3.local</string>
@@ -10020,9 +10024,9 @@
 											<string>Shell Launcher</string>
 										</dict>
 										<key>Rows</key>
-										<integer>37</integer>
+										<integer>41</integer>
 										<key>Session GUID</key>
-										<string>333E4FAE-3CE5-4504-8B5F-FD13057EC1C1</string>
+										<string>CA708DD2-AE8C-4134-803E-F175177A1B94</string>
 										<key>Short Lived Single Use</key>
 										<false/>
 										<key>Should Expect Current Dir Updates</key>
@@ -10044,9 +10048,9 @@
 									<key>frame</key>
 									<dict>
 										<key>height</key>
-										<real>596</real>
+										<real>670</real>
 										<key>width</key>
-										<real>990</real>
+										<real>1130</real>
 										<key>x</key>
 										<real>0.0</real>
 										<key>y</key>
@@ -10059,9 +10063,9 @@
 							<key>frame</key>
 							<dict>
 								<key>height</key>
-								<real>596</real>
+								<real>670</real>
 								<key>width</key>
-								<real>990</real>
+								<real>1130</real>
 								<key>x</key>
 								<real>0.0</real>
 								<key>y</key>
@@ -10071,7 +10075,7 @@
 							<false/>
 						</dict>
 						<key>Tab GUID</key>
-						<string>FC59E115-8DC4-4111-96C4-FBE9435D2A24</string>
+						<string>F0BF91E3-3DFA-480C-B761-48CC77F829F4</string>
 					</dict>
 					<dict>
 						<key>Root</key>
@@ -10995,7 +10999,7 @@
 												<real>0.0</real>
 											</dict>
 											<key>Guid</key>
-											<string>31CB8353-1B21-454B-8D40-807EBE7EB1B3</string>
+											<string>E443BC66-481F-464B-8F96-8EA2E44AFDA9</string>
 											<key>Has Hotkey</key>
 											<false/>
 											<key>Horizontal Spacing</key>
@@ -11499,7 +11503,7 @@
 											<string>/Users/h</string>
 										</dict>
 										<key>Columns</key>
-										<integer>140</integer>
+										<integer>160</integer>
 										<key>Commands</key>
 										<array/>
 										<key>Directories</key>
@@ -11523,16 +11527,75 @@
 											<string>/Users/h/.dotfiles/tabs/ai</string>
 											<string>/Users/h/.dotfiles/tabs/ai</string>
 											<string>/Users/h/.dotfiles/tabs/ai</string>
+											<string>/Users/h/.dotfiles/tabs/ai</string>
+											<string>/Users/h/.dotfiles/tabs/ai</string>
+											<string>/Users/h/.dotfiles/tabs/ai</string>
+											<string>/Users/h/.dotfiles/tabs/ai</string>
+											<string>/Users/h</string>
+											<string>/Users/h/.dotfiles/config/tabs</string>
+											<string>/Users/h/.dotfiles/config/tabs/ai</string>
+											<string>/Users/h/.dotfiles/config/tabs/ai</string>
+											<string>/Users/h/.dotfiles/config/tabs/ai</string>
+											<string>/Users/h/.dotfiles/config/tabs/ai</string>
+											<string>/Users/h/.dotfiles/config/tabs/ai</string>
 										</array>
 										<key>Environment</key>
 										<dict>
 											<key>PWD</key>
-											<string>/Users/h/.dotfiles/tabs/ai</string>
+											<string>/Users/h/.dotfiles/config/tabs/ai</string>
 										</dict>
 										<key>Hostname to Shell</key>
 										<dict/>
 										<key>Hosts</key>
 										<array>
+											<dict>
+												<key>Host name</key>
+												<string>Macbook-Air-3.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Macbook-Air-3.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Macbook-Air-3.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Macbook-Air-3.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Macbook-Air-3.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Macbook-Air-3.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Macbook-Air-3.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Macbook-Air-3.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
 											<dict>
 												<key>Host name</key>
 												<string>Macbook-Air-3.local</string>
@@ -11653,7 +11716,7 @@
 											<string>Shell Launcher</string>
 										</dict>
 										<key>Rows</key>
-										<integer>37</integer>
+										<integer>41</integer>
 										<key>Session GUID</key>
 										<string>AE6A6309-BC98-48E3-8E90-429F4D423780</string>
 										<key>Short Lived Single Use</key>
@@ -11668,7 +11731,7 @@
 											<string>$$</string>
 										</dict>
 										<key>Working Directory</key>
-										<string>/Users/h/.dotfiles/tabs/ai</string>
+										<string>/Users/h/.dotfiles/config/tabs/ai</string>
 										<key>Working Directory Poller Disabled</key>
 										<true/>
 									</dict>
@@ -11677,9 +11740,9 @@
 									<key>frame</key>
 									<dict>
 										<key>height</key>
-										<real>596</real>
+										<real>670</real>
 										<key>width</key>
-										<real>990</real>
+										<real>1130</real>
 										<key>x</key>
 										<real>0.0</real>
 										<key>y</key>
@@ -11692,9 +11755,9 @@
 							<key>frame</key>
 							<dict>
 								<key>height</key>
-								<real>596</real>
+								<real>670</real>
 								<key>width</key>
-								<real>990</real>
+								<real>1130</real>
 								<key>x</key>
 								<real>0.0</real>
 								<key>y</key>
@@ -11728,13 +11791,13 @@
 				<key>Use Transparency</key>
 				<false/>
 				<key>Width</key>
-				<real>990</real>
+				<real>1130</real>
 				<key>Window Type</key>
 				<integer>13</integer>
 				<key>X Origin</key>
-				<real>225</real>
+				<real>155</real>
 				<key>Y Origin</key>
-				<real>120</real>
+				<real>83</real>
 			</dict>
 		</array>
 	</dict>
