@@ -1,5 +1,3 @@
-source $HOME/.dotfiles/.zshrc/shared.sh
-
 # ------------------------- LIST APPS ------------------------ #
 
 function list_apps() {
@@ -12,7 +10,7 @@ while IFS= read -r line; do
     apps=$(echo "$apps $line ;" | tr -d '\n')
 done <<<"$(list_apps)"
 
-a "#apps $apps"
+$HOME/.dotfiles/scripts/path/a.sh "#apps $apps"
 
 # ------------------------- LIST BREW ------------------------ #
 

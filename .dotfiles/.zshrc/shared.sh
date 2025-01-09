@@ -33,20 +33,22 @@ alias c="qalc"
 alias lines="grep -v '^$' | wc -l"
 alias weather="curl -s 'wttr.in?2AMn'"
 
-alias gpt4="aichat -s -m openai:gpt-4o"
-alias gpt3="aichat -s -m openai:gpt-3.5-turbo"
+alias rand="$my_scripts/lang/shell/rand.sh"
 
-alias rand="rand.sh"
-
-alias hm="python3 $HOME/.dotfiles/scripts/hm.py | bat -pPl 'json'"
-alias st="python3 $HOME/.dotfiles/scripts/st.py"
-alias later="python3 $HOME/.dotfiles/scripts/later.py"
+alias hm="python3 $my_scripts/lang/python/hm.py | bat -pPl 'json'"
+alias st="python3 $my_scripts/lang/python/st.py"
 
 # ------------------ UNCATEGORISED FUNCTIONS ----------------- #
 
 if ! command -v bat >/dev/null 2>&1; then
     function bat { cat; }
 fi
+
+function later { python3 $HOME/.dotfiles/scripts/lang/python/later.py "$@"; }
+function _later_completions {
+    _arguments '*:command:_command_names'
+}
+compdef _later_completions later
 
 function ob { ob.sh $*; }
 function _ob_completions {
@@ -279,7 +281,7 @@ function fall_asleep_delay {
     echo $((hours * 60 + minutes))
 }
 
-function csv { conda run -n main python3 "$HOME/.dotfiles/scripts/jsons_to_csv.py" $@ | bat -pPl 'tsv'; }
+function csv { conda run -n main python3 "$my_scripts/lang/python/jsons_to_csv.py" $@ | bat -pPl 'tsv'; }
 
 function sens { curl -sS --connect-timeout 2 "192.168.3.46:8004/$1" | bat -pPl "json"; }
 
@@ -308,10 +310,10 @@ function is {
     if [ $# -gt 0 ]; then
         # if conda installed
         if command -v conda &>/dev/null; then
-            is_output=$(conda run -n main python3 "$HOME/.dotfiles/scripts/exist.py" $@)
+            is_output=$(conda run -n main python3 "$HOME/.dotfiles/scripts/lang/python/exist.py" $@)
             local code=$?
         else
-            is_output=$(python3 "$HOME/.dotfiles/scripts/exist.py" $@)
+            is_output=$(python3 "$HOME/.dotfiles/scripts/lang/python/exist.py" $@)
             local code=$?
         fi
     fi
@@ -326,7 +328,7 @@ function is {
 # -------------------------- TODOIST ------------------------- #
 
 alias td="todoist"
-alias tdl="tdl.sh"
+alias tdl="$my_scripts/lang/shell/tdl.sh"
 alias tdi="tdl '(tod | od | p1)'"
 alias tundo="tdls :inbox | tac | inbox.sh "
 

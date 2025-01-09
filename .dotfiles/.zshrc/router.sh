@@ -1,3 +1,9 @@
+#!/bin/zsh
+
+if ! source "$HOME/.dotfiles/.zshrc/first.sh"; then
+    return 0
+fi
+
 source "$HOME/.dotfiles/.zshrc/shared.sh"
 
 if [ -f "$HOME/.dotfiles/.zshrc/secrets.sh" ]; then
