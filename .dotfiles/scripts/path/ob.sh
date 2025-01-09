@@ -16,11 +16,12 @@ if [[ "$1" == "-e" ]]; then
     }
 else
     function action {
-        bat -P $1
+        bat -P "$1"
     }
 fi
 
-input=$(echo "$*" | sed 's/\([a-z]\)\([A-Z]\)/\1 \2/g')
+# Parses arguments, expands cammel case, and removes .md extension
+input=$(echo "$*" | sed 's/\([a-z]\)\([A-Z]\)/\1 \2/g' | sed 's/\.md$//g')
 vault="$HOME/vault"
 
 (

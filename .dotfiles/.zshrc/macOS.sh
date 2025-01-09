@@ -79,19 +79,20 @@ function on_tab {
                 '(?<!\*)\*[^*]+\*(?!\*)' fg=magenta,underline
                 ';' fg=yellow,bold
                 '@\w+' fg=blue
-                '\$\(.*\)' fg=cyan
+                '\$\([^\$]+\)' fg=cyan
             )
         fi
 
         a
-    elif [[ $role == "ai" ]]; then
+    elif [[ $role == "ai" || $role == "ai_cheap" ]]; then
         if is_dark; then
             export AICHAT_LIGHT_THEME=0
         else
             export AICHAT_LIGHT_THEME=1
         fi
 
-        gpt4
+        [[ $role == "ai" ]] && gpt4
+        [[ $role == "ai_cheap" ]] && gpt3
     fi
 
 }
@@ -212,10 +213,6 @@ function dawn {
     ob p
 
     a "dawn #u"
-    local sleep_delay=$(fall_asleep_delay)
-    if [ -n "$sleep_delay" ]; then
-        a "$(in_days -1) sleep_delay $sleep_delay s #u"
-    fi
 
     later
 }
@@ -228,8 +225,7 @@ function eve {
         return 0
     fi
 
-    # Silent tasks
-    a "eve #u"
+    # Reset
     echo "" >$vault/p/rule.md
     echo "" >$vault/p/p.md
 
@@ -252,6 +248,7 @@ function eve {
     fi
     tl hb
 
+    # Show note
     echo
     ob eve
 
@@ -260,21 +257,29 @@ function eve {
     short night_shift 1
     theme 1
 
-    a "p_ett $(tdis | lines | tr -d '[:space:]') s #u"
-
     # Deletes tasks tagged @rm. NOTE - Has safeties and redundancies
-    local id_lines=$(tdls '@rm' -epF 'p1' | grep '@rm' | head -n 10 | grep -o '^[0-9]*')
-    if tdc $(echo "$id_lines" | tr -s '[:space:]' ' '); then
-        echo "Auto-deleted $(echo "$id_lines" | wc -l | tr -d '[:space:]') tasks"
+    local del_tasks=$(tdls '@rm' -epF 'p1' | grep '@rm' | head -n 10)
+    echo "$del_tasks" >>$HOME/.dotfiles/logs/eve.log
+    local del_ids=$(echo -n "$del_tasks" | grep -o '^[0-9]*' | tr -s '[:space:]' ' ')
+    if tdc $del_ids; then
+        echo "Auto-deleted $(echo -n "$del_ids" | wc -w | tr -d '[:space:]') task(s)"
     else
         echo 'Auto task deletion failed'
     fi
 
+    # Phone
     if [[ ! " $@ " == *" -l "* ]]; then
         sleep 9
         short phondo "flight mode"
     fi
 
+    # Track
+    a "eve #u"
+    a "p_ett $(tdis | lines | tr -d '[:space:]') s #u"
+    local sleep_delay=$(fall_asleep_delay)
+    if [ -n "$sleep_delay" ]; then
+        a "$(in_days -1) sleep_delay $sleep_delay s #u"
+    fi
 }
 
 function bedtime {

@@ -80,6 +80,7 @@ def list_attributes(results=[], url='https://exist.io/api/2/attributes/', groups
 
 
 def values(attr: str, days: int, date_max_input: int | None = None) -> dict:
+    ''' Used by env-tracker'''
 
     if _is_valid_date(date_max_input):
         date_max = datetime.strptime(date_max_input, '%Y-%m-%d')

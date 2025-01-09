@@ -14,20 +14,16 @@ mkdir -p Developer
 zstyle ':omz:update' mode disabled
 conda env create -f $HOME/.dotfiles/config/environment.yml
 
-# ----------------- ADDS MY ZSH CONFIGURATION ----------------- #
-
-addIfMissing 'source "$HOME/.dotfiles/.zshrc/router.sh"'
-
 # ----------------------- ADDS OH MY ZSH ---------------------- #
 
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
     (
         export CHSH=no KEEP_ZSHRC=yes
         sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+        exit
     )
 
     echo "Waiting for Oh My Zsh to install..."
-    sleep 10
 fi
 
 rm -rf $HOME/.oh-my-zsh/custom/*
@@ -35,5 +31,9 @@ cp -r $HOME/.dotfiles/config/ohmyzsh/* $HOME/.oh-my-zsh/custom/
 
 addIfMissing 'export ZSH="$HOME/.oh-my-zsh"'
 addIfMissing 'source "$ZSH/oh-my-zsh.sh"'
+
+# ----------------- ADDS MY ZSH CONFIGURATION ----------------- #
+
+addIfMissing 'source "$HOME/.dotfiles/.zshrc/router.sh"'
 
 exec zsh

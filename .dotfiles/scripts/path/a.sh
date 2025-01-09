@@ -65,8 +65,12 @@ function process_todoist_cli {
 # --------------------------- UPLOAD -------------------------- #
 
 function upload_stored {
+    if [ ! -e "$file_path" ]; then
+        return 0
+    fi
+
     file_content=$(cat "$file_path")
-    >$file_path
+    echo -n "" >$file_path
 
     echo "$file_content" | while IFS= read -r line; do
         process "$line"
@@ -78,3 +82,5 @@ function upload_stored {
 if process "$*" && [ "$did_local" = false ]; then
     upload_stored
 fi
+
+exit 0

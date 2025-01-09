@@ -1,3 +1,5 @@
+#!/bin/zsh
+
 # ------------------------- VARIABLES ------------------------ #
 export GPG_TTY=$(tty)
 export PATH="$HOME/.dotfiles/scripts/path:$PATH"
@@ -22,6 +24,9 @@ ZSH_HIGHLIGHT_REGEXP+=(
     '[ \t]-*[0-9]+(\.[0-9]+)*(?=([ \t]|$|\)))' fg=blue
 )
 
+autoload -Uz compinit
+compinit
+
 # ------------------------- UNCATEGORISED ALIASES ------------------------ #
 
 alias c="qalc"
@@ -29,10 +34,9 @@ alias lines="grep -v '^$' | wc -l"
 alias weather="curl -s 'wttr.in?2AMn'"
 
 alias gpt4="aichat -s -m openai:gpt-4o"
-alias gpt3="aichat -s -m openai:gpt-3"
+alias gpt3="aichat -s -m openai:gpt-3.5-turbo"
 
 alias rand="rand.sh"
-alias ob="ob.sh"
 
 alias hm="python3 $HOME/.dotfiles/scripts/hm.py | bat -pPl 'json'"
 alias st="python3 $HOME/.dotfiles/scripts/st.py"
@@ -43,6 +47,15 @@ alias later="python3 $HOME/.dotfiles/scripts/later.py"
 if ! command -v bat >/dev/null 2>&1; then
     function bat { cat; }
 fi
+
+function ob { ob.sh $*; }
+function _ob_completions {
+    _files -W $vault
+    _files -W $vault/i
+    _files -W $vault/p
+    _files -W $vault/tmp
+}
+compdef _ob_completions ob
 
 function cht {
     if $my_scripts/lang/shell/is_help.sh $*; then
@@ -91,7 +104,7 @@ function talk {
 
 function tl {
     local url="$TOOLS_URL/$1"
-    local content=$(curl -s "$url" -b "id=u3o8hiefo" -b "a75h=$A75H")
+    local content=$(curl -H "Authorization: Bearer $A75H" -s "$url" -b "id=u3o8hiefo")
     local return_code=$?
 
     if [ "$return_code" -ne 0 ]; then
@@ -182,15 +195,50 @@ function in_days {
 }
 
 function time_diff {
+    set -- $($my_scripts/lang/shell/expand_args.sh $*)
+
+    local positive_only=false
+    local return_minutes=false
+
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+        -h | --help)
+            printf "Usage: time_diff [options...] <time1> <time2>\n"
+            printf " %-3s %-20s %s\n" "-h" "--help" "Show this help message"
+            printf " %-3s %-20s %s\n" "-p" "" "Only allow positive differences"
+            return 0
+            ;;
+        -p)
+            positive_only=true
+            shift
+            ;;
+        -m)
+            return_minutes=true
+            shift
+            ;;
+        *)
+            break
+            ;;
+        esac
+    done
+
     local seconds1=$(date -j -f "%H:%M" "$2" +"%s" 2>/dev/null)
     local seconds2=$(date -j -f "%H:%M" "$1" +"%s" 2>/dev/null)
     local diff=$((seconds1 - seconds2))
 
     if [ $diff -lt 0 ]; then
-        return 1
+        if $positive_only; then
+            return 1
+        else
+            diff=$((diff + 86400))
+        fi
     fi
 
-    printf "%02d:%02d\n" $((diff / 3600)) $(((diff % 3600) / 60))
+    if $return_minutes; then
+        echo $((diff / 60))
+    else
+        printf "%02d:%02d\n" $((diff / 3600)) $(((diff % 3600) / 60))
+    fi
 }
 
 function year_day {
@@ -206,6 +254,12 @@ function year_day {
 
 # ------------------------- TRACKING ------------------------- #
 
+function bed_minus_dinner { time_diff -mp $(date +%H:%M) $(tl 'routines/bed_time/start?sep=%3A'); }
+function dinner {
+    local time_diff=$(bed_minus_dinner)
+    [ -n "$time_diff" ] && a "bed_minus_dinner $time_diff s #u" && echo "tracked bed_minus_dinner AS $time_diff"
+}
+
 function fall_asleep_delay {
     local bedtime=$(curl -s "$ROUTINE_ENDPOINT?q=bed_time" | sed 's/\./:/g' 2>/dev/null)
     if [ $? -ne 0 ] || [ -z "$bedtime" ]; then
@@ -216,7 +270,7 @@ function fall_asleep_delay {
     if [ $? -ne 0 ] || [ -z "$sleep_time" ]; then
         return 1
     fi
-    sleep_time=$(date -j -f "%I:%M %p" "$sleep_time pm" +"%H:%M")
+    sleep_time=$(time_diff "12:00" "$sleep_time")
 
     local time=$(time_diff $bedtime $sleep_time)
 
