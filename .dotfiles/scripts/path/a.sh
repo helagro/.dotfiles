@@ -1,4 +1,7 @@
 #!/bin/zsh
+
+# NOTE - Needs work without sourcing main
+
 file_path="$HOME/.dotfiles/tmp/a.txt"
 vault="$HOME/vault"
 did_local=false
@@ -24,7 +27,7 @@ function process {
     # Do process
     (
         process_server "$1" ||
-            process_todoist_cli "$1"
+            process_todoist_cli "$1 @cli"
     ) && return 0
 
     echo "$1" >>"$file_path"
@@ -50,7 +53,7 @@ function process_local {
 function process_server {
     # return 1 # Disable server processing
 
-    local resCode=$(curl -s -b "a75h=$A75H" -o /dev/null -w "%{http_code}" -X POST -d "$1" $TDA_URL)
+    local resCode=$(curl -s -b "a75h=$A75H" -o /dev/null -w "%{http_code}" -X POST --data-raw "$1" $TDA_URL)
 
     return $((resCode != 200))
 }

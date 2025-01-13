@@ -1,0 +1,258 @@
+option	global_value	default	description
+visidata_dir	~/.visidata/	~/.visidata/	directory to load and store additional files
+debug		False	exit on error and display stacktrace
+disp_menu	True	True	show menu on top line when not active
+disp_menu_keys		True	show keystrokes inline in submenus
+color_menu		black on 68 blue	color of menu items in general
+color_menu_active		223 yellow on black	color of active menu items
+color_menu_spec		black on 34 green	color of sheet-specific menu items
+color_menu_help		black italic on 68 blue	color of helpbox
+disp_menu_boxchars		││──┌┐└┘├┤	box characters to use for menus
+disp_menu_more		»	command submenu indicator
+disp_menu_push		⎘	indicator if command pushes sheet onto sheet stack
+disp_menu_input		…	indicator if input required for command
+disp_menu_fmt		| VisiData {vd.version} | {vd.hintStatus}	right-side menu format string
+undo		True	enable undo/redo
+disp_float_fmt		{:.02f}	default fmtstr to format float values
+disp_int_fmt		{:d}	default fmtstr to format int values
+col_cache_size		0	max number of cache entries in each cached column
+disp_formatter		generic	formatter to create the text in each cell (also used by text savers)
+disp_displayer		generic	displayer to render the text in each cell
+disp_splitwin_pct		0	height of second sheet on screen
+disp_note_none		⌀	visible contents of a cell whose value is None
+disp_truncator		…	indicator that the contents are only partially visible
+disp_oddspace		·	displayable character for odd whitespace
+disp_more_left		<	header note indicating more columns to the left
+disp_more_right		>	header note indicating more columns to the right
+disp_error_val			displayed contents for computation exception
+disp_ambig_width		1	width to use for unicode chars marked ambiguous
+disp_pending			string to display in pending cells
+disp_note_pending		:	note to display for pending cells
+disp_note_fmtexc		?	cell note for an exception during formatting
+disp_note_getexc		!	cell note for an exception during computation
+disp_note_typeexc		!	cell note for an exception during type conversion
+color_note_pending		bold green	color of note in pending cells
+color_note_type		226 yellow	color of cell note for non-str types in anytype columns
+color_note_row		220 yellow	color of row note on left edge
+scroll_incr		-3	amount to scroll with scrollwheel
+disp_column_sep		│	separator between columns
+disp_keycol_sep		║	separator between key columns and rest of columns
+disp_rowtop_sep		│	
+disp_rowmid_sep		⁝	
+disp_rowbot_sep		⁝	
+disp_rowend_sep		║	
+disp_keytop_sep		║	
+disp_keymid_sep		║	
+disp_keybot_sep		║	
+disp_endtop_sep		║	
+disp_endmid_sep		║	
+disp_endbot_sep		║	
+disp_selected_note		•	
+disp_sort_asc		↑↟⇞⇡⇧⇑	characters for ascending sort
+disp_sort_desc		↓↡⇟⇣⇩⇓	characters for descending sort
+color_default		white on black	the default fg and bg colors
+color_default_hdr		bold white on black	color of the column headers
+color_bottom_hdr		underline white on black	color of the bottom header row
+color_current_row		reverse	color of the cursor row
+color_current_col		bold on 232	color of the cursor column
+color_current_cell			color of current cell, if different from color_current_row+color_current_col
+color_current_hdr		bold reverse	color of the header for the cursor column
+color_column_sep		white on black	color of column separators
+color_key_col		81 cyan	color of key columns
+color_hidden_col		8	color of hidden columns on metasheets
+color_selected_row		215 yellow	color of selected rows
+color_clickable		bold	color of internally clickable item
+color_code		bold white on 237	color of code sample
+color_heading		bold black on yellow	color of header
+color_guide_unwritten		243 on black	color of unwritten guides in GuideGuide
+force_256_colors		False	use 256 colors even if curses reports fewer
+quitguard	True	False	confirm before quitting modified sheet
+default_width		20	default column width
+default_height		4	default column height
+name_joiner		_	string to join sheet or column names
+value_joiner		 	string to join display values
+max_rows		1000000000	number of rows to load from source
+disp_wrap_max_lines		3	max lines for multiline view
+disp_wrap_break_long_words		False	break words longer than column width in multiline
+disp_wrap_replace_whitespace		False	replace whitespace with spaces in multiline
+disp_wrap_placeholder		…	multiline string to indicate truncation
+disp_multiline_focus		True	only multiline cursor row
+color_aggregator		bold 255 white on 234 black	color of aggregator summary on bottom row
+disp_rstatus_fmt		{sheet.threadStatus} {sheet.keystrokeStatus}   [:longname_status]{sheet.longname}[/]  {sheet.nRows:9d} {sheet.rowtype} {sheet.modifiedStatus}{sheet.selectedStatus}{vd.replayStatus}{vd.sidebarStatus}	right-side status format string
+disp_status_fmt		{sheet.sheetlist}| 	left-side status format string
+disp_lstatus_max		0	maximum length of left status line
+disp_status_sep		│	separator between statuses
+color_keystrokes		bold white on 237	color of input keystrokes
+color_longname_guide		237	color of command longnames
+color_longname_status		white	color of command longnames
+color_keys		bold reverse	color of keystrokes in help
+color_status		bold on 238	status line color
+color_error		202 1	error message color
+color_warning		166 15	warning message color
+color_top_status		underline	top window status bar color
+color_active_status		black on 68 blue	 active window status bar color
+color_inactive_status		8 on black	inactive window status bar color
+color_highlight_status		black on green	color of highlighted elements in statusbar
+wrap		False	wrap text to fit window width on TextSheet
+save_filetype		tsv	specify default file type to save as
+profile		False	enable profiling on threads
+min_memory_mb		0	minimum memory to continue loading and async processing
+color_working		118 5	color of system running smoothly
+encoding		utf-8-sig	encoding passed to codecs.open when reading a file
+encoding_errors		surrogateescape	encoding_errors passed to codecs.open
+color_edit_unfocused		238 on 110	display color for unfocused input in form
+color_edit_cell		233 on 110	cell color to use when editing cell
+disp_edit_fill		_	edit field fill character
+disp_unprintable		·	substitute character for unprintables
+mouse_interval		1	max time between press/release for click (ms)
+disp_date_fmt		%Y-%m-%d	default fmtstr passed to strftime for date values
+bulk_select_clear		False	clear selected rows before new bulk selections
+some_selected_rows		False	if no rows selected, if True, someSelectedRows returns all rows; if False, fails
+regex_skip			regex of lines to skip in text sources
+regex_flags		I	flags to pass to re.compile() [AILMSUX]
+load_lazy		False	load subsheets always (False) or lazily (True)
+skip		0	skip N rows before header
+header		1	parse first N rows as column names
+delimiter				field delimiter to use for tsv/usv filetype
+row_delimiter		
+	row delimiter to use for tsv/usv filetype
+tsv_safe_newline			replacement for newline character when saving to tsv
+tsv_safe_tab			replacement for tab character when saving to tsv
+visibility		0	visibility level
+default_sample_size		100	number of rows to sample for regex.split (0=all)
+fmt_expand_dict		%s.%s	format str to use for names of columns expanded from dict (colname, key)
+fmt_expand_list		%s[%s]	format str to use for names of columns expanded from list (colname, index)
+json_indent			indent to use when saving json
+json_sort_keys		False	sort object keys when saving to json
+json_ensure_ascii		True	ensure ascii encode when saving json
+default_colname			column name to use for non-dict rows
+filetype			specify file type
+safe_error		#ERR	error string to use while saving
+save_encoding		utf-8	encoding passed to codecs.open when saving a file
+disp_currency_fmt		%.02f	default fmtstr to format for currency values
+color_currency_neg		red	color for negative values in currency displayer
+clean_names		False	clean column/sheet names to be valid Python identifiers
+replay_wait		0.0	time to wait between replayed commands, in seconds
+disp_replay_play		▶	status indicator for active replay
+disp_replay_record		⏺	status indicator for macro record
+color_status_replay		green	color of replay status indicator
+rowkey_prefix		キ	string prefix for rowkey in the cmdlog
+clipboard_copy_cmd		pbcopy w	command to copy stdin to system clipboard
+clipboard_paste_cmd		pbpaste	command to send contents of system clipboard to stdout
+fancy_chooser		False	a nicer selection interface for aggregators and jointype
+null_value			a value to be counted as null
+disp_histogram		■	histogram element character
+histogram_bins		0	number of bins for histogram of numeric columns
+numeric_binning		False	bin numeric columns into ranges
+disp_graph_labels		True	show axes and legend on graph
+plot_colors		green red yellow cyan magenta white 38 136 168	list of distinct colors to use for plotting distinct objects
+disp_canvas_charset		⠀⠁⠂⠃⠄⠅⠆⠇⠈⠉⠊⠋⠌⠍⠎⠏⠐⠑⠒⠓⠔⠕⠖⠗⠘⠙⠚⠛⠜⠝⠞⠟⠠⠡⠢⠣⠤⠥⠦⠧⠨⠩⠪⠫⠬⠭⠮⠯⠰⠱⠲⠳⠴⠵⠶⠷⠸⠹⠺⠻⠼⠽⠾⠿⡀⡁⡂⡃⡄⡅⡆⡇⡈⡉⡊⡋⡌⡍⡎⡏⡐⡑⡒⡓⡔⡕⡖⡗⡘⡙⡚⡛⡜⡝⡞⡟⡠⡡⡢⡣⡤⡥⡦⡧⡨⡩⡪⡫⡬⡭⡮⡯⡰⡱⡲⡳⡴⡵⡶⡷⡸⡹⡺⡻⡼⡽⡾⡿⢀⢁⢂⢃⢄⢅⢆⢇⢈⢉⢊⢋⢌⢍⢎⢏⢐⢑⢒⢓⢔⢕⢖⢗⢘⢙⢚⢛⢜⢝⢞⢟⢠⢡⢢⢣⢤⢥⢦⢧⢨⢩⢪⢫⢬⢭⢮⢯⢰⢱⢲⢳⢴⢵⢶⢷⢸⢹⢺⢻⢼⢽⢾⢿⣀⣁⣂⣃⣄⣅⣆⣇⣈⣉⣊⣋⣌⣍⣎⣏⣐⣑⣒⣓⣔⣕⣖⣗⣘⣙⣚⣛⣜⣝⣞⣟⣠⣡⣢⣣⣤⣥⣦⣧⣨⣩⣪⣫⣬⣭⣮⣯⣰⣱⣲⣳⣴⣵⣶⣷⣸⣹⣺⣻⣼⣽⣾⣿	charset to render 2x4 blocks on canvas
+disp_pixel_random		False	randomly choose attr from set of pixels instead of most common
+disp_zoom_incr		2.0	amount to multiply current zoomlevel when zooming
+color_graph_hidden		238 blue	color of legend for hidden attribute
+color_graph_selected		bold	color of selected graph points
+color_graph_axis		bold	color for graph axis labels
+disp_graph_tick_x		╵	character for graph x-axis ticks
+color_graph_refline			color for graph reference value lines
+disp_graph_reflines_x_charset		▏││▕	charset to render vertical reference lines on graph
+disp_graph_reflines_y_charset		▔──▁	charset to render horizontal reference lines on graph
+disp_graph_multiple_reflines_char		▒	char to render multiple parallel reflines
+motd_url		https://visidata.org/motd-3.1.1	source of randomized startup messages
+dir_depth		0	folder recursion depth on DirSheet
+dir_hidden		False	load hidden files on DirSheet
+config	/Users/h/.visidatarc	/Users/h/.visidatarc	config file to exec in Python
+play			file.vdj to replay
+batch		False	replay in batch mode (with no interface and all status sent to stdout)
+output			save the final visible sheet to output at the end of replay
+preplay			longnames to preplay before replay
+imports		plugins	imports to preload before .visidatarc (command-line only)
+nothing		False	no config, no plugins, nothing extra
+interactive		False	run interactive mode after batch replay
+disp_expert		0	max level of options and columns to include
+color_add_pending		green	color for rows pending add
+color_change_pending		reverse yellow	color for cells pending modification
+color_delete_pending		red	color for rows pending delete
+overwrite	y	c	overwrite existing files {y=yes|c=confirm|n=no}
+disp_sidebar		True	whether to display sidebar
+disp_sidebar_fmt			format string for default sidebar
+disp_sidebar_width		0	max width for sidebar
+disp_sidebar_height		0	max height for sidebar
+color_sidebar		black on 114 blue	base color of sidebar
+color_sidebar_title		black on yellow	color of sidebar title
+plugins_autoload		True	do not autoload plugins if False
+theme			display/color theme to use
+color_match		red	color for matching chars in palette chooser
+airtable_auth_token			Airtable API key from https://airtable.com/account
+matrix_token			matrix API token
+matrix_user_id			matrix user ID associated with token
+matrix_device_id		VisiData	device ID associated with matrix login
+reddit_client_id			client_id for reddit api
+reddit_client_secret			client_secret for reddit api
+reddit_user_agent		3.1.1	user_agent for reddit api
+zulip_batch_size		-100	number of messages to fetch per call (<0 to fetch before anchor)
+zulip_anchor		1000000000	message id to start fetching from
+zulip_delay_s		1e-05	seconds to wait between calls (0 to stop after first)
+zulip_api_key			Zulip API key
+zulip_email			Email for use with Zulip API key
+csv_dialect		excel	dialect passed to csv.reader
+csv_delimiter		,	delimiter passed to csv.reader
+csv_doublequote		True	quote-doubling setting passed to csv.reader
+csv_quotechar		"	quotechar passed to csv.reader
+csv_quoting		0	quoting style passed to csv.reader and csv.writer
+csv_skipinitialspace		True	skipinitialspace passed to csv.reader
+csv_escapechar			escapechar passed to csv.reader
+csv_lineterminator		
+	lineterminator passed to csv.writer
+safety_first		False	sanitize input/output to handle edge cases, with a performance cost
+color_f5log_mon_up		green	color of f5log monitor status up
+color_f5log_mon_down		red	color of f5log monitor status down
+color_f5log_mon_unknown		blue	color of f5log monitor status unknown
+color_f5log_mon_checking		magenta	color of monitor status checking
+color_f5log_mon_disabled		black	color of monitor status disabled
+color_f5log_logid_alarm		red	color of alarms
+color_f5log_logid_warn		yellow	color of warnings
+color_f5log_logid_notice		cyan	color of notice
+color_f5log_logid_info		green	color of info
+f5log_object_regex			A regex to perform on the object name, useful where object names have a structure to extract. Use the (?P<foo>...) named groups form to get column names.
+f5log_log_year			Override the default year used for log parsing. Use all four digits of the year (e.g., 2022). By default (None) use the year from the ctime of the file, or failing that the current year.
+f5log_log_timezone		UTC	The timezone the source file is in, by default UTC.
+fixed_rows		1000	number of rows to check for fixed width columns
+fixed_maxcols		0	max number of fixed-width columns to create (0 is no max)
+graphviz_edge_labels		True	whether to include edge labels on graphviz diagrams
+grep_base_dir			base directory for relative paths opened with sysopen-row
+html_title		<h2>{sheet.name}</h2>	table header when saving to html
+http_max_next		0	max next.url pages to follow in http response
+http_req_headers		{0}	http headers to send to requests
+http_ssl_verify		True	verify host and certificates for https
+npy_allow_pickle		False	numpy allow unpickling objects (unsafe)
+pcap_internet		n	(y/s/n) if save_dot includes all internet hosts separately (y), combined (s), or does not include the internet (n)
+pdf_tables		False	parse PDF for tables instead of pages of text
+postgres_schema		public	The desired schema for the Postgres database
+s3_endpoint			alternate S3 endpoint, used for local testing or alternative S3-compatible services
+s3_glob		True	enable glob-matching for S3 paths
+s3_version_aware		False	show all object versions in a versioned bucket
+sqlite_onconnect			sqlite statement to execute after opening a connection
+xlsx_meta_columns		False	include columns for cell objects, font colors, and fill colors
+xlsx_color_cells		True	color cells based on xlsx source
+xml_parser_huge_tree		True	allow very deep trees and very long text content
+color_xword_active		green	color of active clue
+plt_marker		.	matplotlib.markers
+color_cmdpalette		black on 72	base color of command palette
+disp_cmdpal_max		10	max number of suggestions for command palette
+plot_palette		Set3	colorbrewer palette to use
+server_addr		127.0.0.1	IP address to listen for commands
+server_port		0	port to listen for commands
+fixer_api_key			API Key for api.apilayer.com/fixer
+fixer_cache_days		1	Cache days for currency conversions
+describe_aggrs		mean stdev	numeric aggregators to calculate on Describe sheet
+hello_world		¡Hola mundo!	shown by the hello-world command
+incr_base		1.0	start value for column increments
+regex_maxsplit		0	maxsplit to pass to regex.split
+rename_cascade		False	cascade column renames into expressions
+disp_scroll_context		0	minimum number of lines to keep visible above/below cursor when scrolling
+faker_locale		en_US	default locale to use for Faker
+faker_extra_providers			list of additional Provider classes to load via add_provider()
+faker_salt			Use a non-empty string to enable deterministic fakes
+disp_sparkline		▁▂▃▄▅▆▇	characters to display sparkline
+mailcap_mimetype			force mimetype for sysopen-mailcap
+unfurl_empty		False	if unfurl includes rows for empty containers

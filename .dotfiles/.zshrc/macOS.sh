@@ -24,7 +24,7 @@ fi
 
 alias vi="nvim"
 alias archive="$HOME/Documents/archiver-go/build/macOS"
-alias breake="nvim $doc/break-timer/.env"
+alias breake="nvim $DOC/break-timer/.env"
 alias wifi="networksetup -setairportpower en0" # NOTE - on/off
 
 # ------------------------- OTHER FUNCTIONS ------------------------ #
@@ -93,15 +93,12 @@ function pass {
 }
 
 function e {
-    if [ -d "$dev/$1" ]; then
-        code "$dev/$1"
-    elif [ -d "$doc/$1" ]; then
-        code "$doc/$1"
+    if [ -d "$DEV/$1" ]; then
+        code "$DEV/$1"
+    elif [ -d "$DOC/$1" ]; then
+        code "$DOC/$1"
     elif [ -d "$1" ]; then
         code "$1"
-    elif [ -e "$vault/$*.md" ]; then
-        nvim "$vault/$*.md"
-        return 0
     elif [ -e "$*" ]; then
         nvim "$*"
         return 0
@@ -109,7 +106,7 @@ function e {
         gclone $1
 
         if [ $? -eq 0 ]; then
-            code "$dev/$1"
+            code "$DEV/$1"
         else
             return 1
         fi
@@ -120,6 +117,13 @@ function e {
         e $*
     fi
 }
+
+function e_completion {
+    _files -W $DEV
+    _files -W $DOC
+}
+
+compdef e_completion e
 
 # ---------------------- APPLE SHORTCUTS --------------------- #
 
@@ -152,6 +156,96 @@ function day {
     tdis
 }
 
+# -------------------------- TIMING -------------------------- #
+
+alias timer="short timer"
+
+function sw {
+    set -- $($MY_SCRIPTS/lang/shell/expand_args.sh $*)
+
+    # Initialise variables
+    local time=-1
+    local do_focus=false
+    local do_silent=false
+    local offline_mode=false
+
+    # Parse options
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+        -f | --focus)
+            do_focus=true
+            shift
+            ;;
+        -o | --offline)
+            offline_mode=true
+            shift
+            ;;
+        -s | --silent)
+            do_silent=true
+            shift
+            ;;
+        -h | --help)
+            print 'Usage: sw [options...] <duration> <activity>'
+            printf " %-3s %-20s %s\n" "-f" "--focus" "Do set focus"
+            printf " %-3s %-20s %s\n" "-s" "--silent" "Silent mode"
+            printf " %-3s %-20s %s\n" "-o" "--offline" "Offline mode"
+            printf " %-3s %-20s %s\n" "-h," "--help" "Show this help message"
+            return 0
+            ;;
+        *)
+            break
+            ;;
+        esac
+    done
+
+    # Turn on focus?
+    if $do_focus; then
+        short focus on
+    fi
+
+    # If provided time
+    if [ -n "$1" ]; then
+        time=$1
+    fi
+
+    local start_time=$(date +%s)
+
+    # Run stopwatch
+    if $do_silent; then
+        caffeinate -disu -i $DOC/stopwatch/main "$1" 1>&2
+    else
+        caffeinate -disu -i $DOC/stopwatch/main "$1"
+
+        if [ $? -ne 2 ]; then
+            asciiquarium
+        fi
+    fi
+
+    # Calculate time
+    local end_time=$(date +%s)
+    local min=$((($end_time - $start_time) / 60))
+
+    # Run execute output
+    if $do_silent; then
+        echo -n "$min"
+    elif [ -n "$2" ]; then
+        if [ "$min" -eq 0 ]; then
+            echo "(Not tracking because time was less than 1 minute)"
+        else
+            if $offline_mode; then
+                a "$(tod) $2 $min #u"
+            else
+                a "$2 $min #u"
+            fi
+        fi
+    fi
+
+    # Turn off focus?
+    if $do_focus; then
+        short focus off
+    fi
+}
+
 # -------------------------- ROUTINE ------------------------- #
 
 function dawn {
@@ -161,7 +255,7 @@ function dawn {
     local theme=0
     local night_shift=0
 
-    set -- $($my_scripts/lang/shell/expand_args.sh $*)
+    set -- $($MY_SCRIPTS/lang/shell/expand_args.sh $*)
     while [[ $# -gt 0 ]]; do
         case "$1" in
         -f | --focus)
@@ -187,48 +281,84 @@ function dawn {
         esac
     done
 
-    sleep 2
-
+    # Set env
     short focus "$focus_mode"
     short night_shift "$night_shift"
     short focus
     theme $theme
 
+    a "dawn #u"
+    ob stateAdder | state_switch.sh | a
+    ob stateDo | state_switch.sh | later
+    local sleep_amt=$(is sleep 1 | jq '.[]')
+    if [ -n "$sleep_amt" ] && [ "$sleep_amt" != "null" ] && [ "$sleep_amt" -lt "420" ]; then
+        a "@rm !(13:30) caffeine?"
+    fi
+
+    # Makes sure wifi is back on
+    sleep 2
+
+    later
+
+    # Display main stuff
     day tod
     ob dawn
 
+    # Display secondary stuff
     tl streaks
+    for state in "${state_list[@]}"; do
+        $(eval echo \$$state) && echo $state
+    done
     ob rule
     ob p
+}
 
-    a "dawn #u"
+function dinner {
+    local temp=$(sens -n temp)
+    if [[ $temp -gt $dinner_temp_threshold ]]; then
+        echo "Turn off radiator - $temp°C > $dinner_temp_threshold°C )"
+    fi
 
-    later
+    # Track time
+    local time_diff=$(bed_minus_dinner)
+    [ -n "$time_diff" ] && a "bed_minus_dinner $time_diff s #u" && echo "tracked bed_minus_dinner AS $time_diff"
+
 }
 
 function eve {
-    if $my_scripts/lang/shell/is_help.sh $*; then
+    set -- $($MY_SCRIPTS/lang/shell/expand_args.sh $*)
+
+    if $MY_SCRIPTS/lang/shell/is_help.sh $*; then
         print 'Usage: eve [options...]'
         printf " %-3s %-20s %s\n" "-l," "" "Skip enabling flight mode on phone"
+        printf " %-3s %-20s %s\n" "-E," "" "Skip environment setup"
         printf " %-3s %-20s %s\n" "-h," "--help" "Show this help message"
         return 0
     fi
+    # Track routine
+    a "eve #u"
 
     # Reset
-    echo "" >$vault/p/rule.md
-    echo "" >$vault/p/p.md
+    echo "" >$VAULT/p/rule.md
+    echo "" >$VAULT/p/p.md
 
     # Tasks
     day tom
     echo
 
     # Show stats
-    echo -n temp:
-    sens temp
-    echo "podd:"
-    is podd 1
-    echo "tv_min:"
-    is tv_min 1
+    printf "podd: \e[33m%b\e[0m\n" "$(is -v podd 1)"
+    printf "tv_min: \e[33m%b\e[0m\n" "$(is -v tv_min 1)"
+    printf "tv_opens: \e[33m%b\e[0m\n" "$(is -v tv_opens 1)"
+
+    # Track other stats
+    a "p_ett $(tdis | lines | tr -d '[:space:]') s #u"
+    local sleep_delay=$(fall_asleep_delay)
+    if [ -n "$sleep_delay" ]; then
+        a "$(in_days -1) sleep_delay $sleep_delay s #u"
+    fi
+
+    echo
 
     # Show other info
     forecast=$(weather)
@@ -236,15 +366,24 @@ function eve {
         echo "$forecast"
     fi
     tl hb
+    echo -n temp:
+    sens temp
+
+    echo
 
     # Show note
-    echo
     ob eve
 
+    $has_fog && echo "fog -> ( walk, meditate )"
+
+    echo
+
     # Setup environment
-    short focus sleep
-    short night_shift 1
-    theme 1
+    if [[ ! " $@ " == *" -E "* ]]; then
+        short focus sleep
+        short night_shift 1
+        theme 1
+    fi
 
     # Deletes tasks tagged @rm. NOTE - Has safeties and redundancies
     local del_tasks=$(tdls '@rm' -epF 'p1' | grep '@rm' | head -n 10)
@@ -262,17 +401,10 @@ function eve {
         short phondo "flight mode"
     fi
 
-    # Track
-    a "eve #u"
-    a "p_ett $(tdis | lines | tr -d '[:space:]') s #u"
-    local sleep_delay=$(fall_asleep_delay)
-    if [ -n "$sleep_delay" ]; then
-        a "$(in_days -1) sleep_delay $sleep_delay s #u"
-    fi
 }
 
 function bedtime {
-    set -- $($my_scripts/lang/shell/expand_args.sh $*)
+    set -- $($MY_SCRIPTS/lang/shell/expand_args.sh $*)
 
     local do_phone=1
     local wifi=0
@@ -316,72 +448,4 @@ function bedtime {
 
     short focus sleep
     ob bedtime
-}
-
-# -------------------------- TIMING -------------------------- #
-
-alias timer="short timer"
-
-function medd {
-    set -- $($my_scripts/lang/shell/expand_args.sh $*)
-
-    local do_focus=false
-    local time=-1
-
-    while [[ $# -gt 0 ]]; do
-        case "$1" in
-        -f | --focus)
-            do_focus=true
-            shift
-            ;;
-        -h | --help)
-            print 'Usage: medd [options...] <duration>'
-            printf " %-3s %-20s %s\n" "-f" "" "Do set focus"
-            printf " %-3s %-20s %s\n" "-h," "--help" "Show this help message"
-            return 0
-            ;;
-        *)
-            time=$1
-            shift
-            ;;
-        esac
-    done
-
-    if $do_focus; then
-        short focus on
-    fi
-
-    sw $time "medd"
-
-    if $do_focus; then
-        short focus off
-    fi
-}
-
-function sw {
-    if $my_scripts/lang/shell/is_help.sh $*; then
-        echo "Usage: sw <duration> [ <activity> | -s ]"
-        return 0
-    fi
-
-    local start_time=$(date +%s)
-
-    if [[ $2 == "-s" ]]; then
-        caffeinate -disu -i $doc/stopwatch/main "$1" 1>&2
-    else
-        caffeinate -disu -i $doc/stopwatch/main "$1"
-
-        if [ $? -ne 2 ]; then
-            asciiquarium
-        fi
-    fi
-
-    local end_time=$(date +%s)
-    local min=$((($end_time - $start_time) / 60))
-
-    if [[ "$2" == "-s" ]]; then
-        echo -n "$min"
-    elif [ -n "$2" ] && [ "$min" -ne 0 ]; then
-        a "$2 $min #u"
-    fi
 }

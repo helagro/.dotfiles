@@ -22,7 +22,7 @@ fi
 
 # Parses arguments, expands cammel case, and removes .md extension
 input=$(echo "$*" | sed 's/\([a-z]\)\([A-Z]\)/\1 \2/g' | sed 's/\.md$//g')
-vault="$HOME/vault"
+vault="$HOME/vault" # Can't use exported, called by break timer
 
 (
     action "$vault/i/$input.md" 2>/dev/null ||

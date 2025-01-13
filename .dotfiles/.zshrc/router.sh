@@ -4,11 +4,19 @@ if ! source "$HOME/.dotfiles/.zshrc/first.sh"; then
     return 0
 fi
 
-source "$HOME/.dotfiles/.zshrc/shared.sh"
-
 if [ -f "$HOME/.dotfiles/.zshrc/secrets.sh" ]; then
     source "$HOME/.dotfiles/.zshrc/secrets.sh"
 fi
+
+if [ -f "$HOME/.dotfiles/.zshrc/custom.sh" ]; then
+    source "$HOME/.dotfiles/.zshrc/custom.sh"
+fi
+
+if [[ "$PWD" == "$HOME/.dotfiles/config/tabs/hotkey" ]]; then
+    return 0
+fi
+
+source "$HOME/.dotfiles/.zshrc/shared.sh"
 
 if [ "$(uname)" = "Darwin" ]; then
     source "$HOME/.dotfiles/.zshrc/macOS.sh"

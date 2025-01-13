@@ -51,5 +51,6 @@ brew install "monitorcontrol" -q
 brew install "neardrop" -q
 brew install "notunes" -q
 brew install "obsidian" -q
+brew install "rectangle" -q
 brew install "visual-studio-code" -q
 brew install "whatsapp" -q

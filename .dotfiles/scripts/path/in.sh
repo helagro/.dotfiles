@@ -89,7 +89,7 @@ function close {
     if ping -c 1 -t 1 8.8.8.8 &>/dev/null; then
         (nohup todoist c "$1" >/dev/null 2>&1 &)
     else
-        python3 $HOME/.dotfiles/scripts/lang/python/later.py "tdc $1" 
+        python3 $MY_SCRIPTS/lang/python/later.py "tdc $1" 
     fi
 }
 

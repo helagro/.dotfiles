@@ -4,6 +4,11 @@ alias gpt4="aichat -s -m openai:gpt-4o"
 alias gpt3="aichat -s -m openai:gpt-3.5-turbo"
 alias is_dark='[[ $(defaults read -g AppleInterfaceStyle 2>/dev/null) == "Dark" ]]'
 
+function rand_elem {
+    local arr="$1"
+    echo ${arr[RANDOM % $#arr + 1]}
+}
+
 if [ "$(uname)" = "Darwin" ]; then
 
     if [[ "$PWD" == "$HOME/.dotfiles/config/tabs/ai" || "$PWD" == "$HOME/.dotfiles/config/tabs/ai_cheap" ]]; then

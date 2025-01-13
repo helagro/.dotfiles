@@ -4,14 +4,14 @@
 export GPG_TTY=$(tty)
 export PATH="$HOME/.dotfiles/scripts/path:$PATH"
 
-doc="$HOME/Documents"
-dev="$HOME/Developer"
-vault="$HOME/vault"
-my_scripts="$HOME/.dotfiles/scripts"
+export DOC="$HOME/Documents"
+export DEV="$HOME/Developer"
+export VAULT="$HOME/vault"
+export MY_SCRIPTS="$HOME/.dotfiles/scripts"
 
-export DISABLED_TD_APP_ITEMS="---,ob," # Items must end with a comma, even last one
-
-waste="distracting_min"
+# NOTE - Items must end with a comma, even last one
+# NOTE - Used by todoist-app
+export DISABLED_TD_APP_ITEMS="---,ob,"
 
 # ---------------------------- ZSH --------------------------- #
 
@@ -33,16 +33,25 @@ alias c="qalc"
 alias lines="grep -v '^$' | wc -l"
 alias weather="curl -s 'wttr.in?2AMn'"
 
-alias rand="$my_scripts/lang/shell/rand.sh"
+alias rand="$MY_SCRIPTS/lang/shell/rand.sh"
 
-alias hm="python3 $my_scripts/lang/python/hm.py | bat -pPl 'json'"
-alias st="python3 $my_scripts/lang/python/st.py"
+alias hm="python3 $MY_SCRIPTS/lang/python/hm.py | bat -pPl 'json'"
+alias st="python3 $MY_SCRIPTS/lang/python/st.py"
 
 # ------------------ UNCATEGORISED FUNCTIONS ----------------- #
 
 if ! command -v bat >/dev/null 2>&1; then
     function bat { cat; }
+    export -f bat
 fi
+
+function test {
+    if $has_fog; then
+        echo "fog - true"
+    else
+        echo "fog - false"
+    fi
+}
 
 function later { python3 $HOME/.dotfiles/scripts/lang/python/later.py "$@"; }
 function _later_completions {
@@ -52,15 +61,15 @@ compdef _later_completions later
 
 function ob { ob.sh $*; }
 function _ob_completions {
-    _files -W $vault
-    _files -W $vault/i
-    _files -W $vault/p
-    _files -W $vault/tmp
+    _files -W $VAULT
+    _files -W $VAULT/i
+    _files -W $VAULT/p
+    _files -W $VAULT/tmp
 }
 compdef _ob_completions ob
 
 function cht {
-    if $my_scripts/lang/shell/is_help.sh $*; then
+    if $MY_SCRIPTS/lang/shell/is_help.sh $*; then
         echo "cht <language> <query>" \
             "\n query is separated by +"
         return 0
@@ -151,7 +160,7 @@ alias gaa="git add ."      # Git Add All
 alias gcm="git commit -m " # Git Commit Message
 alias gsw="git switch "    # Git Switch
 
-function gclone { git clone "git@github.com:helagro/$1.git" $dev/$1; }
+function gclone { git clone "git@github.com:helagro/$1.git" $DEV/$1; }
 function gi { curl -s https://www.toptal.com/developers/gitignore/api/$@; }
 function yq { yadm add -u && yadm commit -m "$*" && yadm push; }
 
@@ -197,7 +206,7 @@ function in_days {
 }
 
 function time_diff {
-    set -- $($my_scripts/lang/shell/expand_args.sh $*)
+    set -- $($MY_SCRIPTS/lang/shell/expand_args.sh $*)
 
     local positive_only=false
     local return_minutes=false
@@ -256,11 +265,9 @@ function year_day {
 
 # ------------------------- TRACKING ------------------------- #
 
+function csv { conda run -n main python3 "$MY_SCRIPTS/lang/python/jsons_to_csv.py" $@ | bat -pPl 'tsv'; }
+
 function bed_minus_dinner { time_diff -mp $(date +%H:%M) $(tl 'routines/bed_time/start?sep=%3A'); }
-function dinner {
-    local time_diff=$(bed_minus_dinner)
-    [ -n "$time_diff" ] && a "bed_minus_dinner $time_diff s #u" && echo "tracked bed_minus_dinner AS $time_diff"
-}
 
 function fall_asleep_delay {
     local bedtime=$(curl -s "$ROUTINE_ENDPOINT?q=bed_time" | sed 's/\./:/g' 2>/dev/null)
@@ -281,9 +288,22 @@ function fall_asleep_delay {
     echo $((hours * 60 + minutes))
 }
 
-function csv { conda run -n main python3 "$my_scripts/lang/python/jsons_to_csv.py" $@ | bat -pPl 'tsv'; }
+function sens {
+    local do_new_line=true
 
-function sens { curl -sS --connect-timeout 2 "192.168.3.46:8004/$1" | bat -pPl "json"; }
+    if [[ "$1" == '-n' ]]; then
+        do_new_line=false
+        shift
+    fi
+
+    local result=$(curl -sS --connect-timeout 2 "192.168.3.46:8004/$1")
+
+    if $do_new_line; then
+        echo "$result" | bat -pPl "json"
+    else
+        echo -n "$result" | bat -pPl "json"
+    fi
+}
 
 function slope {
     local m="${1:-7}"
@@ -307,6 +327,13 @@ function slope {
 }
 
 function is {
+    local value_only=false
+
+    if [[ "$1" == "-v" ]]; then
+        value_only=true
+        shift
+    fi
+
     if [ $# -gt 0 ]; then
         # if conda installed
         if command -v conda &>/dev/null; then
@@ -318,7 +345,11 @@ function is {
         fi
     fi
 
-    echo $is_output | bat -pl 'json'
+    if $value_only; then
+        echo $is_output | jq '.[]' | bat -pl 'json'
+    else
+        echo $is_output | bat -pl 'json'
+    fi
 
     if [ -n "$code" ]; then
         return $code
@@ -328,8 +359,8 @@ function is {
 # -------------------------- TODOIST ------------------------- #
 
 alias td="todoist"
-alias tdl="$my_scripts/lang/shell/tdl.sh"
-alias tdi="tdl '(tod | od | p1)'"
+alias tdl="$MY_SCRIPTS/lang/shell/tdl.sh"
+alias tdi="tdl '(tod|od|p1)'"
 alias tundo="tdls :inbox | tac | inbox.sh "
 
 alias tdis='td s && tdi'
@@ -452,7 +483,7 @@ function m_vared {
 alias randine="grep -v '^$' | shuf -n 1"
 
 function do_now {
-    local file_name="$vault/$*.md"
+    local file_name="$VAULT/$*.md"
 
     if [[ ! -e "$file_name" ]]; then
         echo "$file_name does not exist"
@@ -467,7 +498,7 @@ function do_now {
 }
 
 function randote {
-    local file=$(find "$vault/i" -type f | sort -R | head -n 1)
+    local file=$(find "$VAULT/i" -type f | sort -R | head -n 1)
     bat -P "$file"
 
     a ob

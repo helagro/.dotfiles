@@ -13,6 +13,7 @@ do_es=false
 filter=""
 input="#inbox"
 plain=false
+computed=false
 
 # ------------------------- FUNCTIONS ------------------------ #
 
@@ -33,25 +34,9 @@ function colorize {
     }'
 }
 
-# ------------------------ EXPAND FLAGS ----------------------- #
-
-expanded_args=()
-for arg in "$@"; do
-    if [[ "$arg" =~ ^-([eFhp]+)$ && ! "$arg" =~ ^-- ]]; then
-        # Extract flags without using BASH_REMATCH
-        flags="${arg:1}"
-        for ((i = 0; i < ${#flags}; i++)); do
-            expanded_args+=("-${flags:i:1}")
-        done
-    else
-        expanded_args+=("$arg")
-    fi
-done
-
-# Replace original arguments with expanded ones
-set -- "${expanded_args[@]}"
-
 # ------------------------- PARSE ARGUMENTS ------------------------ #
+
+set -- $($MY_SCRIPTS/lang/shell/expand_args.sh "$@")
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -61,6 +46,10 @@ while [[ $# -gt 0 ]]; do
         ;;
     -p | --plain)
         plain=true
+        shift 1
+        ;;
+    -c | --computed)
+        computed=true
         shift 1
         ;;
     -F | --filter)
@@ -74,7 +63,12 @@ while [[ $# -gt 0 ]]; do
         shift 2
         ;;
     -h | --help)
-        echo "Usage: tdl [ --es | -F <filter> | -h | -p ] [ <input> ]"
+        printf 'Usage: tdl [options...] <todoist-filter>\n'
+        printf " %-3s %-20s %s\n" "-e" "--es" "Exclude tasks with future ES- dates"
+        printf " %-3s %-20s %s\n" "-F" "--filter" "Reverse grep filter with regex"
+        printf " %-3s %-20s %s\n" "-p" "--plain" "Print plain text"
+        printf " %-3s %-20s %s\n" "-c" "--computed" "Use computed filter"
+        printf " %-3s %-20s %s\n" "-h" "--help" "Show this help message"
         exit 0
         ;;
     *)
@@ -100,7 +94,7 @@ fi
 
 # ---------------------------- ES ---------------------------- #
 
-if [[ "$do_es" == true ]]; then
+if $do_es; then
 
     output_copy="$output"
     output=""
@@ -129,13 +123,23 @@ fi
 
 # -------------------------- FILTER -------------------------- #
 
+if $computed; then
+    if [[ -z "$filter" ]]; then
+        filter="^a\Z" # Matches nothing
+    fi
+
+    if $has_headache; then
+        filter+="|(p3.*#bdg)"
+    fi
+fi
+
 if [[ -n "$filter" ]]; then
     output=$(echo "$output" | grep -vE "$filter")
 fi
 
 # -------------------------- OUTPUT -------------------------- #
 
-if [[ "$plain" == true ]]; then
+if $plain; then
     echo "$output"
 else
     echo "$output" | colorize

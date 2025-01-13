@@ -36,13 +36,13 @@
 				<key>Alpha Component</key>
 				<real>1</real>
 				<key>Blue Component</key>
-				<real>0.25356069207191467</real>
+				<real>0.0</real>
 				<key>Color Space</key>
 				<string>P3</string>
 				<key>Green Component</key>
-				<real>0.20825165510177612</real>
+				<real>0.0</real>
 				<key>Red Component</key>
-				<real>0.088273085653781891</real>
+				<real>0.0</real>
 			</dict>
 			<key>Ansi 0 Color (Light)</key>
 			<dict>
@@ -285,13 +285,13 @@
 				<key>Alpha Component</key>
 				<real>1</real>
 				<key>Blue Component</key>
-				<real>0.87290740013122559</real>
+				<real>0.89772164821624756</real>
 				<key>Color Space</key>
 				<string>P3</string>
 				<key>Green Component</key>
-				<real>0.92696171998977661</real>
+				<real>0.96563571691513062</real>
 				<key>Red Component</key>
-				<real>0.93997448682785034</real>
+				<real>0.9873548150062561</real>
 			</dict>
 			<key>Ansi 15 Color (Light)</key>
 			<dict>
@@ -307,13 +307,13 @@
 				<key>Alpha Component</key>
 				<real>1</real>
 				<key>Blue Component</key>
-				<real>0.38177430629730225</real>
+				<real>0.36961132287979126</real>
 				<key>Color Space</key>
 				<string>P3</string>
 				<key>Green Component</key>
-				<real>0.66528815031051636</real>
+				<real>0.61515069007873535</real>
 				<key>Red Component</key>
-				<real>0.30601027607917786</real>
+				<real>0.4043872058391571</real>
 			</dict>
 			<key>Ansi 2 Color (Dark)</key>
 			<dict>
@@ -333,13 +333,13 @@
 				<key>Alpha Component</key>
 				<real>1</real>
 				<key>Blue Component</key>
-				<real>0.38177430629730225</real>
+				<real>0.36961132287979126</real>
 				<key>Color Space</key>
 				<string>P3</string>
 				<key>Green Component</key>
-				<real>0.66528815031051636</real>
+				<real>0.61515069007873535</real>
 				<key>Red Component</key>
-				<real>0.30601027607917786</real>
+				<real>0.4043872058391571</real>
 			</dict>
 			<key>Ansi 3 Color</key>
 			<dict>
@@ -515,13 +515,13 @@
 				<key>Alpha Component</key>
 				<real>1</real>
 				<key>Blue Component</key>
-				<real>0.81858021020889282</real>
+				<real>0.83767884969711304</real>
 				<key>Color Space</key>
 				<string>P3</string>
 				<key>Green Component</key>
-				<real>0.86260980367660522</real>
+				<real>0.89270859956741333</real>
 				<key>Red Component</key>
-				<real>0.86946779489517212</real>
+				<real>0.90409427881240845</real>
 			</dict>
 			<key>Ansi 7 Color (Light)</key>
 			<dict>
@@ -550,13 +550,13 @@
 				<key>Alpha Component</key>
 				<real>1</real>
 				<key>Blue Component</key>
-				<real>0.53533935546875</real>
+				<real>0.48089599609375</real>
 				<key>Color Space</key>
 				<string>P3</string>
 				<key>Green Component</key>
-				<real>0.53533935546875</real>
+				<real>0.48089599609375</real>
 				<key>Red Component</key>
-				<real>0.53533929586410522</real>
+				<real>0.48089599609375</real>
 			</dict>
 			<key>Ansi 8 Color (Light)</key>
 			<dict>
@@ -1016,6 +1016,19 @@
 				<real>0.70980000495910645</real>
 			</dict>
 			<key>Tab Color</key>
+			<dict>
+				<key>Alpha Component</key>
+				<real>1</real>
+				<key>Blue Component</key>
+				<real>0.13852068781852722</real>
+				<key>Color Space</key>
+				<string>P3</string>
+				<key>Green Component</key>
+				<real>0.20036894083023071</real>
+				<key>Red Component</key>
+				<real>0.91746991872787476</real>
+			</dict>
+			<key>Tab Color (Dark)</key>
 			<dict>
 				<key>Alpha Component</key>
 				<real>1</real>
@@ -2334,26 +2347,26 @@
 				<key>Alpha Component</key>
 				<real>1</real>
 				<key>Blue Component</key>
-				<real>0.25356069207191467</real>
+				<real>0.0</real>
 				<key>Color Space</key>
 				<string>P3</string>
 				<key>Green Component</key>
-				<real>0.20825165510177612</real>
+				<real>0.0</real>
 				<key>Red Component</key>
-				<real>0.088273085653781891</real>
+				<real>0.0</real>
 			</dict>
 			<key>Ansi 0 Color (Dark)</key>
 			<dict>
 				<key>Alpha Component</key>
 				<real>1</real>
 				<key>Blue Component</key>
-				<real>0.25356069207191467</real>
+				<real>0.0</real>
 				<key>Color Space</key>
 				<string>P3</string>
 				<key>Green Component</key>
-				<real>0.20825165510177612</real>
+				<real>0.0</real>
 				<key>Red Component</key>
-				<real>0.088273085653781891</real>
+				<real>0.0</real>
 			</dict>
 			<key>Ansi 0 Color (Light)</key>
 			<dict>
@@ -2596,13 +2609,13 @@
 				<key>Alpha Component</key>
 				<real>1</real>
 				<key>Blue Component</key>
-				<real>0.87290740013122559</real>
+				<real>0.89772164821624756</real>
 				<key>Color Space</key>
 				<string>P3</string>
 				<key>Green Component</key>
-				<real>0.92696171998977661</real>
+				<real>0.96563571691513062</real>
 				<key>Red Component</key>
-				<real>0.93997448682785034</real>
+				<real>0.9873548150062561</real>
 			</dict>
 			<key>Ansi 15 Color (Light)</key>
 			<dict>
@@ -2644,13 +2657,13 @@
 				<key>Alpha Component</key>
 				<real>1</real>
 				<key>Blue Component</key>
-				<real>0.38177430629730225</real>
+				<real>0.36961132287979126</real>
 				<key>Color Space</key>
 				<string>P3</string>
 				<key>Green Component</key>
-				<real>0.66528815031051636</real>
+				<real>0.61515069007873535</real>
 				<key>Red Component</key>
-				<real>0.30601027607917786</real>
+				<real>0.4043872058391571</real>
 			</dict>
 			<key>Ansi 3 Color</key>
 			<dict>
@@ -2826,13 +2839,13 @@
 				<key>Alpha Component</key>
 				<real>1</real>
 				<key>Blue Component</key>
-				<real>0.81858021020889282</real>
+				<real>0.83767884969711304</real>
 				<key>Color Space</key>
 				<string>P3</string>
 				<key>Green Component</key>
-				<real>0.86260980367660522</real>
+				<real>0.89270859956741333</real>
 				<key>Red Component</key>
-				<real>0.86946779489517212</real>
+				<real>0.90409427881240845</real>
 			</dict>
 			<key>Ansi 7 Color (Light)</key>
 			<dict>
@@ -2848,26 +2861,26 @@
 				<key>Alpha Component</key>
 				<real>1</real>
 				<key>Blue Component</key>
-				<real>0.2070317268371582</real>
+				<real>0.48089599609375</real>
 				<key>Color Space</key>
 				<string>P3</string>
 				<key>Green Component</key>
-				<real>0.16550064086914062</real>
+				<real>0.48089599609375</real>
 				<key>Red Component</key>
-				<real>0.053836725652217865</real>
+				<real>0.48089599609375</real>
 			</dict>
 			<key>Ansi 8 Color (Dark)</key>
 			<dict>
 				<key>Alpha Component</key>
 				<real>1</real>
 				<key>Blue Component</key>
-				<real>0.53533935546875</real>
+				<real>0.48089599609375</real>
 				<key>Color Space</key>
 				<string>P3</string>
 				<key>Green Component</key>
-				<real>0.53533935546875</real>
+				<real>0.48089599609375</real>
 				<key>Red Component</key>
-				<real>0.53533929586410522</real>
+				<real>0.48089599609375</real>
 			</dict>
 			<key>Ansi 8 Color (Light)</key>
 			<dict>
@@ -3658,6 +3671,19 @@
 				<key>Red Component</key>
 				<real>0.91746991872787476</real>
 			</dict>
+			<key>Tab Color (Dark)</key>
+			<dict>
+				<key>Alpha Component</key>
+				<real>1</real>
+				<key>Blue Component</key>
+				<real>0.13852068781852722</real>
+				<key>Color Space</key>
+				<string>P3</string>
+				<key>Green Component</key>
+				<real>0.20036894083023071</real>
+				<key>Red Component</key>
+				<real>0.91746991872787476</real>
+			</dict>
 			<key>Tab Color (Light)</key>
 			<dict>
 				<key>Alpha Component</key>
@@ -3733,6 +3759,18 @@
 		<dict>
 			<key>ASCII Anti Aliased</key>
 			<true/>
+			<key>AWDS Pane Directory</key>
+			<string></string>
+			<key>AWDS Pane Option</key>
+			<string>No</string>
+			<key>AWDS Tab Directory</key>
+			<string></string>
+			<key>AWDS Tab Option</key>
+			<string>No</string>
+			<key>AWDS Window Directory</key>
+			<string></string>
+			<key>AWDS Window Option</key>
+			<string>No</string>
 			<key>Allow Paste Bracketing</key>
 			<false/>
 			<key>Allow Title Setting</key>
@@ -3947,7 +3985,7 @@
 			<key>Columns</key>
 			<integer>80</integer>
 			<key>Command</key>
-			<string></string>
+			<string>exec /bin/zsh</string>
 			<key>Cursor Color</key>
 			<dict>
 				<key>Blue Component</key>
@@ -3984,7 +4022,7 @@
 			<key>Custom Command</key>
 			<string>No</string>
 			<key>Custom Directory</key>
-			<string>No</string>
+			<string>Yes</string>
 			<key>Custom Tab Title</key>
 			<string></string>
 			<key>Default Bookmark</key>
@@ -4344,7 +4382,7 @@
 			<key>Window Type</key>
 			<integer>0</integer>
 			<key>Working Directory</key>
-			<string>/Users/h</string>
+			<string>/Users/h/.dotfiles/config/tabs/hotkey</string>
 		</dict>
 	</array>
 	<key>OnlyWhenMoreTabs</key>
@@ -13487,7 +13525,7 @@
 	<key>findMode_iTerm</key>
 	<integer>0</integer>
 	<key>kCPKSelectionViewPreferredModeKey</key>
-	<integer>2</integer>
+	<integer>0</integer>
 	<key>kCPKSelectionViewShowHSBTextFieldsKey</key>
 	<true/>
 </dict>

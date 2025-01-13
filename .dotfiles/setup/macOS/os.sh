@@ -14,6 +14,9 @@ defaults write com.apple.ActivityMonitor IconType -int 5
 defaults write -g ApplePressAndHoldEnabled -bool false
 defaults write com.apple.screensaver askForPasswordDelay -int 1200
 defaults write -g AppleAccentColor -int 0
+defaults write -g AppleShowScrollBars -string WhenScrolling
+defaults -currentHost write com.apple.coreservices.useractivityd ActivityAdvertisingAllowed -bool true
+defaults -currentHost write com.apple.coreservices.useractivityd ActivityReceivingAllowed -bool true
 
 # Disables "smart" quotes
 defaults write com.apple.messageshelper.MessageController SOInputLineSettings -dict-add "automaticQuoteSubstitutionEnabled" -bool false
@@ -62,8 +65,9 @@ defaults write com.apple.finder FXPreferredGroupBy -string "Tags"
 defaults write com.apple.dock launchanim -bool false
 defaults write com.apple.dock autohide-delay -float 0
 defaults write com.apple.dock tilesize -int 36
-defaults write com.apple.dock orientation -string "left"
+defaults write com.apple.dock orientation -string "right"
 defaults write com.apple.dock autohide -bool true
+defaults write com.apple.dock mineffect -string "scale"
 
 if ask "Clear dock?"; then
     defaults write com.apple.dock persistent-apps -array

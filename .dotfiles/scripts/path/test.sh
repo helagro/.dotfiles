@@ -1,7 +1,6 @@
 #!/bin/zsh
 
-test=true
-echo -n "$*"forth
+test=:!:
 
 if $test; then
     echo "true"
