@@ -12,7 +12,11 @@ if [ -f "$HOME/.dotfiles/.zshrc/custom.sh" ]; then
     source "$HOME/.dotfiles/.zshrc/custom.sh"
 fi
 
-if [[ "$PWD" == "$HOME/.dotfiles/config/tabs/hotkey" ]]; then
+if [[ "$PWD" == "$HOME/.dotfiles/config/tabs/hotkey"* ]]; then
+    if [[ "$PWD" == "$HOME/.dotfiles/config/tabs/hotkey/note" ]]; then
+        vim $HOME/Desktop/1.md
+    fi
+
     return 0
 fi
 

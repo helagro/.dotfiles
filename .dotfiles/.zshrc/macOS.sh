@@ -291,7 +291,7 @@ function dawn {
     ob stateAdder | state_switch.sh | a
     ob stateDo | state_switch.sh | later
     local sleep_amt=$(is sleep 1 | jq '.[]')
-    if [ -n "$sleep_amt" ] && [ "$sleep_amt" != "null" ] && [ "$sleep_amt" -lt "420" ]; then
+    if [ -n "$sleep_amt" ] && [ "$sleep_amt" != "null" ] && [ "$sleep_amt" -lt "$sleep_goal" ]; then
         a "@rm !(13:30) caffeine?"
     fi
 
@@ -299,6 +299,8 @@ function dawn {
     sleep 2
 
     later
+
+    echo
 
     # Display main stuff
     day tod

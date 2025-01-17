@@ -24,9 +24,6 @@ ZSH_HIGHLIGHT_REGEXP+=(
     '[ \t]-*[0-9]+(\.[0-9]+)*(?=([ \t]|$|\)))' fg=blue
 )
 
-autoload -Uz compinit
-compinit
-
 # ------------------------- UNCATEGORISED ALIASES ------------------------ #
 
 alias c="qalc"
@@ -39,6 +36,8 @@ alias hm="python3 $MY_SCRIPTS/lang/python/hm.py | bat -pPl 'json'"
 alias st="python3 $MY_SCRIPTS/lang/python/st.py"
 
 # ------------------ UNCATEGORISED FUNCTIONS ----------------- #
+
+function group_w { python3 $MY_SCRIPTS/lang/python/group_w.py $1 | bat -pPl 'json'; }
 
 if ! command -v bat >/dev/null 2>&1; then
     function bat { cat; }
@@ -205,53 +204,6 @@ function in_days {
     fi
 }
 
-function time_diff {
-    set -- $($MY_SCRIPTS/lang/shell/expand_args.sh $*)
-
-    local positive_only=false
-    local return_minutes=false
-
-    while [[ $# -gt 0 ]]; do
-        case "$1" in
-        -h | --help)
-            printf "Usage: time_diff [options...] <time1> <time2>\n"
-            printf " %-3s %-20s %s\n" "-h" "--help" "Show this help message"
-            printf " %-3s %-20s %s\n" "-p" "" "Only allow positive differences"
-            return 0
-            ;;
-        -p)
-            positive_only=true
-            shift
-            ;;
-        -m)
-            return_minutes=true
-            shift
-            ;;
-        *)
-            break
-            ;;
-        esac
-    done
-
-    local seconds1=$(date -j -f "%H:%M" "$2" +"%s" 2>/dev/null)
-    local seconds2=$(date -j -f "%H:%M" "$1" +"%s" 2>/dev/null)
-    local diff=$((seconds1 - seconds2))
-
-    if [ $diff -lt 0 ]; then
-        if $positive_only; then
-            return 1
-        else
-            diff=$((diff + 86400))
-        fi
-    fi
-
-    if $return_minutes; then
-        echo $((diff / 60))
-    else
-        printf "%02d:%02d\n" $((diff / 3600)) $(((diff % 3600) / 60))
-    fi
-}
-
 function year_day {
     local this_year_day=$(date +%j)
 
@@ -267,7 +219,7 @@ function year_day {
 
 function csv { conda run -n main python3 "$MY_SCRIPTS/lang/python/jsons_to_csv.py" $@ | bat -pPl 'tsv'; }
 
-function bed_minus_dinner { time_diff -mp $(date +%H:%M) $(tl 'routines/bed_time/start?sep=%3A'); }
+function bed_minus_dinner { time_diff.sh -mp $(date +%H:%M) $(tl 'routines/bed_time/start?sep=%3A'); }
 
 function fall_asleep_delay {
     local bedtime=$(curl -s "$ROUTINE_ENDPOINT?q=bed_time" | sed 's/\./:/g' 2>/dev/null)
@@ -279,9 +231,9 @@ function fall_asleep_delay {
     if [ $? -ne 0 ] || [ -z "$sleep_time" ]; then
         return 1
     fi
-    sleep_time=$(time_diff "12:00" "$sleep_time")
+    sleep_time=$(time_diff.sh "12:00" "$sleep_time")
 
-    local time=$(time_diff $bedtime $sleep_time)
+    local time=$(time_diff.sh $bedtime $sleep_time)
 
     local hours=${time%%:*}
     local minutes=${time#*:}

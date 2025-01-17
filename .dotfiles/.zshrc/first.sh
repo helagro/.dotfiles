@@ -1,8 +1,17 @@
 # NOTE - returns 1 if should stop sourcing
 
+# -------------------------- ALIASES ------------------------- #
+
 alias gpt4="aichat -s -m openai:gpt-4o"
 alias gpt3="aichat -s -m openai:gpt-3.5-turbo"
 alias is_dark='[[ $(defaults read -g AppleInterfaceStyle 2>/dev/null) == "Dark" ]]'
+
+# ---------------------------- ZSH --------------------------- #
+
+autoload -Uz compinit
+compinit
+
+# --------------------------- MAIN --------------------------- #
 
 function rand_elem {
     local arr="$1"
