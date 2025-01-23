@@ -36,14 +36,14 @@ def handle_line(line):
 
 
 if __name__ == '__main__':
-    if not sys.stdin.isatty():
-        command = sys.stdin.read().strip()
-    elif len(sys.argv) > 1:
+    if len(sys.argv) > 1:
         command = ' '.join(sys.argv[1:])
-    else:
-        command = None
 
-    if command:
+        if command == 'stdin' and not sys.stdin.isatty():
+            command = sys.stdin.read()
+            if command: command = command.strip()
+
         add_to_later(command)
+
     else:
         run_later()

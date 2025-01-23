@@ -112,25 +112,6 @@ function talk {
     rm "${files[@]}"
 }
 
-function tl {
-    local url="$TOOLS_URL/$1"
-    local content=$(curl -H "Authorization: Bearer $A75H" -s "$url" -b "id=u3o8hiefo")
-    local return_code=$?
-
-    if [ "$return_code" -ne 0 ]; then
-        return "$return_code"
-    fi
-
-    # If bat is installed
-    if command -v bat &>/dev/null; then
-        echo "$content" | bat -pPl "json"
-
-    # If bat is not installed
-    else
-        echo "$content"
-    fi
-}
-
 function clr {
     local cols=$(tput cols)
     for ((i = 0; i < $cols; i++)); do
@@ -219,7 +200,24 @@ function year_day {
 
 function csv { conda run -n main python3 "$MY_SCRIPTS/lang/python/jsons_to_csv.py" $@ | bat -pPl 'tsv'; }
 
-function bed_minus_dinner { time_diff.sh -mp $(date +%H:%M) $(tl 'routines/bed_time/start?sep=%3A'); }
+function plot {
+    if [[ -p /dev/stdin ]]; then
+        local input=$(cat)
+        nohup conda run -n main --live-stream python3 "$MY_SCRIPTS/lang/python/plot_json.py" "$input" "$1" >/dev/null &
+        #conda run -n main --live-stream python3 "$MY_SCRIPTS/lang/python/plot_json.py" "$(cat)" "$1"
+    else
+        nohup conda run -n main --live-stream python3 "$MY_SCRIPTS/lang/python/plot_json.py" "$*" "$1" &
+    fi
+}
+
+function to_days {
+    cat | jq -r 'to_entries | map("\(.key) \(.value)") | .[]' | while read the_date value; do
+        weekday=$(date -j -f "%Y-%m-%d" $the_date +"%a")
+        echo "{\"$weekday\": $value}"
+    done | jq -s 'add' | bat -pl json
+}
+
+function bed_minus_dinner { time_diff.sh -mp $(date +%H:%M) $(tl.sh 'routines/bed_time/start?sep=%3A'); }
 
 function fall_asleep_delay {
     local bedtime=$(curl -s "$ROUTINE_ENDPOINT?q=bed_time" | sed 's/\./:/g' 2>/dev/null)

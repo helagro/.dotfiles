@@ -1,5 +1,10 @@
 # Add under
 
+if [ "$1" == "-h" ]; then
+    echo "Usage: au.sh <parent ID> <child's content>"
+    exit 0
+fi
+
 parent=$1
 shift
 content="$@"

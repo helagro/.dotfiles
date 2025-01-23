@@ -131,6 +131,11 @@ if $computed; then
     if $has_headache; then
         filter+="|(p3.*#bdg)"
     fi
+
+    now=$(date +%H:%M)
+    if time_diff.sh -p "20:00" $now >/dev/null && time_diff.sh -p "$(tl.sh 'routines/detach/start?sep=%3A')" $now >/dev/null; then
+        filter+="|@wake"
+    fi
 fi
 
 if [[ -n "$filter" ]]; then

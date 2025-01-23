@@ -34,7 +34,7 @@ def process_dict(data, operation):
             res[week] = [value]
 
     if operation == "avg":
-        res = {week: sum(values) / len(values) for week, values in res.items()}
+        res = {week: round(sum(values) / len(values), 2) for week, values in res.items()}
     elif operation == "sum":
         res = {week: sum(values) for week, values in res.items()}
     else:
@@ -45,7 +45,9 @@ def process_dict(data, operation):
 
 def week_code(date_str):
     date = datetime.strptime(date_str, "%Y-%m-%d")
-    return date.strftime("%Y-W%W")
+    iso_week = date.isocalendar().week
+
+    return f"{date.strftime('%Y')}-W{iso_week}"
 
 
 if __name__ == "__main__":

@@ -26,6 +26,7 @@ alias vi="nvim"
 alias archive="$HOME/Documents/archiver-go/build/macOS"
 alias breake="nvim $DOC/break-timer/.env"
 alias wifi="networksetup -setairportpower en0" # NOTE - on/off
+alias lect="short lect && open 'obsidian://vault/vault/_/lect.md'"
 
 # ------------------------- OTHER FUNCTIONS ------------------------ #
 
@@ -287,18 +288,28 @@ function dawn {
     short focus
     theme $theme
 
+    # States
     a "dawn #u"
     ob stateAdder | state_switch.sh | a
     ob stateDo | state_switch.sh | later
+
     local sleep_amt=$(is sleep 1 | jq '.[]')
     if [ -n "$sleep_amt" ] && [ "$sleep_amt" != "null" ] && [ "$sleep_amt" -lt "$sleep_goal" ]; then
         a "@rm !(13:30) caffeine?"
+        a "laundry? #b"
+        a "go out? #b"
+        a "make shake? #b"
+    fi
+
+    local yd_water=$(is water 1 1 | jq '.[]')
+    if [[ $yd_water -le 900 ]]; then
+        later "#water_yd: $yd_water -> hydrate"
     fi
 
     # Makes sure wifi is back on
     sleep 2
 
-    later
+    later </dev/tty
 
     echo
 
@@ -307,7 +318,7 @@ function dawn {
     ob dawn
 
     # Display secondary stuff
-    tl streaks
+    tl.sh streaks
     for state in "${state_list[@]}"; do
         $(eval echo \$$state) && echo $state
     done
@@ -367,7 +378,7 @@ function eve {
     if [ -n "$forecast" ] | grep -q "snow"; then
         echo "$forecast"
     fi
-    tl hb
+    tl.sh hb
     echo -n temp:
     sens temp
 
@@ -376,6 +387,7 @@ function eve {
     # Show note
     ob eve
 
+    # State conditionals
     $has_fog && echo "fog -> ( walk, meditate )"
 
     echo
@@ -450,4 +462,5 @@ function bedtime {
 
     short focus sleep
     ob bedtime
+    ob zink
 }
