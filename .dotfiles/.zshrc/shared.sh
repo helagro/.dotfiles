@@ -203,8 +203,8 @@ function csv { conda run -n main python3 "$MY_SCRIPTS/lang/python/jsons_to_csv.p
 function plot {
     if [[ -p /dev/stdin ]]; then
         local input=$(cat)
-        nohup conda run -n main --live-stream python3 "$MY_SCRIPTS/lang/python/plot_json.py" "$input" "$1" >/dev/null &
-        #conda run -n main --live-stream python3 "$MY_SCRIPTS/lang/python/plot_json.py" "$(cat)" "$1"
+        nohup conda run -n main --live-stream python3 "$MY_SCRIPTS/lang/python/plot_json.py" "$input" "$1" &
+        #conda run -n main --live-stream python3 "$MY_SCRIPTS/lang/python/plot_json.py" "$input" "$1"
     else
         nohup conda run -n main --live-stream python3 "$MY_SCRIPTS/lang/python/plot_json.py" "$*" "$1" &
     fi

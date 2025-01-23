@@ -6,6 +6,8 @@ from matplotlib.ticker import MaxNLocator
 import re
 import numpy as np
 from sklearn.linear_model import LinearRegression
+from scipy.interpolate import UnivariateSpline
+from sklearn.metrics import r2_score
 
 TIME_REGEX = r"^\d{2}:\d{2}$"
 
@@ -26,7 +28,7 @@ def main(arg, plot_name):
     # --------------------- LINEAR REGRESSION -------------------- #
 
     # Fit a linear regression model
-    df['Days'] = (df['Date'] - df['Date'].min()).dt.days
+    df['Days'] = (df['Date'].max() - df['Date']).dt.days
     X = df['Days'].values.reshape(-1, 1)
     y = df['Value'].apply(conv_time) if is_time_series else df['Value']
     model = LinearRegression().fit(X, y)
@@ -55,13 +57,38 @@ def main(arg, plot_name):
     poly_model = np.poly1d(np.polyfit(df['Days'], y, 8))
     df['Polynomial'] = poly_model(df['Days'])
 
-    # Plot the polynomial line
-    plt.plot(df["Date"], df["Polynomial"], color='green', label="Polynomial")
+    # ---------------------- SPLINE INTERPOLATION ----------------- #
+
+    # Fit a spline interpolation model
+    spline_model = UnivariateSpline(df['Days'], y)
+    df['Spline'] = spline_model(df['Days'])
+
+    # ----------------------- USE BEST FIT ----------------------- #
+
+    # Use the best fit line
+    if r2_score(y, df['Polynomial']) > r2_score(y, df['Spline']):
+        plt.plot(df["Date"], df["Polynomial"], color='green', label="Polynomial")
+    else:
+        plt.plot(df["Date"], df["Spline"], color='orange', label="Spline")
 
     # ------------------------- MAIN PLOT ------------------------ #
+    # Plot the line with 50% opacity
+    plt.plot(
+        df["Date"],
+        df["Value"].apply(conv_time) if is_time_series else df["Value"],
+        alpha=0.5,  # Line opacity at 50%
+        color="tab:blue",
+        label="Value")
 
-    # Plot the data
-    plt.plot(df["Date"], df["Value"].apply(conv_time) if is_time_series else df["Value"], marker="o", label="Value")
+    # Plot the markers with 100% opacity
+    plt.plot(
+        df["Date"],
+        df["Value"].apply(conv_time) if is_time_series else df["Value"],
+        marker="o",  # Markers
+        alpha=1.0,  # Marker opacity at 100%
+        linestyle="None",  # No line between markers
+        color="tab:blue",  # Marker color
+        label="Value (Markers)")
 
     plt.title(plot_name, fontsize=16)
     plt.xlabel("Date", fontsize=14)
