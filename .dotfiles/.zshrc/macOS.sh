@@ -288,10 +288,12 @@ function dawn {
     short focus
     theme $theme
 
+    sleep 2
+
     # States
     a "dawn #u"
     ob stateAdder | state_switch.sh | a
-    ob stateDo | state_switch.sh | later
+    ob stateDo | state_switch.sh | later "stdin"
 
     local sleep_amt=$(is sleep 1 | jq '.[]')
     if [ -n "$sleep_amt" ] && [ "$sleep_amt" != "null" ] && [ "$sleep_amt" -lt "$sleep_goal" ]; then
@@ -306,10 +308,12 @@ function dawn {
         later "#water_yd: $yd_water -> hydrate"
     fi
 
-    # Makes sure wifi is back on
-    sleep 2
+    if [[ $(date +"%m") -le 2 ]]; then
+        later "#plan sunlight exposure"
+        a "winter 1 s #u"
+    fi
 
-    later </dev/tty
+    later
 
     echo
 

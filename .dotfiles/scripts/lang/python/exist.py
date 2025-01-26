@@ -79,8 +79,8 @@ def list_attributes(results=[], url='https://exist.io/api/2/attributes/', groups
     return names
 
 
-def values(attr: str, days: int, date_max_input: int | None = None) -> dict:
-    ''' Used by env-tracker'''
+def values(attr: str, days: int, date_max_input=None, url=None) -> dict:
+    ''' NOTE - Used by env-tracker'''
 
     if _is_valid_date(date_max_input):
         date_max = datetime.strptime(date_max_input, '%Y-%m-%d')
@@ -90,20 +90,16 @@ def values(attr: str, days: int, date_max_input: int | None = None) -> dict:
     else:
         date_max = datetime.now()
 
-    result = {}
-    iters = math.floor(days / 100)
-
     try:
-        for _ in range(iters):
-            returned = _fetch_attribute_values(attr, 100, date_max.strftime('%Y-%m-%d'))
-            result.update(returned['results'])
-            date_max -= timedelta(days=100)
+        returned = _fetch_attribute_values(attr, days, date_max.strftime('%Y-%m-%d'), url=url)
+        if not returned: return {}
 
-        if days % 100 != 0:
-            returned = _fetch_attribute_values(attr, days % 100, date_max.strftime('%Y-%m-%d'))
-            result.update(returned['results'])
-
-        return result
+        next = returned.get('next')
+        if next is None:
+            return returned['results']
+        else:
+            next_page = values(attr, days - 100, date_max_input=date_max, url=next)
+            return {**returned['results'], **next_page}
     except KeyError as e:
         print(f"KeyError: {e}")
         print(returned)
@@ -130,7 +126,7 @@ def correlations(attr: str) -> list_attributes:
     return [{key: d[key] for key in keys if key in d} for d in results]
 
 
-# ------------------------- PRIVATE FUNCTIONS ------------------------ #
+# ------------------------- FETCH FUNCTIONS ------------------------ #
 
 
 def _fetch_attribute_correlations(attr: str) -> list_attributes:
@@ -155,11 +151,16 @@ def _fetch_attribute_correlations(attr: str) -> list_attributes:
     return results
 
 
-def _fetch_attribute_values(attr: str, days: int | None, date_max: str = None) -> dict:
-    if days == 0: return {}
+def _fetch_attribute_values(attr: str, days: int | None, date_max: str = None, url=None) -> dict:
+    if days and days < 1: return {}
 
-    params = {'limit': days, 'date_max': date_max, 'attribute': attr}
-    response = requests.get('https://exist.io/api/2/attributes/values/', params=params, headers=HEADERS)
+    if url is None:
+        url = 'https://exist.io/api/2/attributes/values/'
+        params = {'limit': days, 'date_max': date_max, 'attribute': attr}
+    else:
+        params = None
+
+    response = requests.get(url, params=params, headers=HEADERS)
 
     if not response.ok:
         print(f"Fetch failed with status code {response.status_code}")
@@ -168,11 +169,15 @@ def _fetch_attribute_values(attr: str, days: int | None, date_max: str = None) -
     response_data = response.json()
     return {
         'total_count': response_data['count'],
+        'next': response_data['next'],
         'results': {
             value['date']: value['value']
-            for value in response_data['results']
+            for value in response_data['results'][:days]
         }
     }
+
+
+# ---------------------- HELPER METHODS ---------------------- #
 
 
 def _is_valid_date(date: str | None) -> bool:

@@ -43,6 +43,9 @@ if __name__ == '__main__':
             command = sys.stdin.read()
             if command: command = command.strip()
 
+        elif not sys.stdin.isatty():
+            print('Warn - stdin is not a tty')
+
         add_to_later(command)
 
     else:

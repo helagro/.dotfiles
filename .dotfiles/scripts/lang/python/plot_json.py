@@ -18,6 +18,9 @@ def main(arg, plot_name):
     df = pd.DataFrame(list(json_data.items()), columns=['Date', 'Value'])
     df['Date'] = pd.to_datetime(df['Date'])
 
+    plt.figure(figsize=(10, 6))
+    plt.tight_layout()
+
     # Handle y values of type time
     is_time_series = is_time(str(df['Value'].iloc[0]))
     if is_time_series:
@@ -34,9 +37,7 @@ def main(arg, plot_name):
     model = LinearRegression().fit(X, y)
     df['Trend'] = model.predict(X)
 
-    # Print slope
     slope = model.coef_[0]
-    print(f"Slope: {slope}")
 
     # Calculate the difference in y values
     intercept = model.intercept_
@@ -45,10 +46,11 @@ def main(arg, plot_name):
     y_start = slope * x_start + intercept
     y_end = slope * x_end + intercept
     difference = y_end - y_start
-    print(f"Change: {difference}")
+
+    plt.subplots_adjust(bottom=0.65)
+    plt.figtext(0.5, 0.01, f"Slope: {slope}; Change: {difference}", fontsize=11, color='blue', ha='center')
 
     # Plot the trend line
-    plt.figure(figsize=(10, 6))
     plt.plot(df["Date"], df["Trend"], color='red', label="Trend")
 
     # ------------------- POLYNOMIAL REGRESSION ------------------- #
@@ -66,17 +68,17 @@ def main(arg, plot_name):
     # ----------------------- USE BEST FIT ----------------------- #
 
     # Use the best fit line
-    if r2_score(y, df['Polynomial']) > r2_score(y, df['Spline']):
-        plt.plot(df["Date"], df["Polynomial"], color='green', label="Polynomial")
-    else:
+    if r2_score(y, df['Polynomial']) < r2_score(y, df['Spline']):
         plt.plot(df["Date"], df["Spline"], color='orange', label="Spline")
+
+    plt.plot(df["Date"], df["Polynomial"], color='green', label="Polynomial")
 
     # ------------------------- MAIN PLOT ------------------------ #
     # Plot the line with 50% opacity
     plt.plot(
         df["Date"],
         df["Value"].apply(conv_time) if is_time_series else df["Value"],
-        alpha=0.5,  # Line opacity at 50%
+        alpha=0.3,  # Line opacity at 50%
         color="tab:blue",
         label="Value")
 
