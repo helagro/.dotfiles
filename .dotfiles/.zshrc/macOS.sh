@@ -26,9 +26,14 @@ alias vi="nvim"
 alias archive="$HOME/Documents/archiver-go/build/macOS"
 alias breake="nvim $DOC/break-timer/.env"
 alias wifi="networksetup -setairportpower en0" # NOTE - on/off
-alias lect="short lect && open 'obsidian://vault/vault/_/lect.md'"
+alias oblank="open 'obsidian://vault/vault/p/lect.md'"
+alias lect="short lect && ob lect"
 
 # ------------------------- OTHER FUNCTIONS ------------------------ #
+
+function missing_sleep {
+    [ -n "$1" ] && [ "$1" != "null" ] && [ "$1" -lt "$sleep_goal" ]
+}
 
 function act {
     local local_online_tools="$HOME/Documents/online-tools"
@@ -292,19 +297,17 @@ function dawn {
 
     # States
     a "dawn #u"
-    ob stateAdder | state_switch.sh | a
-    ob stateDo | state_switch.sh | later "stdin"
+    ob "p/auto/state adder" | state_switch.sh | a
+    ob "p/auto/state do" | state_switch.sh | later "stdin"
 
     local sleep_amt=$(is sleep 1 | jq '.[]')
-    if [ -n "$sleep_amt" ] && [ "$sleep_amt" != "null" ] && [ "$sleep_amt" -lt "$sleep_goal" ]; then
-        a "@rm !(13:30) caffeine?"
-        a "laundry? #b"
-        a "go out? #b"
-        a "make shake? #b"
+    local sleep_amt_yd=$(is sleep 1 1 | jq '.[]')
+    if missing_sleep $sleep_amt || missing_sleep $sleep_amt_yd; then
+        do_now "p/auto/is low sleep"
     fi
 
     local yd_water=$(is water 1 1 | jq '.[]')
-    if [[ $yd_water -le 900 ]]; then
+    if [[ $yd_water -le 1000 ]]; then
         later "#water_yd: $yd_water -> hydrate"
     fi
 
@@ -333,13 +336,21 @@ function dawn {
 function dinner {
     local temp=$(sens -n temp)
     if [[ $temp -gt $dinner_temp_threshold ]]; then
-        echo "Turn off radiator - $temp°C > $dinner_temp_threshold°C )"
+        echo "Turn off radiator - ( $temp°C > $dinner_temp_threshold°C )"
+    fi
+
+    local did_creatine=$(tl.sh hb | jq '.creatine')
+    if ! $did_creatine; then
+        echo "Creatine - ( not taken )"
     fi
 
     # Track time
     local time_diff=$(bed_minus_dinner)
     [ -n "$time_diff" ] && a "bed_minus_dinner $time_diff s #u" && echo "tracked bed_minus_dinner AS $time_diff"
 
+    echo
+    ob dinner
+    ob eat
 }
 
 function eve {
@@ -370,6 +381,7 @@ function eve {
 
     # Track other stats
     a "p_ett $(tdis | lines | tr -d '[:space:]') s #u"
+
     local sleep_delay=$(fall_asleep_delay)
     if [ -n "$sleep_delay" ]; then
         a "$(in_days -1) sleep_delay $sleep_delay s #u"
@@ -393,6 +405,7 @@ function eve {
 
     # State conditionals
     $has_fog && echo "fog -> ( walk, meditate )"
+    $has_headache && echo "fog -> ( walk, meditate )"
 
     echo
 
@@ -467,4 +480,15 @@ function bedtime {
     short focus sleep
     ob bedtime
     ob zink
+
+    read "response?Shut down? (y/n): "
+    if [[ "$response" == "y" ]]; then
+        sudo shutdown -h now
+    fi
+
+    read "response?Close browser? (y/n): "
+    if [[ "$response" == "y" ]]; then
+        pkill -2 Arc
+    fi
+
 }

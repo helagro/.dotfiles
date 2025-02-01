@@ -7,7 +7,6 @@ brew install "coreutils" -q
 brew install "duti" -q
 brew install "git" -q
 brew install "gnirehtet" -q
-brew install "gnupg" -q
 brew install "go" -q
 brew install "gradle" -q
 brew install "helm" -q
@@ -26,6 +25,7 @@ brew install "rbenv" -q
 brew install "sachaos/todoist/todoist" -q
 brew install "saulpw/vd/visidata" -q
 brew install "sshpass" -q
+brew install "textract" -q
 brew install "tree" -q
 brew install "yadm" -q
 brew install "zsh-autosuggestions" -q

@@ -23,6 +23,12 @@ echo "$now" >$HOME/.dotfiles/tmp/b.txt
 
 if in_window "16:30" "19:30"; then
     echo "hydrate"
+elif in_window "16:00" "20:00"; then
+    water=$(conda run -n main python3 "$HOME/.dotfiles/scripts/lang/python/exist.py" water 1 | jq '.[]')
+
+    if [[ $water -lt 900 ]]; then
+        echo "water: $water -> hydrate"
+    fi
 fi
 
 ob.sh b

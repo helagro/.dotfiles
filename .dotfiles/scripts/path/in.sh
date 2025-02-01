@@ -67,8 +67,13 @@ function menu {
         exit 0
     elif [[ "$action" == "s" || "$action" == "n" ]]; then
         return
+    elif [[ "$action" == "c" ]]; then
+        echo "$task" | pbcopy
+        local id=$(echo "$1" | grep -o '^[0-9]*')
+        close "$id" &
+
     else
-        echo "(d)elete, (u)pdate, (m)modify, (n)ext, (q)uit"
+        echo "(d)elete, (u)pdate, (m)modify, (n)ext, (c)opy, (q)uit"
         menu "$input" # NOTE - recursion
     fi
 }

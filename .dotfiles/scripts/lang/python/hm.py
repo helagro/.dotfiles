@@ -6,8 +6,10 @@ def process_dict(data):
     res = {}
 
     for date, minutes in data.items():
-        time_str = hm(minutes) if minutes is not None else "Null"
-        res[date] = time_str
+        if minutes is None:
+            res[date] = None
+        else:
+            res[date] = hm(minutes)
 
     print(json.dumps(res, indent=2))
 

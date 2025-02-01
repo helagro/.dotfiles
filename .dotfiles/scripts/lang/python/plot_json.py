@@ -22,7 +22,8 @@ def main(arg, plot_name):
     plt.tight_layout()
 
     # Handle y values of type time
-    is_time_series = is_time(str(df['Value'].iloc[0]))
+    non_null_values = df['Value'].dropna()
+    is_time_series = is_time(str(non_null_values.iloc[0]))
     if is_time_series:
         print("Time series detected")
         df['Value'] = df['Value'].apply(to_time)
@@ -62,6 +63,7 @@ def main(arg, plot_name):
     # ---------------------- SPLINE INTERPOLATION ----------------- #
 
     # Fit a spline interpolation model
+    print(df['Days'])
     spline_model = UnivariateSpline(df['Days'], y)
     df['Spline'] = spline_model(df['Days'])
 

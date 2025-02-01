@@ -66,7 +66,7 @@ color_code		bold white on 237	color of code sample
 color_heading		bold black on yellow	color of header
 color_guide_unwritten		243 on black	color of unwritten guides in GuideGuide
 force_256_colors		False	use 256 colors even if curses reports fewer
-quitguard	True	False	confirm before quitting modified sheet
+quitguard		False	confirm before quitting modified sheet
 default_width		20	default column width
 default_height		4	default column height
 name_joiner		_	string to join sheet or column names

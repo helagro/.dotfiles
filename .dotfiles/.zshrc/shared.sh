@@ -41,7 +41,7 @@ function group_w { python3 $MY_SCRIPTS/lang/python/group_w.py $1 | bat -pPl 'jso
 
 if ! command -v bat >/dev/null 2>&1; then
     function bat { cat; }
-    export -f bat
+    functions -T bat
 fi
 
 function test {
@@ -88,10 +88,19 @@ function cht {
 }
 
 function talk {
+    if [[ "$1" == "-s" ]]; then
+        local folder="$HOME/Library/Mobile Documents/com~apple~CloudDocs/media"
+    else
+        local folder="$HOME/Desktop"
+    fi
+
     local text
     read -r -d '' text
 
-    local chunk_size=4500
+    # Remove double spacing
+    text=$(echo "$text" | tr -s '[:space:]')
+
+    local chunk_size=4000
     local text_length=${#text}
     local start=1
     local files=()
@@ -100,13 +109,13 @@ function talk {
     while ((start <= text_length)); do
         local chunk="${text[start - 1, start + chunk_size - 2]}"
 
-        file_name="$HOME/Desktop/$(cnt | tr -d '[:space:]').mp3"
+        file_name="$folder/$(cnt | tr -d '[:space:]').mp3"
         echo "$chunk" | gosling - $file_name -r 1.2
         files+=("$file_name")
         ((start += chunk_size))
     done
 
-    file_name="$HOME/Desktop/$(cnt | tr -d '[:space:]').mp3"
+    file_name="$folder/$(cnt | tr -d '[:space:]').mp3"
     cat "${files[@]}" >"$file_name"
     open $file_name
     rm "${files[@]}"
@@ -222,6 +231,25 @@ function bed_minus_dinner { time_diff.sh -mp $(date +%H:%M) $(tl.sh 'routines/be
 function fall_asleep_delay {
     local bedtime=$(curl -s "$ROUTINE_ENDPOINT?q=bed_time" | sed 's/\./:/g' 2>/dev/null)
     if [ $? -ne 0 ] || [ -z "$bedtime" ]; then
+        return 1
+    fi
+
+    local sleep_time=$(is sleep_start 1 | hm | jq '.[]' | sed 's/"//g' 2>/dev/null)
+    if [ $? -ne 0 ] || [ -z "$sleep_time" ]; then
+        return 1
+    fi
+    sleep_time=$(time_diff.sh "12:00" "$sleep_time")
+
+    local time=$(time_diff.sh $bedtime $sleep_time)
+
+    local hours=${time%%:*}
+    local minutes=${time#*:}
+    echo $((hours * 60 + minutes))
+}
+
+function bed_minus_detach {
+    local detach_time=$(tl.sh 'routines/detach/start?sep=%3A' 2>/dev/null)
+    if [ $? -ne 0 ] || [ -z "$detach_time" ]; then
         return 1
     fi
 
@@ -433,6 +461,12 @@ function m_vared {
 alias randine="grep -v '^$' | shuf -n 1"
 
 function do_now {
+    local do_write=false
+    if [[ "$1" == "-w" ]]; then
+        do_write=true
+        shift
+    fi
+
     local file_name="$VAULT/$*.md"
 
     if [[ ! -e "$file_name" ]]; then
@@ -442,8 +476,10 @@ function do_now {
 
     local content=$(cat "$file_name")
     if echo $content | awk '/---/ {found = NR; next} NR > found' | a; then
-        echo $content | tac | awk '/---/ {found = 1; next} found' >"$file_name"
-        echo "---" >>"$file_name"
+        if $do_write; then
+            echo $content | awk '/---/ {found = 1; next} found' >"$file_name"
+            echo "---" >>"$file_name"
+        fi
     fi
 }
 
