@@ -132,13 +132,8 @@ if $computed; then
         filter+="|(p3.*#bdg)"
     fi
 
-    now=$(date +%H:%M)
-    if time_diff.sh -p "20:00" $now >/dev/null; then
-        detach="$(tl.sh 'routines/detach/start?sep=%3A')"
-        # NOTE - Defaults to has detached IF can't reach endpoint
-        if [ -z "$detach" ] || time_diff.sh -p "$detach" $now >/dev/null; then
-            filter+="|@wake"
-        fi
+    if "$HOME/.dotfiles/scripts/lang/shell/has_detached.sh"; then
+        filter+="|@wake"
     fi
 fi
 

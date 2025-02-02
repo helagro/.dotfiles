@@ -12,6 +12,8 @@
 	<false/>
 	<key>CloseBookmarksWindowAfterOpening</key>
 	<true/>
+	<key>CommandHistoryAgePower</key>
+	<real>1</real>
 	<key>ConvertDosNewlines</key>
 	<false/>
 	<key>Custom Color Presets</key>
@@ -6170,11 +6172,15 @@
 					<dict>
 						<key>Root</key>
 						<dict>
+							<key>Maximized</key>
+							<true/>
 							<key>Splitter ID</key>
 							<string>AC054D32-62F5-4C6F-92A1-E1008D8BBA1F</string>
 							<key>Subviews</key>
 							<array>
 								<dict>
+									<key>ID</key>
+									<integer>0</integer>
 									<key>Is Active</key>
 									<integer>1</integer>
 									<key>Session</key>
@@ -7089,7 +7095,7 @@
 												<real>0.0</real>
 											</dict>
 											<key>Guid</key>
-											<string>F8E0305E-A0FF-4637-B303-779E6ABF4AA8</string>
+											<string>65985270-8F68-43BF-A4BB-9E45CD6DB57D</string>
 											<key>Has Hotkey</key>
 											<false/>
 											<key>Horizontal Spacing</key>
@@ -7606,7 +7612,7 @@
 											<string>/Users/h</string>
 										</dict>
 										<key>Columns</key>
-										<integer>107</integer>
+										<integer>160</integer>
 										<key>Commands</key>
 										<array/>
 										<key>Directories</key>
@@ -7671,6 +7677,8 @@
 											<string>/Users/h/.dotfiles/config/tabs/a</string>
 											<string>/Users/h/.dotfiles/config/tabs/a</string>
 											<string>/Users/h/.dotfiles/config/tabs/a</string>
+											<string>/Users/h/.dotfiles/config/tabs/a</string>
+											<string>/Users/h/.dotfiles/config/tabs/a</string>
 										</array>
 										<key>Environment</key>
 										<dict>
@@ -7681,6 +7689,12 @@
 										<dict/>
 										<key>Hosts</key>
 										<array>
+											<dict>
+												<key>Host name</key>
+												<string>Macbook-Air-3.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
 											<dict>
 												<key>Host name</key>
 												<string>Macbook-Air-3.local</string>
@@ -8041,6 +8055,8 @@
 									</dict>
 								</dict>
 								<dict>
+									<key>ID</key>
+									<integer>1</integer>
 									<key>Is Active</key>
 									<integer>0</integer>
 									<key>Session</key>
@@ -8606,13 +8622,13 @@
 												<key>Alpha Component</key>
 												<real>1</real>
 												<key>Blue Component</key>
-												<real>0.39247936010360718</real>
+												<real>0.62224644422531128</real>
 												<key>Color Space</key>
 												<string>P3</string>
 												<key>Green Component</key>
-												<real>0.6256871223449707</real>
+												<real>0.79067033529281616</real>
 												<key>Red Component</key>
-												<real>0.87610679864883423</real>
+												<real>0.94738823175430298</real>
 											</dict>
 											<key>Background Image Location</key>
 											<string></string>
@@ -8848,14 +8864,16 @@
 											</dict>
 											<key>Foreground Color (Dark)</key>
 											<dict>
+												<key>Alpha Component</key>
+												<real>1</real>
 												<key>Blue Component</key>
-												<real>0.58823529411764708</real>
+												<real>0.71474260091781616</real>
 												<key>Color Space</key>
-												<string>sRGB</string>
+												<string>P3</string>
 												<key>Green Component</key>
-												<real>0.58039215686274515</real>
+												<real>0.70595568418502808</real>
 												<key>Red Component</key>
-												<real>0.51372549019607838</real>
+												<real>0.66262167692184448</real>
 											</dict>
 											<key>Foreground Color (Light)</key>
 											<dict>
@@ -8871,7 +8889,7 @@
 												<real>0.094477064907550812</real>
 											</dict>
 											<key>Guid</key>
-											<string>AF311E5A-42DF-4270-9A2E-9D7CE34DD7E0</string>
+											<string>11D64833-03B9-4BA2-A4C1-C22FCE45869B</string>
 											<key>Has Hotkey</key>
 											<true/>
 											<key>Horizontal Spacing</key>
@@ -9267,6 +9285,19 @@
 											<key>Sync Title</key>
 											<false/>
 											<key>Tab Color</key>
+											<dict>
+												<key>Alpha Component</key>
+												<real>1</real>
+												<key>Blue Component</key>
+												<real>0.0</real>
+												<key>Color Space</key>
+												<string>sRGB</string>
+												<key>Green Component</key>
+												<real>0.0</real>
+												<key>Red Component</key>
+												<real>1</real>
+											</dict>
+											<key>Tab Color (Light)</key>
 											<dict>
 												<key>Alpha Component</key>
 												<real>1</real>
@@ -10367,7 +10398,7 @@
 												<real>0.0</real>
 											</dict>
 											<key>Guid</key>
-											<string>98228E48-DD49-4019-B743-CC94E71F0F93</string>
+											<string>4965529F-163C-48D2-B1F2-CB6A0B7B3576</string>
 											<key>Has Hotkey</key>
 											<false/>
 											<key>Horizontal Spacing</key>
@@ -11630,7 +11661,7 @@
 										<key>Short Lived Single Use</key>
 										<false/>
 										<key>Should Expect Current Dir Updates</key>
-										<false/>
+										<true/>
 										<key>Should Expect Prompt Marks</key>
 										<true/>
 										<key>Substitutions</key>
@@ -12599,7 +12630,7 @@
 												<real>0.0</real>
 											</dict>
 											<key>Guid</key>
-											<string>AB70E33B-130D-4DB0-9D53-FE2E1C076C0E</string>
+											<string>F2A5F3F1-A521-46CA-AE0C-543D98C036BE</string>
 											<key>Has Hotkey</key>
 											<false/>
 											<key>Horizontal Spacing</key>
@@ -13163,6 +13194,9 @@
 											<string>/Users/h</string>
 											<string>/Users/h</string>
 											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
 										</array>
 										<key>Environment</key>
 										<dict>
@@ -13173,6 +13207,24 @@
 										<dict/>
 										<key>Hosts</key>
 										<array>
+											<dict>
+												<key>Host name</key>
+												<string>Macbook-Air-3.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Macbook-Air-3.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Macbook-Air-3.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
 											<dict>
 												<key>Host name</key>
 												<string>Macbook-Air-3.local</string>
@@ -14382,7 +14434,7 @@
 												<real>0.0</real>
 											</dict>
 											<key>Guid</key>
-											<string>D905A7F9-3266-4219-89A4-3B55915CF751</string>
+											<string>CD49C7B6-D10C-4C5F-A1B1-261BD5BA592B</string>
 											<key>Has Hotkey</key>
 											<false/>
 											<key>Horizontal Spacing</key>
@@ -14948,6 +15000,8 @@
 											<string>/Users/h/.dotfiles/config/tabs/ai</string>
 											<string>/Users/h/.dotfiles/config/tabs/ai</string>
 											<string>/Users/h/.dotfiles/config/tabs/ai</string>
+											<string>/Users/h/.dotfiles/config/tabs/ai</string>
+											<string>/Users/h/.dotfiles/config/tabs/ai</string>
 										</array>
 										<key>Environment</key>
 										<dict>
@@ -14958,6 +15012,12 @@
 										<dict/>
 										<key>Hosts</key>
 										<array>
+											<dict>
+												<key>Host name</key>
+												<string>Macbook-Air-3.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
 											<dict>
 												<key>Host name</key>
 												<string>Macbook-Air-3.local</string>
@@ -16116,7 +16176,7 @@
 												<real>0.0</real>
 											</dict>
 											<key>Guid</key>
-											<string>F14FA39B-A683-446D-9F1F-D005573DA1AA</string>
+											<string>21DF34DB-7409-43BD-B4E3-F6BECF4BD833</string>
 											<key>Has Hotkey</key>
 											<false/>
 											<key>Horizontal Spacing</key>
@@ -16655,6 +16715,7 @@
 											<string>/Users/h/.dotfiles/config/tabs/ai_cheap</string>
 											<string>/Users/h/.dotfiles/config/tabs/ai_cheap</string>
 											<string>/Users/h/.dotfiles/config/tabs/ai_cheap</string>
+											<string>/Users/h/.dotfiles/config/tabs/ai_cheap</string>
 										</array>
 										<key>Environment</key>
 										<dict>
@@ -16665,6 +16726,12 @@
 										<dict/>
 										<key>Hosts</key>
 										<array>
+											<dict>
+												<key>Host name</key>
+												<string>Macbook-Air-3.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
 											<dict>
 												<key>Host name</key>
 												<string>Macbook-Air-3.local</string>

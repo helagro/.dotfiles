@@ -32,11 +32,11 @@ alias weather="curl -s 'wttr.in?2AMn'"
 
 alias rand="$MY_SCRIPTS/lang/shell/rand.sh"
 
-alias hm="python3 $MY_SCRIPTS/lang/python/hm.py | bat -pPl 'json'"
 alias st="python3 $MY_SCRIPTS/lang/python/st.py"
 
 # ------------------ UNCATEGORISED FUNCTIONS ----------------- #
 
+function hm { python3 $MY_SCRIPTS/lang/python/hm.py "$@" | bat -pPl 'json'; }
 function group_w { python3 $MY_SCRIPTS/lang/python/group_w.py $1 | bat -pPl 'json'; }
 
 if ! command -v bat >/dev/null 2>&1; then
@@ -375,6 +375,11 @@ function tdup {
 }
 
 function tdu {
+    if $MY_SCRIPTS/lang/shell/is_help.sh $*; then
+        echo "tdu <update> <id>..."
+        return 0
+    fi
+
     local update=$1
     shift
 
@@ -403,6 +408,8 @@ function a {
             # Ask for lines until 'q' is entered
             while [[ $line != 'q' ]]; do
                 echo $line >>"$HOME/.dotfiles/logs/a_raw.log"
+                print -s -- "$line"
+
                 local escaped=$(echo "$line" | sed -E \
                     -e "s/'/\\'/g" \
                     -e 's/`/\\`/g' \

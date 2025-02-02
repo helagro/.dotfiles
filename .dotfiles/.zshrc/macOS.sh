@@ -26,6 +26,7 @@ alias vi="nvim"
 alias archive="$HOME/Documents/archiver-go/build/macOS"
 alias breake="nvim $DOC/break-timer/.env"
 alias wifi="networksetup -setairportpower en0" # NOTE - on/off
+
 alias oblank="open 'obsidian://vault/vault/p/lect.md'"
 alias lect="short lect && ob lect"
 
@@ -70,10 +71,9 @@ function theme {
 }
 
 function on_tab {
-    local role=$(basename $(pwd))
     clr
 
-    if [[ $role == "a" ]]; then
+    if [[ "$PWD" == "$HOME/.dotfiles/config/tabs/a" ]]; then
         if [[ -z "$has_setup_highlight" ]]; then
             has_setup_highlight=1
             ZSH_HIGHLIGHT_REGEXP+=(
@@ -87,6 +87,8 @@ function on_tab {
                 '\$\([^\$]+\)' fg=cyan
             )
         fi
+
+        unset ZSH_AUTOSUGGEST_STRATEGY
 
         a
     fi
@@ -250,245 +252,4 @@ function sw {
     if $do_focus; then
         short focus off
     fi
-}
-
-# -------------------------- ROUTINE ------------------------- #
-
-function dawn {
-    wifi on
-
-    local focus_mode="off"
-    local theme=0
-    local night_shift=0
-
-    set -- $($MY_SCRIPTS/lang/shell/expand_args.sh $*)
-    while [[ $# -gt 0 ]]; do
-        case "$1" in
-        -f | --focus)
-            focus_mode="$2"
-            shift 2
-            ;;
-        -t | --theme)
-            theme="$2"
-            shift 2
-            ;;
-        -n | --night)
-            night_shift=1
-            shift
-            ;;
-        -h | --help)
-            echo "Usage: dawn [-f <focus_mode>] [-t <theme>] -n (night shift)"
-            return 0
-            ;;
-        *)
-            echo "Unknown option: $1"
-            return 1
-            ;;
-        esac
-    done
-
-    # Set env
-    short focus "$focus_mode"
-    short night_shift "$night_shift"
-    short focus
-    theme $theme
-
-    sleep 2
-
-    # States
-    a "dawn #u"
-    ob "p/auto/state adder" | state_switch.sh | a
-    ob "p/auto/state do" | state_switch.sh | later "stdin"
-
-    local sleep_amt=$(is sleep 1 | jq '.[]')
-    local sleep_amt_yd=$(is sleep 1 1 | jq '.[]')
-    if missing_sleep $sleep_amt || missing_sleep $sleep_amt_yd; then
-        do_now "p/auto/is low sleep"
-    fi
-
-    local yd_water=$(is water 1 1 | jq '.[]')
-    if [[ $yd_water -le 1000 ]]; then
-        later "#water_yd: $yd_water -> hydrate"
-    fi
-
-    if [[ $(date +"%m") -le 2 ]]; then
-        later "#plan sunlight exposure"
-        a "winter 1 s #u"
-    fi
-
-    later
-
-    echo
-
-    # Display main stuff
-    day tod
-    ob dawn
-
-    # Display secondary stuff
-    tl.sh streaks
-    for state in "${state_list[@]}"; do
-        $(eval echo \$$state) && echo $state
-    done
-    ob rule
-    ob p
-}
-
-function dinner {
-    local temp=$(sens -n temp)
-    if [[ $temp -gt $dinner_temp_threshold ]]; then
-        echo "Turn off radiator - ( $temp°C > $dinner_temp_threshold°C )"
-    fi
-
-    local did_creatine=$(tl.sh hb | jq '.creatine')
-    if ! $did_creatine; then
-        echo "Creatine - ( not taken )"
-    fi
-
-    # Track time
-    local time_diff=$(bed_minus_dinner)
-    [ -n "$time_diff" ] && a "bed_minus_dinner $time_diff s #u" && echo "tracked bed_minus_dinner AS $time_diff"
-
-    echo
-    ob dinner
-    ob eat
-}
-
-function eve {
-    set -- $($MY_SCRIPTS/lang/shell/expand_args.sh $*)
-
-    if $MY_SCRIPTS/lang/shell/is_help.sh $*; then
-        print 'Usage: eve [options...]'
-        printf " %-3s %-20s %s\n" "-l," "" "Skip enabling flight mode on phone"
-        printf " %-3s %-20s %s\n" "-E," "" "Skip environment setup"
-        printf " %-3s %-20s %s\n" "-h," "--help" "Show this help message"
-        return 0
-    fi
-    # Track routine
-    a "eve #u"
-
-    # Reset
-    echo "" >$VAULT/p/rule.md
-    echo "" >$VAULT/p/p.md
-
-    # Tasks
-    day tom
-    echo
-
-    # Show stats
-    printf "podd: \e[33m%b\e[0m\n" "$(is -v podd 1)"
-    printf "tv_min: \e[33m%b\e[0m\n" "$(is -v tv_min 1)"
-    printf "tv_opens: \e[33m%b\e[0m\n" "$(is -v tv_opens 1)"
-
-    # Track other stats
-    a "p_ett $(tdis | lines | tr -d '[:space:]') s #u"
-
-    local sleep_delay=$(fall_asleep_delay)
-    if [ -n "$sleep_delay" ]; then
-        a "$(in_days -1) sleep_delay $sleep_delay s #u"
-    fi
-
-    echo
-
-    # Show other info
-    forecast=$(weather)
-    if [ -n "$forecast" ] | grep -q "snow"; then
-        echo "$forecast"
-    fi
-    tl.sh hb
-    echo -n temp:
-    sens temp
-
-    echo
-
-    # Show note
-    ob eve
-
-    # State conditionals
-    $has_fog && echo "fog -> ( walk, meditate )"
-    $has_headache && echo "fog -> ( walk, meditate )"
-
-    echo
-
-    # Setup environment
-    if [[ ! " $@ " == *" -E "* ]]; then
-        short focus sleep
-        short night_shift 1
-        theme 1
-    fi
-
-    # Deletes tasks tagged @rm. NOTE - Has safeties and redundancies
-    local del_tasks=$(tdls '@rm' -epF 'p1' | grep '@rm' | head -n 10)
-    echo "$del_tasks" >>$HOME/.dotfiles/logs/eve.log
-    local del_ids=$(echo -n "$del_tasks" | grep -o '^[0-9]*' | tr -s '[:space:]' ' ')
-    if tdc $del_ids; then
-        echo "Auto-deleted $(echo -n "$del_ids" | wc -w | tr -d '[:space:]') task(s)"
-    else
-        echo 'Auto task deletion failed'
-    fi
-
-    # Phone
-    if [[ ! " $@ " == *" -l "* ]]; then
-        sleep 9
-        short phondo "flight mode"
-    fi
-
-}
-
-function bedtime {
-    set -- $($MY_SCRIPTS/lang/shell/expand_args.sh $*)
-
-    local do_phone=1
-    local wifi=0
-
-    while [[ $# -gt 0 ]]; do
-        case "$1" in
-        -p)
-            do_phone="$2"
-            shift 2
-            ;;
-        -w)
-            wifi="$2"
-            shift 2
-            ;;
-        -h | --help)
-            print 'Usage: bedtime [options...]'
-            printf " %-3s %-20s %s\n" "-p" "<1/0>" "Do set phone settings"
-            printf " %-3s %-20s %s\n" "-w" "<1/0>" "Wifi on/off"
-            printf " %-3s %-20s %s\n" "-h," "--help" "Show this help message"
-            return 0
-            ;;
-        *)
-            echo "Unknown option: $1"
-            return 1
-            ;;
-        esac
-    done
-
-    sens temp
-
-    if [[ $do_phone -eq 1 ]]; then
-        short phondo "flight mode"
-    fi
-
-    if [[ $wifi -eq 1 ]]; then
-        wifi on
-    else
-        sleep 2
-        wifi off
-    fi
-
-    short focus sleep
-    ob bedtime
-    ob zink
-
-    read "response?Shut down? (y/n): "
-    if [[ "$response" == "y" ]]; then
-        sudo shutdown -h now
-    fi
-
-    read "response?Close browser? (y/n): "
-    if [[ "$response" == "y" ]]; then
-        pkill -2 Arc
-    fi
-
 }

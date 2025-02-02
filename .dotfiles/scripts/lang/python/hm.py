@@ -2,6 +2,14 @@ import sys
 import json
 
 
+def hm_to_mins(hm: str) -> None:
+    try:
+        hours, minutes = hm.split(':')
+        print(int(hours) * 60 + int(minutes))
+    except ValueError:
+        raise ValueError("Invalid input")
+
+
 def process_dict(data):
     res = {}
 
@@ -21,24 +29,24 @@ def hm(mins):
     return f"{hours:02}:{minutes:02}"
 
 
-def process_input():
-    # Read JSON input from stdin
-    input_data = sys.stdin.read()
-
-    # Parse the input data as JSON
-    try:
-        data = json.loads(input_data)
-    except json.JSONDecodeError:
-        print("Invalid JSON input")
-        return
-
-    if isinstance(data, dict):
-        process_dict(data)
-    elif isinstance(data, (int, float)):
-        print(hm(data))
-    else:
-        print("Invalid input")
-
-
 if __name__ == "__main__":
-    process_input()
+    if len(sys.argv) > 1:
+        input_data = " ".join(sys.argv[1:])  # Join all arguments as a single string
+    else:
+        input_data = sys.stdin.read()
+
+    if ':' in input_data:
+        hm_to_mins(input_data)
+    else:
+        try:
+            data = json.loads(input_data)
+        except json.JSONDecodeError:
+            print("Invalid JSON input")
+            sys.exit(1)
+
+        if isinstance(data, dict):
+            process_dict(data)
+        elif isinstance(data, (int, float)):
+            print(hm(data))
+        else:
+            print("Invalid input")
