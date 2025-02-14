@@ -2,7 +2,7 @@
 
 # ------------------------- VARIABLES ------------------------ #
 export GPG_TTY=$(tty)
-export PATH="$HOME/.dotfiles/scripts/path:$PATH"
+export PATH="$HOME/.dotfiles/scripts/path:$(printf "%s:" "$HOME/.dotfiles/scripts/path"/*/):$PATH"
 
 export DOC="$HOME/Documents"
 export DEV="$HOME/Developer"
@@ -43,6 +43,19 @@ if ! command -v bat >/dev/null 2>&1; then
     function bat { cat; }
     functions -T bat
 fi
+
+function yadm_enc {
+    if ! pass yadm >/dev/null 2>&1; then
+        return 1
+    fi
+
+    if [[ $(pbpaste | wc -c) -lt 16 ]]; then
+        echo "Password too short"
+        return 1
+    fi
+
+    yadm encrypt
+}
 
 function test {
     if $has_fog; then
@@ -88,7 +101,7 @@ function cht {
 }
 
 function talk {
-    if [[ "$1" == "-s" ]]; then
+    if [[ "$*" == *"-s"* ]]; then
         local folder="$HOME/Library/Mobile Documents/com~apple~CloudDocs/media"
     else
         local folder="$HOME/Desktop"
@@ -97,8 +110,23 @@ function talk {
     local text
     read -r -d '' text
 
-    # Remove double spacing
-    text=$(echo "$text" | tr -s '[:space:]')
+    # process text ----------------------------------------------- #
+
+    text=$(
+        echo "$text" |
+            sed -E 's/\[([0-9]| e|,)+\]//g' |
+            sed -E 's/\([0-9]+\)//g' |
+            tr -s '[:space:]' |
+            sed -E 's/\(s\)/s/g' |
+            sed 's/[^[:alnum:][:punct:][:space:]]//g'
+    )
+
+    # prepare running -------------------------------------------- #
+
+    if [[ "$*" == *"-R"* ]]; then
+        echo "$text"
+        return 0
+    fi
 
     local chunk_size=4000
     local text_length=${#text}
@@ -106,14 +134,19 @@ function talk {
     local files=()
     local file_name=""
 
+    # record in chunks ------------------------------------------- #
+
     while ((start <= text_length)); do
         local chunk="${text[start - 1, start + chunk_size - 2]}"
 
-        file_name="$folder/$(cnt | tr -d '[:space:]').mp3"
+        file_name="$folder/tmp_$(cnt | tr -d '[:space:]').mp3"
         echo "$chunk" | gosling - $file_name -r 1.2
         files+=("$file_name")
         ((start += chunk_size))
+        sleep 0.5
     done
+
+    # combine chunks --------------------------------------------- #
 
     file_name="$folder/$(cnt | tr -d '[:space:]').mp3"
     cat "${files[@]}" >"$file_name"
@@ -213,7 +246,7 @@ function plot {
     if [[ -p /dev/stdin ]]; then
         local input=$(cat)
         nohup conda run -n main --live-stream python3 "$MY_SCRIPTS/lang/python/plot_json.py" "$input" "$1" &
-        #conda run -n main --live-stream python3 "$MY_SCRIPTS/lang/python/plot_json.py" "$input" "$1"
+        # conda run -n main --live-stream python3 "$MY_SCRIPTS/lang/python/plot_json.py" "$input" "$1"
     else
         nohup conda run -n main --live-stream python3 "$MY_SCRIPTS/lang/python/plot_json.py" "$*" "$1" &
     fi
@@ -224,46 +257,6 @@ function to_days {
         weekday=$(date -j -f "%Y-%m-%d" $the_date +"%a")
         echo "{\"$weekday\": $value}"
     done | jq -s 'add' | bat -pl json
-}
-
-function bed_minus_dinner { time_diff.sh -mp $(date +%H:%M) $(tl.sh 'routines/bed_time/start?sep=%3A'); }
-
-function fall_asleep_delay {
-    local bedtime=$(curl -s "$ROUTINE_ENDPOINT?q=bed_time" | sed 's/\./:/g' 2>/dev/null)
-    if [ $? -ne 0 ] || [ -z "$bedtime" ]; then
-        return 1
-    fi
-
-    local sleep_time=$(is sleep_start 1 | hm | jq '.[]' | sed 's/"//g' 2>/dev/null)
-    if [ $? -ne 0 ] || [ -z "$sleep_time" ]; then
-        return 1
-    fi
-    sleep_time=$(time_diff.sh "12:00" "$sleep_time")
-
-    local time=$(time_diff.sh $bedtime $sleep_time)
-
-    local hours=${time%%:*}
-    local minutes=${time#*:}
-    echo $((hours * 60 + minutes))
-}
-
-function bed_minus_detach {
-    local detach_time=$(tl.sh 'routines/detach/start?sep=%3A' 2>/dev/null)
-    if [ $? -ne 0 ] || [ -z "$detach_time" ]; then
-        return 1
-    fi
-
-    local sleep_time=$(is sleep_start 1 | hm | jq '.[]' | sed 's/"//g' 2>/dev/null)
-    if [ $? -ne 0 ] || [ -z "$sleep_time" ]; then
-        return 1
-    fi
-    sleep_time=$(time_diff.sh "12:00" "$sleep_time")
-
-    local time=$(time_diff.sh $bedtime $sleep_time)
-
-    local hours=${time%%:*}
-    local minutes=${time#*:}
-    echo $((hours * 60 + minutes))
 }
 
 function sens {
@@ -408,7 +401,11 @@ function a {
             # Ask for lines until 'q' is entered
             while [[ $line != 'q' ]]; do
                 echo $line >>"$HOME/.dotfiles/logs/a_raw.log"
+
+                # Add to history
                 print -s -- "$line"
+
+                # escape characters ------------------------------------------ #
 
                 local escaped=$(echo "$line" | sed -E \
                     -e "s/'/\\'/g" \
@@ -422,7 +419,11 @@ function a {
                     did_expand_a=true
                 fi
 
-                (nohup a.sh "$expanded_line" >>$HOME/.dotfiles/logs/a.log 2>&1 &)
+                # run -------------------------------------------------------- #
+
+                (
+                    (nohup a.sh "$expanded_line" >>$HOME/.dotfiles/logs/a.log 2>&1 || echo "(ERR: a.sh not found)") &
+                )
                 m_vared
             done
 
@@ -440,7 +441,9 @@ function a {
 
     # If arguments passed
     else
-        (nohup a.sh "$*" >>$HOME/.dotfiles/logs/a.log 2>&1 &)
+        (
+            (nohup a.sh "$*" >>$HOME/.dotfiles/logs/a.log 2>&1 || echo "(ERR: a.sh not found)") &
+        )
     fi
 }
 

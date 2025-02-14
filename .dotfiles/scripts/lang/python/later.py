@@ -15,23 +15,27 @@ def run_later():
         lines = file.readlines()
 
     for i, line in enumerate(lines):
-        if line:
-            handle_line(line.strip())
+        handle_line(line.strip())
 
         with open(FILE_PATH, "w") as file:
             file.writelines(lines[(i + 1):])
 
 
 def handle_line(line):
+    if not line:
+        return
+
     action = input(f'"{line}" :', )
     if action == 'y':
         subprocess.run(["zsh", "-i", "-c", f"{line}"], stdout=sys.stdout, stderr=sys.stderr, text=True, shell=False)
     elif action == 'n':
         return
+    elif action == 'c':
+        os.system(f'printf "{line}" | pbcopy')
     elif action == 'q':
         exit(0)
     else:
-        print('Invalid input - enter (y, n or q)')
+        print('Invalid input - enter (y, n, c or q)')
         handle_line(line)
 
 
@@ -39,12 +43,13 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         command = ' '.join(sys.argv[1:])
 
-        if command == 'stdin' and not sys.stdin.isatty():
-            command = sys.stdin.read()
-            if command: command = command.strip()
+        if command == 'stdin':
+            if not sys.stdin.isatty():
+                command = sys.stdin.read()
+                if command: command = command.strip()
 
-        elif not sys.stdin.isatty():
-            print('Warn - stdin is not a tty')
+            elif sys.stdin.isatty():
+                print('Warn - stdin is not a tty')
 
         add_to_later(command)
 

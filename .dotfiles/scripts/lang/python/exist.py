@@ -1,4 +1,7 @@
 '''
+# README
+This is my read-only interface to the api provided by exist.io
+
 # TODO:
 - Clean up
 - Export
@@ -14,7 +17,6 @@ import os
 import sys
 import json
 from datetime import datetime, timedelta
-import math
 
 # ------------------------- VARIABLES ------------------------ #
 

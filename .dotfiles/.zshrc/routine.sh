@@ -59,12 +59,17 @@ function dawn {
         do_now "p/auto/is low sleep"
     fi
 
+    local headache=$(is head 1 | jq '.[]')
+    if ! missing_sleep $sleep_amt && [[ $headache != '1' ]]; then
+        later "a '#b workspace' #plan"
+    fi
+
     local yd_water=$(is water 1 1 | jq '.[]')
-    if [[ $yd_water -le 1000 ]]; then
+    if [[ $yd_water -le 1100 ]]; then
         later "#water_yd: $yd_water -> hydrate"
     fi
 
-    if [[ $(date +"%m") -le 2 ]]; then
+    if [[ $(date +"%m") -le 2 ]]; then # Is Jan or Feb
         later "#plan sunlight exposure"
         a "winter 1 s #u"
     fi
@@ -118,6 +123,8 @@ function eve {
         return 0
     fi
 
+    tg stop
+
     # Reset
     echo "" >$VAULT/p/risk.md
     echo "" >$VAULT/p/p.md
@@ -151,6 +158,8 @@ function eve {
 
     # manual track ------------------------------------------------- #
 
+    echo "https://track.toggl.com/timer"
+
     # Track main
     local main
     echo -n "main: "
@@ -172,6 +181,12 @@ function eve {
     local sleep_delay=$(fall_asleep_delay)
     if [ -n "$sleep_delay" ]; then
         a "$(in_days -1) sleep_delay $sleep_delay s #u"
+    fi
+
+    # Track bedtime minus detach
+    local bed_minus_detach=$(bed_minus_detach)
+    if [ -n "$bed_minus_detach" ]; then
+        a "$(tod) bed_minus_detach $bed_minus_detach s #u"
     fi
 
     # display main ----------------------------------------------- #
@@ -271,4 +286,45 @@ function bedtime {
     if [[ "$response" == "y" ]]; then
         pkill -2 Arc
     fi
+}
+
+# ========================== HELPERS ========================= #
+
+function bed_minus_dinner { time_diff.sh -mp $(date +%H:%M) $(tl.sh 'routines/bed_time/start?sep=%3A'); }
+
+function fall_asleep_delay {
+    local bedtime=$(curl -s "$ROUTINE_ENDPOINT?q=bed_time" | sed 's/\./:/g' 2>/dev/null)
+    if [ $? -ne 0 ] || [ -z "$bedtime" ]; then
+        return 1
+    fi
+
+    local sleep_time=$(is sleep_start 1 | hm | jq '.[]' | sed 's/"//g' 2>/dev/null)
+    if [ $? -ne 0 ] || [ -z "$sleep_time" ]; then
+        return 1
+    fi
+    sleep_time=$(time_diff.sh "12:00" "$sleep_time")
+
+    local time=$(time_diff.sh $bedtime $sleep_time)
+
+    local hours=${time%%:*}
+    local minutes=${time#*:}
+    echo $((hours * 60 + minutes))
+}
+
+function bed_minus_detach {
+    local detach_time=$(tl.sh 'routines/detach/end?sep=%3A' 2>/dev/null)
+    if [ $? -ne 0 ] || [ -z "$detach_time" ]; then
+        return 1
+    fi
+
+    local bed_time=$(tl.sh 'routines/bed_time/start?sep=%3A' 2>/dev/null)
+    if [ $? -ne 0 ] || [ -z "$bed_time" ]; then
+        return 1
+    fi
+
+    local time=$(time_diff.sh $detach_time $bed_time)
+
+    local hours=${time%%:*}
+    local minutes=${time#*:}
+    echo $((hours * 60 + minutes))
 }

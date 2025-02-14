@@ -31,13 +31,13 @@ source "$HOME/.dotfiles/.zshrc/shared.sh"
 # ===================== PLATFORM SPECIFIC ==================== #
 
 if [ "$(uname)" = "Darwin" ]; then
-    source "$HOME/.dotfiles/.zshrc/macOS.sh"
+    source "$HOME/.dotfiles/.zshrc/platforms/macOS.sh"
 
     if [[ "$PWD" != "$HOME/.dotfiles/config/tabs/a" ]]; then
         source "$HOME/.dotfiles/.zshrc/routine.sh"
     fi
 elif [ "$(uname)" = "Linux" ]; then
-    source "$HOME/.dotfiles/.zshrc/linux.sh"
+    source "$HOME/.dotfiles/.zshrc/platforms/linux.sh"
 fi
 
 # ========================== PLUGINS ========================= #

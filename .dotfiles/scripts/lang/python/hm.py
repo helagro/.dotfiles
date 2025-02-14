@@ -35,7 +35,7 @@ if __name__ == "__main__":
     else:
         input_data = sys.stdin.read()
 
-    if ':' in input_data:
+    if ':' in input_data and not input_data.startswith('{'):
         hm_to_mins(input_data)
     else:
         try:

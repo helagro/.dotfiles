@@ -26,11 +26,39 @@ alias vi="nvim"
 alias archive="$HOME/Documents/archiver-go/build/macOS"
 alias breake="nvim $DOC/break-timer/.env"
 alias wifi="networksetup -setairportpower en0" # NOTE - on/off
+alias tg="toggl"
+alias tgc="toggl current | grep -vE 'Workspace|ID'"
 
 alias oblank="open 'obsidian://vault/vault/p/lect.md'"
-alias lect="short lect && ob lect"
 
 # ------------------------- OTHER FUNCTIONS ------------------------ #
+
+function lect {
+    short lect
+    ob lect
+    tgs study
+}
+
+function tgs {
+    local project=$1
+    shift
+
+    if [[ "$project" == "bodge" ]]; then
+        toggl start -P 201773261 "$*"
+    elif [[ "$project" == "study" ]]; then
+        toggl start -P 181245378 "$*"
+    elif [[ "$project" == "i" ]]; then
+        toggl start -P 202093636 "$*"
+    elif [[ "$project" == "p1" ]]; then
+        toggl start -P 205212384 "$*"
+    elif [[ "$project" == "exor" ]]; then
+        toggl start -P 203446800 "$*"
+    elif [[ "$project" == "none" ]]; then
+        toggl start "$*"
+    else
+        return 1
+    fi
+}
 
 function missing_sleep {
     [ -n "$1" ] && [ "$1" != "null" ] && [ "$1" -lt "$sleep_goal" ]
@@ -216,6 +244,11 @@ function sw {
         time=$1
     fi
 
+    # If exor type activity
+    if ! $offline_mode && [[ $2 == "medd" || $2 == "yoga" ]]; then
+        tgs exor "$2"
+    fi
+
     local start_time=$(date +%s)
 
     # Run stopwatch
@@ -245,6 +278,10 @@ function sw {
             else
                 a "$2 $min #u"
             fi
+        fi
+
+        if ! $offline_mode; then
+            tg stop
         fi
     fi
 

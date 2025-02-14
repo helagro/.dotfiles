@@ -22,8 +22,8 @@ def main(arg, plot_name):
     plt.tight_layout()
 
     # Handle y values of type time
-    non_null_values = df['Value'].dropna()
-    is_time_series = is_time(str(non_null_values.iloc[0]))
+    df.dropna(subset=['Value'], inplace=True)
+    is_time_series = is_time(str(df['Value'].iloc[0]))
     if is_time_series:
         print("Time series detected")
         df['Value'] = df['Value'].apply(to_time)
@@ -57,6 +57,7 @@ def main(arg, plot_name):
     # ------------------- POLYNOMIAL REGRESSION ------------------- #
 
     # Fit a polynomial regression model
+
     poly_model = np.poly1d(np.polyfit(df['Days'], y, 8))
     df['Polynomial'] = poly_model(df['Days'])
 

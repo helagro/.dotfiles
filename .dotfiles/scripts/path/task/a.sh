@@ -53,6 +53,8 @@ function process_local {
 function process_server {
     # return 1 # Disable server processing
 
+    [ -z "$TDA_URL" ] && echo "Missing TDA_URL" && return 1
+
     local resCode=$(curl -s -b "a75h=$A75H" -o /dev/null -w "%{http_code}" -X POST --data-raw "$1" $TDA_URL)
 
     return $((resCode != 200))
@@ -60,6 +62,10 @@ function process_server {
 
 function process_todoist_cli {
     # return 1 # Disable todoist cli processing
+
+    if ! command -v todoist >/dev/null 2>&1; then
+        return 1
+    fi
 
     todoist q "$1" 2>/dev/null
     return $?
