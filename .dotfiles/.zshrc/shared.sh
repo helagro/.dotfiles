@@ -45,6 +45,8 @@ if ! command -v bat >/dev/null 2>&1; then
 fi
 
 function yadm_enc {
+    echo -n "" | pbcopy
+
     if ! pass yadm >/dev/null 2>&1; then
         return 1
     fi
@@ -55,6 +57,8 @@ function yadm_enc {
     fi
 
     yadm encrypt
+
+    echo -n "" | pbcopy
 }
 
 function test {
@@ -274,27 +278,6 @@ function sens {
     else
         echo -n "$result" | bat -pPl "json"
     fi
-}
-
-function slope {
-    local m="${1:-7}"
-
-    tac | awk -v m="$m" '{
-        y[NR]=$2;
-        x[NR]=NR
-    }
-    END {
-        n=NR;
-        sumx=sumy=sumxy=sumxx=0;
-        for (i=1;i<=n;i++) {
-        sumx+=x[i];
-        sumy+=y[i];
-        sumxy+=x[i]*y[i];
-        sumxx+=x[i]*x[i]
-        }
-        slope=(n*sumxy-sumx*sumy)/(n*sumxx-sumx^2);
-        print slope * m
-    }'
 }
 
 function is {

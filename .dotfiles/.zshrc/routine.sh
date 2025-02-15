@@ -31,14 +31,19 @@ function dawn {
         esac
     done
 
-    # env -------------------------------------------------------- #
+    while ! ping -c 1 -t 1 8.8.8.8 &>/dev/null; do
+        sleep 0.5
+        echo "(waiting for internet...)"
+    done
 
+    # NOTE - Needs to run early to complete before "later"
+    (dawn_state &)
+
+    # env -------------------------------------------------------- #
     short focus "$focus_mode"
     short night_shift "$night_shift"
     short focus
     theme $theme
-
-    sleep 2
 
     # add to checklist ------------------------------------------- #
 
@@ -47,37 +52,7 @@ function dawn {
         later "# risk.md"
     fi
 
-    # states ----------------------------------------------------- #
-
-    a "dawn #u"
-    ob "p/auto/state adder" | state_switch.sh | a
-    ob "p/auto/state do" | state_switch.sh | later "stdin"
-
-    local sleep_amt=$(is sleep 1 | jq '.[]')
-    local sleep_amt_yd=$(is sleep 1 1 | jq '.[]')
-    if missing_sleep $sleep_amt || missing_sleep $sleep_amt_yd; then
-        do_now "p/auto/is low sleep"
-    fi
-
-    local headache=$(is head 1 | jq '.[]')
-    if ! missing_sleep $sleep_amt && [[ $headache != '1' ]]; then
-        later "a '#b workspace' #plan"
-    fi
-
-    local yd_water=$(is water 1 1 | jq '.[]')
-    if [[ $yd_water -le 1100 ]]; then
-        later "#water_yd: $yd_water -> hydrate"
-    fi
-
-    if [[ $(date +"%m") -le 2 ]]; then # Is Jan or Feb
-        later "#plan sunlight exposure"
-        a "winter 1 s #u"
-    fi
-
     # display ---------------------------------------------------- #
-
-    later
-    echo
 
     # Display main stuff
     day tod
@@ -88,8 +63,16 @@ function dawn {
     for state in "${state_list[@]}"; do
         $(eval echo \$$state) && echo $state
     done
+
+    later
+    echo
+
     ob rule
     ob p
+
+    # lastly ----------------------------------------------------- #
+
+    a "dawn #u"
 }
 
 function dinner {
