@@ -6,12 +6,12 @@ fi
 
 # ========================= ENCRYPTED ======================== #
 
-if [ -f "$HOME/.dotfiles/.zshrc/secrets.sh" ]; then
-    source "$HOME/.dotfiles/.zshrc/secrets.sh"
+if [ -f "$HOME/.dotfiles/.zshrc/secret/secrets.sh" ]; then
+    source "$HOME/.dotfiles/.zshrc/secret/secrets.sh"
 fi
 
-if [ -f "$HOME/.dotfiles/.zshrc/custom.sh" ]; then
-    source "$HOME/.dotfiles/.zshrc/custom.sh"
+if [ -f "$HOME/.dotfiles/.zshrc/secret/custom.sh" ]; then
+    source "$HOME/.dotfiles/.zshrc/secret/custom.sh"
 fi
 
 # ========================== HOTKEY ========================== #

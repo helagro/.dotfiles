@@ -96,7 +96,7 @@ function act {
         print -n -u2 "inbox, "
     fi
 
-    if [ $(b.sh | wc -l) -le 4 ]; then
+    if [ $(ob b | wc -l) -le 4 ]; then
         output=$(echo "$output" | grep -v '"b^"')
         print -n -u2 "b, "
     fi

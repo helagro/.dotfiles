@@ -39,9 +39,6 @@ alias st="python3 $MY_SCRIPTS/lang/python/st.py"
 
 # ------------------ UNCATEGORISED FUNCTIONS ----------------- #
 
-function hm { python3 $MY_SCRIPTS/lang/python/hm.py "$@" | bat -pPl 'json'; }
-function group { python3 $MY_SCRIPTS/lang/python/group.py "$@" | bat -pPl 'json'; }
-
 if ! command -v bat >/dev/null 2>&1; then
     function bat { cat; }
     functions -T bat
@@ -245,6 +242,8 @@ function year_day {
 
 # ------------------------- TRACKING ------------------------- #
 
+function hm { python3 $MY_SCRIPTS/lang/python/hm.py "$@" | bat -pPl 'json'; }
+function group { python3 $MY_SCRIPTS/lang/python/group.py "$@" | bat -pPl 'json'; }
 function csv { conda run -n main python3 "$MY_SCRIPTS/lang/python/jsons_to_csv.py" $@ | bat -pPl 'tsv'; }
 
 function plot {

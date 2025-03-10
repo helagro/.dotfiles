@@ -443,3 +443,5 @@ tmp
 .vscode
 secrets.sh
 custom.sh
+secret/*
+!secret/.gitignore
