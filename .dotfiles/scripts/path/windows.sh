@@ -28,7 +28,7 @@ remind_time=$(date -v +30M +"%H:%M")
 
 # water ------------------------------------------------------ #
 
-local water_limit=800
+local water_limit=750
 if in_window "16:00" "20:00"; then
     water=$(conda run -n main python3 "$HOME/.dotfiles/scripts/lang/python/exist.py" water 1 | jq '.[]')
 
@@ -39,7 +39,7 @@ fi
 
 # tt --------------------------------------------------------- #
 
-if ob.sh b | grep -qFe "- [ ] tt"; then
+if $HOME/.dotfiles/scripts/path/note/ob.sh b | grep -qFe "- [ ] tt"; then
     if in_window "12:00" "18:00" && in_window -o "12:00" "18:00"; then
         $HOME/.dotfiles/scripts/path/task/a.sh "!($remind_time) $remind_time tt @rm"
     fi

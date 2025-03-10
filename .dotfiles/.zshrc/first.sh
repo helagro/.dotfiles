@@ -5,6 +5,7 @@
 alias gpt4="aichat -s -m openai:gpt-4o"
 alias gpt3="aichat -s -m openai:gpt-3.5-turbo"
 alias is_dark='[[ $(defaults read -g AppleInterfaceStyle 2>/dev/null) == "Dark" ]]'
+alias tod="date +'%Y-%m-%d'"
 
 # ---------------------------- ZSH --------------------------- #
 

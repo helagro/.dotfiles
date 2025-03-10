@@ -98,6 +98,8 @@ def values(attr: str, days: int, date_max_input=None, url=None) -> dict:
 
         next = returned.get('next')
         if next is None:
+            if returned['total_count'] < days:
+                print(f"Only {returned['total_count']} values found.", file=sys.stderr)
             return returned['results']
         else:
             next_page = values(attr, days - 100, date_max_input=date_max, url=next)

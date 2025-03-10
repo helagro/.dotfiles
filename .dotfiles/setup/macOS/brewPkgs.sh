@@ -13,8 +13,8 @@ brew install "helm" -q
 brew install "jq" -q
 brew install "lftp" -q
 brew install "libqalculate" -q
+brew install "lorem" -q
 brew install "mecab" -q
-brew install "minikube" -q
 brew install "mpv" -q
 brew install "ncdu" -q
 brew install "neovim" -q
@@ -24,6 +24,8 @@ brew install "postgresql@14" -q
 brew install "rbenv" -q
 brew install "sachaos/todoist/todoist" -q
 brew install "saulpw/vd/visidata" -q
+brew install "sl" -q
+brew install "speedtest-cli" -q
 brew install "sshpass" -q
 brew install "textract" -q
 brew install "tree" -q

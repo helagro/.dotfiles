@@ -24,6 +24,9 @@ ZSH_HIGHLIGHT_REGEXP+=(
     '[ \t]-*[0-9]+(\.[0-9]+)*(?=([ \t]|$|\)))' fg=blue
 )
 
+HISTSIZE=100000
+SAVEHIST=20000
+
 # ------------------------- UNCATEGORISED ALIASES ------------------------ #
 
 alias c="qalc"
@@ -37,7 +40,7 @@ alias st="python3 $MY_SCRIPTS/lang/python/st.py"
 # ------------------ UNCATEGORISED FUNCTIONS ----------------- #
 
 function hm { python3 $MY_SCRIPTS/lang/python/hm.py "$@" | bat -pPl 'json'; }
-function group_w { python3 $MY_SCRIPTS/lang/python/group_w.py $1 | bat -pPl 'json'; }
+function group { python3 $MY_SCRIPTS/lang/python/group.py "$@" | bat -pPl 'json'; }
 
 if ! command -v bat >/dev/null 2>&1; then
     function bat { cat; }
@@ -47,7 +50,7 @@ fi
 function yadm_enc {
     echo -n "" | pbcopy
 
-    if ! pass yadm >/dev/null 2>&1; then
+    if ! pass -c yadm >/dev/null 2>&1; then
         return 1
     fi
 
@@ -221,8 +224,6 @@ function repo {
 
 # --------------------------- DATES -------------------------- #
 
-alias tod="date +'%Y-%m-%d'"
-
 function in_days {
     if [[ "$1" == *-* ]]; then
         date -v"$1"d +"%Y-%m-%d"
@@ -386,7 +387,9 @@ function a {
                 echo $line >>"$HOME/.dotfiles/logs/a_raw.log"
 
                 # Add to history
-                print -s -- "$line"
+                if [[ $line != ' '* ]]; then
+                    print -s -- "$line"
+                fi
 
                 # escape characters ------------------------------------------ #
 

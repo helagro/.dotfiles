@@ -36,21 +36,16 @@ function dawn {
         echo "(waiting for internet...)"
     done
 
+    # state ------------------------------------------------------ #
+
     # NOTE - Needs to run early to complete before "later"
-    (dawn_state &)
+    (state_calc && dawn_state) &
 
     # env -------------------------------------------------------- #
     short focus "$focus_mode"
     short night_shift "$night_shift"
     short focus
     theme $theme
-
-    # add to checklist ------------------------------------------- #
-
-    local risk_amt=$(ob risk | wc -l | tr -d '[:space:]')
-    if [[ $risk_amt -le 1 ]]; then
-        later "# risk.md"
-    fi
 
     # display ---------------------------------------------------- #
 
@@ -63,7 +58,9 @@ function dawn {
     for state in "${state_list[@]}"; do
         $(eval echo \$$state) && echo $state
     done
+    state.sh | jq -r 'to_entries[] | select(.value == true) | .key'
 
+    wait
     later
     echo
 
@@ -96,6 +93,7 @@ function dinner {
 }
 
 function eve {
+    local main screen
     set -- $($MY_SCRIPTS/lang/shell/expand_args.sh $*)
 
     if $MY_SCRIPTS/lang/shell/is_help.sh $*; then
@@ -143,16 +141,10 @@ function eve {
 
     echo "https://track.toggl.com/timer"
 
-    # Track main
-    local main
-    echo -n "main: "
-    read -r main
+    vared -p "Main: " -c main
     a "main $(hm $main) s #u"
 
-    # Track screen
-    local screen
-    echo -n "screen: "
-    read -r screen
+    vared -p "Screen: " -c screen
     a "screen $(hm $screen) s #u"
 
     # auto track ------------------------------------------------- #
@@ -177,9 +169,15 @@ function eve {
     # Show note
     ob eve
 
+    # Show charge
+    local battery_level=$(pmset -g batt | grep -o '[0-9]*%' | tr -d '%')
+    if [ $battery_level -lt 50 ]; then
+        echo "Charge: $battery_level%"
+    fi
+
     # State conditionals
-    $has_fog && echo "fog -> ( walk, meditate )"
-    $has_headache && echo "fog -> ( walk, meditate )"
+    state.sh -s fog && echo "fog -> ( walk, meditate )"
+    state.sh -s headache && echo "headache -> ( walk, meditate )"
 
     echo
 
@@ -287,7 +285,10 @@ function fall_asleep_delay {
     fi
     sleep_time=$(time_diff.sh "12:00" "$sleep_time")
 
-    local time=$(time_diff.sh $bedtime $sleep_time)
+    local time=$(time_diff.sh -p $bedtime $sleep_time)
+    if [ $? -ne 0 ]; then
+        return 1
+    fi
 
     local hours=${time%%:*}
     local minutes=${time#*:}

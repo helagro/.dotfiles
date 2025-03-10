@@ -1,7 +1,11 @@
+# =========================== HELP =========================== #
+
 if $HOME/.dotfiles/scripts/lang/shell/is_help.sh $*; then
     printf 'Usage: ob [-e] <note>\n'
     exit 0
 fi
+
+# ==================== FUNCTION SELECTION ==================== #
 
 if [[ "$1" == "-e" ]]; then
     shift
@@ -21,7 +25,7 @@ else
 fi
 
 if [[ $1 != *"/in.md" ]]; then
-    ob.sh _/local/in.md | grep -E "#$1(\s|$)" | sed "s/\\\#$1 *//g" 2>/dev/null
+    ob.sh _/local/in.md | grep -E "#$1(\s|$)" | sed "s/\\\#$1 *//g" | $HOME/.dotfiles/scripts/path/to_color.sh yellow 2>/dev/null
 fi
 
 # Parses arguments, expands cammel case, and removes .md extension

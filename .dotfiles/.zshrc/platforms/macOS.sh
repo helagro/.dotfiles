@@ -35,7 +35,10 @@ alias oblank="open 'obsidian://vault/vault/p/lect.md'"
 
 function lect {
     short lect
+
     ob lect
+    tdls @lect
+
     tgs study
 }
 
@@ -68,18 +71,41 @@ function act {
     local local_online_tools="$HOME/Documents/online-tools"
     local query=$(echo "$*" | tr ' ' '/')
 
-    if rand 5 >/dev/null; then
+    if rand 4 >/dev/null; then
         local table=$(curl -s --connect-timeout 2 "$MY_CONFIG_URL/online-tools/act.tsv")
 
         if [ -n "$table" ]; then
             echo "$table" >$local_online_tools/data/act.tsv
+            print -u2 "Successfully updated act.tsv"
+        else
+            print -u2 "Failed to update act.tsv"
         fi
     fi
 
-    (
+    local output=$(
         cd $local_online_tools/dist/act
-        NODE_NO_WARNINGS=1 node index.js "$query" | bat -pPl "json"
+        NODE_NO_WARNINGS=1 node index.js "$query"
     )
+
+    # filters ---------------------------------------------------- #
+
+    print -n -u2 "\033[90mExcluding: "
+
+    if [ $(tdl :inbox | wc -l) -le 8 ]; then
+        output=$(echo "$output" | grep -v '"inbox^"')
+        print -n -u2 "inbox, "
+    fi
+
+    if [ $(b.sh | wc -l) -le 4 ]; then
+        output=$(echo "$output" | grep -v '"b^"')
+        print -n -u2 "b, "
+    fi
+
+    print -u2 "\033[0m"
+
+    # print ------------------------------------------------------ #
+
+    echo $output | bat --color always -pPl "json" | act_highlight
 }
 
 function theme {
@@ -117,15 +143,26 @@ function on_tab {
         fi
 
         unset ZSH_AUTOSUGGEST_STRATEGY
+        unset HISTFILE SAVEHIST
 
         a
     fi
 }
 
 function pass {
+    local do_copy=false
+
+    if [[ $1 == "-c" ]]; then
+        do_copy=true
+        shift
+    fi
+
     local passw=$(op item get "$@" --reveal --fields password)
     echo $passw
-    echo $passw | pbcopy
+
+    if $do_copy; then
+        echo $passw | pbcopy
+    fi
 }
 
 function e {
@@ -164,7 +201,8 @@ compdef e_completion e
 # ---------------------- APPLE SHORTCUTS --------------------- #
 
 function short {
-    echo "$2" | shortcuts run "$1"
+    echo "$2" | shortcuts run "$1" --output-type public.plain-text | cat
+    echo
 
     if [[ $? -ne 0 ]]; then
         echo "Failure when running: $1 $2"
@@ -181,13 +219,8 @@ function inv {
 }
 
 function day {
-    local clipBoard=$(pbpaste)
-
     short day "$1"
-    pbpaste
-
     echo && echo
-    echo -n $clipBoard | pbcopy
 
     tdis
 }

@@ -1,12 +1,14 @@
 #!/bin/zsh
-source $HOME/.dotfiles/.zshrc/custom.sh
+
+state_json=$("$HOME/.dotfiles/scripts/path/state/state.sh")
+state_keys=($(echo $state_json | jq -r 'keys[]'))
 
 matches=""
 
 while IFS= read -r line; do
     if [[ "$line" == *-IF* ]]; then
-        for state in "${state_list[@]}"; do
-            state_val=$(eval echo \$$state)
+        for state in "${state_keys[@]}"; do
+            state_val=$(echo $state_json | jq -r ".$state")
 
             if [[ "$line" =~ ".*-IF.* $state.*" ]] && $state_val; then
                 matches+="$line\n"

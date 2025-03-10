@@ -12,13 +12,13 @@ def add_to_later(command):
 
 def run_later():
     with open(FILE_PATH, "r") as file:
-        lines = file.readlines()
+        line = file.readline()
+        while line:
+            handle_line(line.strip())
+            line = file.readline()
 
-    for i, line in enumerate(lines):
-        handle_line(line.strip())
-
-        with open(FILE_PATH, "w") as file:
-            file.writelines(lines[(i + 1):])
+    with open(FILE_PATH, "w") as file:
+        file.write('')
 
 
 def handle_line(line):

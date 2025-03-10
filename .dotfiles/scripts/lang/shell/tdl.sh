@@ -128,7 +128,7 @@ if $computed; then
         filter="^a\Z" # Matches nothing
     fi
 
-    if $has_headache || $is_busy; then
+    if "$HOME/.dotfiles/scripts/path/state/state.sh" -s headache || $is_busy; then
         filter+="|(p3.*#bdg)"
     fi
 
