@@ -13,7 +13,7 @@ export MY_SCRIPTS="$HOME/.dotfiles/scripts"
 # NOTE - Used by todoist-app
 export DISABLED_TD_APP_ITEMS="---,ob,"
 
-# ---------------------------- ZSH --------------------------- #
+# ---------------------------- ZSH STYLE --------------------------- #
 
 ZSH_HIGHLIGHT_HIGHLIGHTERS+=(regexp main)
 
@@ -23,9 +23,6 @@ ZSH_HIGHLIGHT_REGEXP+=(
     '\$[a-zA-Z0-9_][a-zA-Z0-9_]*' fg=cyan
     '[ \t]-*[0-9]+(\.[0-9]+)*(?=([ \t]|$|\)))' fg=blue
 )
-
-HISTSIZE=100000
-SAVEHIST=20000
 
 # ------------------------- UNCATEGORISED ALIASES ------------------------ #
 

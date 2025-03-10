@@ -10,16 +10,6 @@ if command -v rbenv &>/dev/null; then
     eval "$(rbenv init -)"
 fi
 
-# -------------------------- SOURCE -------------------------- #
-
-if [[ -f "$(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; then
-    source "$(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
-fi
-
-if [[ -f "$(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ]]; then
-    source "$(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
-fi
-
 # ----------------------- OTHER ALIASES ---------------------- #
 
 alias vi="nvim"
@@ -126,27 +116,6 @@ function theme {
 
 function on_tab {
     clr
-
-    if [[ "$PWD" == "$HOME/.dotfiles/config/tabs/a" ]]; then
-        if [[ -z "$has_setup_highlight" ]]; then
-            has_setup_highlight=1
-            ZSH_HIGHLIGHT_REGEXP+=(
-                '#[a-z0-9]+[a-zA-Z0-9]*' fg=green,bold
-                '(\s|^)p3(\s|$)' fg=magenta,underline
-                '(\s|^)p1(\s|$)' fg=red,bold
-                '\*\*.+\*\*' fg=red,bold
-                '(?<!\*)\*[^*]+\*(?!\*)' fg=magenta,underline
-                ';' fg=yellow,bold
-                '@\w+' fg=blue
-                '\$\([^\$]+\)' fg=cyan
-            )
-        fi
-
-        unset ZSH_AUTOSUGGEST_STRATEGY
-        unset HISTFILE SAVEHIST
-
-        a
-    fi
 }
 
 function pass {

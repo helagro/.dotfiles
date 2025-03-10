@@ -30,11 +30,23 @@ source "$HOME/.dotfiles/.zshrc/shared.sh"
 # ===================== PLATFORM SPECIFIC ==================== #
 
 if [ "$(uname)" = "Darwin" ]; then
+
+    if [[ -f "$(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; then
+        source "$(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+    fi
+
+    if [[ -f "$(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ]]; then
+        source "$(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+    fi
+
     source "$HOME/.dotfiles/.zshrc/platforms/macOS.sh"
 
-    if [[ "$PWD" != "$HOME/.dotfiles/config/tabs/a" ]]; then
+    if [[ "$PWD" == "$HOME/.dotfiles/config/tabs/a" ]]; then
+        source "$HOME/.dotfiles/.zshrc/special/a.sh"
+    else
         source "$HOME/.dotfiles/.zshrc/routine.sh"
     fi
+
 elif [ "$(uname)" = "Linux" ]; then
     source "$HOME/.dotfiles/.zshrc/platforms/linux.sh"
 fi
