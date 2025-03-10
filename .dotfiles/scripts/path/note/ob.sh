@@ -25,11 +25,12 @@ else
 fi
 
 if [[ $1 != *"/in.md" ]]; then
-    ob.sh _/local/in.md | grep -E "#$1(\s|$)" | sed "s/\\\#$1 *//g" | $HOME/.dotfiles/scripts/path/to_color.sh yellow 2>/dev/null
+    # Looks in in.md ; looks for $1 ; removes # ; colors yellow
+    ob.sh _/local/in.md | grep -E "#$1(\s|$)" | sed "s|\\#$1 *||g" | $HOME/.dotfiles/scripts/path/to_color.sh yellow 2>/dev/null
 fi
 
-# Parses arguments, expands cammel case, and removes .md extension
-input=$(echo "$*" | sed 's/\([a-z]\)\([A-Z]\)/\1 \2/g' | sed 's/\.md$//g' 2>/dev/null)
+# Parses arguments, and removes .md extension
+input=$(echo "$*" | sed 's/\.md$//g' 2>/dev/null)
 vault="$HOME/vault" # Can't use exported, called by break timer
 
 (

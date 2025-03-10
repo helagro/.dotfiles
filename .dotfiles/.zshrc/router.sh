@@ -1,22 +1,21 @@
 #!/bin/zsh
 
-if ! source "$HOME/.dotfiles/.zshrc/first.sh"; then
+source "$HOME/.dotfiles/.zshrc/first.sh"
+
+for file in "$HOME/.dotfiles/.zshrc/secret/"*.sh; do
+    [ -f "$file" ] && source "$file"
+done
+
+# ========================== SPECIAL WINDOWS ========================== #
+
+if [[ "$PWD" == "$HOME/.dotfiles/config/tabs/ai"* ]]; then
+    source "$HOME/.dotfiles/.zshrc/special/ai.sh"
     return 0
 fi
 
-# ========================= ENCRYPTED ======================== #
-
-if [ -f "$HOME/.dotfiles/.zshrc/secret/secrets.sh" ]; then
-    source "$HOME/.dotfiles/.zshrc/secret/secrets.sh"
-fi
-
-if [ -f "$HOME/.dotfiles/.zshrc/secret/custom.sh" ]; then
-    source "$HOME/.dotfiles/.zshrc/secret/custom.sh"
-fi
-
-# ========================== HOTKEY ========================== #
-
 if [[ "$PWD" == "$HOME/.dotfiles/config/tabs/hotkey"* ]]; then
+    source "$HOME/.dotfiles/.zshrc/special/hotkey.sh"
+
     if [[ "$PWD" == "$HOME/.dotfiles/config/tabs/hotkey/note" ]]; then
         vim $HOME/Desktop/1.md
     fi

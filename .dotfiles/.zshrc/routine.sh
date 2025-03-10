@@ -42,6 +42,7 @@ function dawn {
     (state_calc && dawn_state) &
 
     # env -------------------------------------------------------- #
+
     short focus "$focus_mode"
     short night_shift "$night_shift"
     short focus
@@ -105,18 +106,11 @@ function eve {
     fi
 
     tg stop
+    a "water | blinds #b #u"
 
     # Reset
     echo "" >$VAULT/p/risk.md
     echo "" >$VAULT/p/p.md
-
-    # show stats ------------------------------------------------- #
-
-    printf "podd: \e[33m%b\e[0m\n" "$(is -v podd 1)"
-    printf "tv_min: \e[33m%b\e[0m\n" "$(is -v tv_min 1)"
-    printf "tv_opens: \e[33m%b\e[0m\n" "$(is -v tv_opens 1)"
-
-    echo
 
     # other info ------------------------------------------------- #
 
@@ -176,8 +170,9 @@ function eve {
     fi
 
     # State conditionals
-    state.sh -s fog && echo "fog -> ( walk, meditate )"
-    state.sh -s headache && echo "headache -> ( walk, meditate )"
+    ob "p/auto/state eve act.md" | state_switch.sh
+
+    b.sh
 
     echo
 

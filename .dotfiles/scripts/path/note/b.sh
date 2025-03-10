@@ -8,6 +8,10 @@ ob.sh b
         echo "relaxation content"
     fi
 
+    if ! echo $cal | grep -Fq "detach"; then
+        echo "prepp bedtime"
+    fi
+
     windows.sh
 
     battery_info=$(pmset -g batt)

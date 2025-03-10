@@ -18,7 +18,7 @@ $HOME/Documents/archiver-go/build/macOS >>$LOG_FILE
 # ------------------------- APP LIST ------------------------- #
 
 echo "   list_app" | tee -a $LOG_FILE
-cd "$HOME/.dotfiles/scripts/path" && ./list_app.sh >>$LOG_FILE
+cd "$HOME/.dotfiles/scripts/lang/shell" && ./list_app.sh >>$LOG_FILE
 
 # ------------------------ BREW STUFF ------------------------ #
 
