@@ -104,7 +104,6 @@ Temporary Items
 
 ### Node ###
 # Logs
-logs
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -445,3 +444,5 @@ secrets.sh
 custom.sh
 secret/*
 !secret/.gitignore
+logs/*
+!logs/.gitignore

@@ -2,9 +2,13 @@
 
 source "$HOME/.dotfiles/.zshrc/first.sh"
 
-for file in "$HOME/.dotfiles/.zshrc/secret/"*.sh; do
-    [ -f "$file" ] && source "$file"
-done
+# ========================== SECRETS ========================= #
+
+if ls "$HOME/.dotfiles/.zshrc/secret/" | grep ".sh" >/dev/null; then
+    for file in "$HOME/.dotfiles/.zshrc/secret/"*.sh; do
+        [ -f "$file" ] && source "$file"
+    done
+fi
 
 # ========================== SPECIAL WINDOWS ========================== #
 
@@ -34,7 +38,6 @@ if [ "$(uname)" = "Darwin" ]; then
     if [[ -f "$(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; then
         source "$(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
     fi
-
     if [[ -f "$(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ]]; then
         source "$(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
     fi

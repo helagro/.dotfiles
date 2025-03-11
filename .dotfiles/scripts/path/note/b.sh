@@ -3,6 +3,8 @@
 ob.sh b
 
 # ======================== CALCULATED ======================== #
+cal=$(echo tod | shortcuts run day --output-type public.plain-text)
+
 (
     if command -v state.sh &>/dev/null && state.sh -s stress; then
         echo "relaxation content"

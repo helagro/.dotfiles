@@ -95,7 +95,7 @@ function act {
 
     # print ------------------------------------------------------ #
 
-    echo $output | bat --color always -pPl "json" | act_highlight
+    echo $output | bat -pPl "json" | act_highlight
 }
 
 function theme {
@@ -116,22 +116,6 @@ function theme {
 
 function on_tab {
     clr
-}
-
-function pass {
-    local do_copy=false
-
-    if [[ $1 == "-c" ]]; then
-        do_copy=true
-        shift
-    fi
-
-    local passw=$(op item get "$@" --reveal --fields password)
-    echo $passw
-
-    if $do_copy; then
-        echo $passw | pbcopy
-    fi
 }
 
 function e {
@@ -170,8 +154,21 @@ compdef e_completion e
 # ---------------------- APPLE SHORTCUTS --------------------- #
 
 function short {
-    echo "$2" | shortcuts run "$1" --output-type public.plain-text | cat
-    echo
+    local do_silent=false
+
+    if [[ $* == *"-s"* ]]; then
+        do_silent=true
+        shift
+    fi
+
+    output=$(
+        echo "$2" | shortcuts run "$1" --output-type public.plain-text | cat
+        echo
+    )
+
+    if ! $do_silent; then
+        echo $output
+    fi
 
     if [[ $? -ne 0 ]]; then
         echo "Failure when running: $1 $2"
@@ -188,8 +185,8 @@ function inv {
 }
 
 function day {
-    short day "$1"
-    echo && echo
+    short day "$1" | to_color.sh blue
+    echo
 
     tdis
 }

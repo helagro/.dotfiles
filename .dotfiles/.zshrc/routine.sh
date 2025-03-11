@@ -43,9 +43,8 @@ function dawn {
 
     # env -------------------------------------------------------- #
 
-    short focus "$focus_mode"
-    short night_shift "$night_shift"
-    short focus
+    short -s focus "$focus_mode"
+    short -s night_shift "$night_shift"
     theme $theme
 
     # display ---------------------------------------------------- #
@@ -59,7 +58,7 @@ function dawn {
     for state in "${state_list[@]}"; do
         $(eval echo \$$state) && echo $state
     done
-    state.sh | jq -r 'to_entries[] | select(.value == true) | .key'
+    state.sh | jq -r 'to_entries[] | select(.value == true) | .key' | to_color.sh magenta
 
     wait
     later
