@@ -369,7 +369,9 @@ function tdu {
 
 function tdc {
     for arg in "$@"; do
-        (nohup todoist c "$arg" >/dev/null 2>&1 &)
+        for id in ${(z)arg}; do 
+            (nohup todoist c "$id" >/dev/null 2>&1 &)
+        done
     done
 }
 
