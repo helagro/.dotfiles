@@ -34,3 +34,7 @@ Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentD
 
 Get-Process -Name explorer | Stop-Process
 start explorer.exe
+
+# ========================== OTHER ========================== #
+
+echo 'oh-my-posh init pwsh --config "C:\Program Files (x86)\oh-my-posh\Themes\onehalf.minimal.omp.json" | Invoke-Expression' >> $PROFILE

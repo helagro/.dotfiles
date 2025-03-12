@@ -6,11 +6,4 @@ if [ "$return_code" -ne 0 ]; then
     exit "$return_code"
 fi
 
-# If bat is installed
-if command -v bat &>/dev/null; then
-    echo "$content" | bat -pPl "json"
-
-# If bat is not installed
-else
-    echo "$content"
-fi
+echo "$content" | rat.sh -pPl "json"

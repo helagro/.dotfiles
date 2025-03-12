@@ -36,11 +36,6 @@ alias st="python3 $MY_SCRIPTS/lang/python/st.py"
 
 # ------------------ UNCATEGORISED FUNCTIONS ----------------- #
 
-if ! command -v bat >/dev/null 2>&1; then
-    function bat { cat; }
-    functions -T bat
-fi
-
 function pass {
     local do_copy=false
 
@@ -247,9 +242,9 @@ function year_day {
 
 # ------------------------- TRACKING ------------------------- #
 
-function hm { python3 $MY_SCRIPTS/lang/python/hm.py "$@" | bat -pPl 'json'; }
-function group { python3 $MY_SCRIPTS/lang/python/group.py "$@" | bat -pPl 'json'; }
-function csv { conda run -n main python3 "$MY_SCRIPTS/lang/python/jsons_to_csv.py" $@ | bat -pPl 'tsv'; }
+function hm { python3 $MY_SCRIPTS/lang/python/hm.py "$@" | rat.sh -pPl 'json'; }
+function group { python3 $MY_SCRIPTS/lang/python/group.py "$@" | rat.sh -pPl 'json'; }
+function csv { conda run -n main python3 "$MY_SCRIPTS/lang/python/jsons_to_csv.py" $@ | rat.sh -pPl 'tsv'; }
 
 function plot {
     if [[ -p /dev/stdin ]]; then
@@ -265,7 +260,7 @@ function to_days {
     cat | jq -r 'to_entries | map("\(.key) \(.value)") | .[]' | while read the_date value; do
         weekday=$(date -j -f "%Y-%m-%d" $the_date +"%a")
         echo "{\"$weekday\": $value}"
-    done | jq -s 'add' | bat -pl json
+    done | jq -s 'add' | rat.sh -pl json
 }
 
 function sens {
@@ -279,9 +274,9 @@ function sens {
     local result=$(curl -sS --connect-timeout 2 "192.168.3.46:8004/$1")
 
     if $do_new_line; then
-        echo "$result" | bat -pPl "json"
+        echo "$result" | rat.sh -pPl "json"
     else
-        echo -n "$result" | bat -pPl "json"
+        echo -n "$result" | rat.sh -pPl "json"
     fi
 }
 
@@ -305,9 +300,9 @@ function is {
     fi
 
     if $value_only; then
-        echo $is_output | jq '.[]' | bat -pl 'json'
+        echo $is_output | jq '.[]' | rat.sh -pl 'json'
     else
-        echo $is_output | bat -pl 'json'
+        echo $is_output | rat.sh -pl 'json'
     fi
 
     if [ -n "$code" ]; then
@@ -429,7 +424,7 @@ function do_now {
 
 function randote {
     local file=$(find "$VAULT/i" -type f | sort -R | head -n 1)
-    bat -P "$file"
+    rat.sh -P "$file"
 
     a ob
 }

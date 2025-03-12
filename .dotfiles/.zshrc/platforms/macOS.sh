@@ -95,7 +95,7 @@ function act {
 
     # print ------------------------------------------------------ #
 
-    echo $output | bat -pPl "json" | act_highlight
+    echo $output | rat.sh -pPl "json" | act_highlight
 }
 
 function theme {

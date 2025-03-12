@@ -21,3 +21,7 @@ if ask "Setup login hook?"; then
         sudo systemctl enable dotfiles.service && \
         sudo systemctl start dotfiles.service"
 fi
+
+if ask "Install brew?"; then
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+fi
