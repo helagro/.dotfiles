@@ -34,6 +34,17 @@ function colorize {
     }'
 }
 
+function m_td_get {
+    if command -v todoist &>/dev/null; then
+        todoist --indent list --filter "$1"
+    else
+        curl -sX GET \
+            https://api.todoist.com/rest/v2/tasks \
+            -H "Authorization: Bearer $TODOIST_TOKEN" -G \
+            --data-urlencode "filter=$1" | grep -E "content|priority|{|}"
+    fi
+}
+
 # ------------------------- PARSE ARGUMENTS ------------------------ #
 
 set -- $($MY_SCRIPTS/lang/shell/expand_args.sh "$@")
@@ -89,7 +100,7 @@ done
 if [[ "$1" == *"/"* ]]; then
     output=$(todoist --indent list | grep "$input")
 else
-    output="$(todoist --indent list --filter "$input")"
+    output="$(m_td_get "$input")"
 fi
 
 # ---------------------------- ES ---------------------------- #
