@@ -370,7 +370,12 @@ function tdu {
 function tdc {
     for arg in "$@"; do
         for id in ${(z)arg}; do 
-            (nohup todoist c "$id" >/dev/null 2>&1 &)
+            if command -v todoist >/dev/null 2>&1; then
+                (nohup todoist c "$id" >/dev/null 2>&1 &)
+            else
+                curl -sX POST "https://api.todoist.com/rest/v2/tasks/$id/close" \
+                    -H "Authorization: Bearer $TODOIST_TOKEN"
+            fi
         done
     done
 }
