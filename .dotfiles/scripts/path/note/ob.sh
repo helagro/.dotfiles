@@ -26,7 +26,7 @@ fi
 
 if [[ $1 != *"/in.md" ]]; then
     # Looks in in.md ; looks for $1 ; removes # ; colors yellow
-    ob.sh _/local/in.md | grep -E "#$1(\s|$)" | sed "s|\\#$1 *||g" | $HOME/.dotfiles/scripts/path/utils/to_color.sh yellow 2>/dev/null
+    ob.sh _/local/in.md | grep -E "#$1(\s|$)" | sed "s|\\\#$1 *||g" | $HOME/.dotfiles/scripts/path/utils/to_color.sh yellow 2>/dev/null
 fi
 
 # Parses arguments, and removes .md extension

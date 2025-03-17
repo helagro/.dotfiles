@@ -10,17 +10,14 @@ cal=$(echo tod | shortcuts run day --output-type public.plain-text)
         echo "relaxation content"
     fi
 
-    if ! echo $cal | grep -Fq "detach"; then
+    if ! echo $cal | grep -Fq "detach" && echo $cal | grep -Fq "bed_time"; then
         echo "prepp bedtime"
     fi
 
     windows.sh
 
-    battery_info=$(pmset -g batt)
-    battery_level=$(echo $battery_info | grep -o '[0-9]*%' | tr -d '%')
-    if [[ $battery_level -lt 30 && $battery_info = *Battery* ]]; then
-        echo "Charge: $battery_level%"
-    fi
+    $HOME/.dotfiles/scripts/lang/shell/battery.sh 30
+
 ) | to_color.sh blue
 
 # =========================== OTHER ========================== #

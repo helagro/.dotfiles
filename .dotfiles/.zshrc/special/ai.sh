@@ -1,6 +1,5 @@
 #!/bin/zsh
 
-alias gpt4="aichat -s -m openai:gpt-4o"
 alias gpt3="aichat -s -m openai:gpt-3.5-turbo"
 
 function on_tab {

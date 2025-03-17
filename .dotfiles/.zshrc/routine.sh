@@ -31,15 +31,27 @@ function dawn {
         esac
     done
 
+    # sync ------------------------------------------------------- #
+
     while ! ping -c 1 -t 1 8.8.8.8 &>/dev/null; do
         sleep 0.5
         echo "(waiting for internet...)"
     done
 
-    # state ------------------------------------------------------ #
+    td s
 
-    # NOTE - Needs to run early to complete before "later"
-    (state_calc && dawn_state) &
+    # async ------------------------------------------------------ #
+
+    (
+        # NOTE - Needs to run early to complete before "later"
+        (state_calc && dawn_state) &
+        (
+            local brightness=$(calc_brightness)
+            if [[ -n "$brightness" && "$brightness" -ge 400 ]]; then
+                echo "Brightness: $brightness"
+            fi
+        ) &
+    )
 
     # env -------------------------------------------------------- #
 
@@ -50,11 +62,13 @@ function dawn {
     # display ---------------------------------------------------- #
 
     # Display main stuff
-    day tod
+    $HOME/.dotfiles/scripts/lang/shell/task/run_task_sys.sh | to_color.sh cyan
+    short day tod | to_color.sh blue
+
     ob dawn
 
     # Display secondary stuff
-    tl.sh streaks
+    tl.sh habits/streaks
     for state in "${state_list[@]}"; do
         $(eval echo \$$state) && echo $state
     done
@@ -64,8 +78,17 @@ function dawn {
     later
     echo
 
-    ob rule
-    ob p
+    if [[ $(ob rule | lines) -gt 0 ]]; then
+        ob rule
+    fi
+    if [[ $(ob p | lines) -gt 0 ]]; then
+        ob p
+    fi
+    if [[ $(ob risk | lines) -gt 0 ]]; then
+        ob risk
+    fi
+
+    tdi
 
     # lastly ----------------------------------------------------- #
 
@@ -78,7 +101,7 @@ function dinner {
         echo "Turn off radiator - ( $temp°C > $dinner_temp_threshold°C )"
     fi
 
-    local did_creatine=$(tl.sh hb | jq '.creatine')
+    local did_creatine=$(tl.sh habits | jq '.creatine')
     if ! $did_creatine; then
         echo "Creatine - ( not taken )"
     fi
@@ -105,7 +128,6 @@ function eve {
     fi
 
     tg stop
-    a "water | blinds #b #u"
 
     # Reset
     echo "" >$VAULT/p/risk.md
@@ -123,7 +145,7 @@ function eve {
         echo "$forecast"
     fi
 
-    tl.sh hb
+    tl.sh habits
 
     echo -n temp:
     sens temp
@@ -143,7 +165,7 @@ function eve {
     # auto track ------------------------------------------------- #
 
     a "eve #u"
-    a "p_ett $(tdis | lines | tr -d '[:space:]') s #u"
+    a "p_ett $(tdis | lines) s #u"
 
     # Track sleep delay
     local sleep_delay=$(fall_asleep_delay)
@@ -157,16 +179,18 @@ function eve {
         a "$(tod) bed_minus_detach $bed_minus_detach s #u"
     fi
 
+    local brightness=$(calc_brightness)
+    if [ -n "$brightness" ]; then
+        a "$(tod) brightness $brightness s #u"
+    fi
+
     # display main ----------------------------------------------- #
 
     # Show note
     ob eve
 
     # Show charge
-    local battery_level=$(pmset -g batt | grep -o '[0-9]*%' | tr -d '%')
-    if [ $battery_level -lt 50 ]; then
-        echo "Charge: $battery_level%"
-    fi
+    $HOME/.dotfiles/scripts/lang/shell/battery.sh 50
 
     # State conditionals
     ob "p/auto/state eve act.md" | state_switch.sh
@@ -233,7 +257,11 @@ function bedtime {
         esac
     done
 
-    sens temp
+    echo "Temp: $(sens temp)°C"
+
+    if [[ $(sens temp) -lt 22.5 ]]; then
+        echo "Turn on radiator"
+    fi
 
     if [[ $do_phone -eq 1 ]]; then
         short phondo "flight mode"
@@ -250,14 +278,18 @@ function bedtime {
     ob bedtime
     ob zink
 
-    read "response?Shut down? (y/n): "
-    if [[ "$response" == "y" ]]; then
-        sudo shutdown -h now
+    if [[ $(sysctl -n kern.boottime | awk '{print $4}' | tr -d ',') -lt $(date -v-3d +%s) ]]; then
+        read "response?Shut down? (y/n): "
+        if [[ "$response" == "y" ]]; then
+            sudo shutdown -h now
+        fi
     fi
 
-    read "response?Close browser? (y/n): "
-    if [[ "$response" == "y" ]]; then
-        pkill -2 Arc
+    if pgrep -x Arc; then
+        read "response?Close browser? (y/n): "
+        if [[ "$response" == "y" ]]; then
+            pkill -2 Arc
+        fi
     fi
 }
 
@@ -303,4 +335,13 @@ function bed_minus_detach {
     local hours=${time%%:*}
     local minutes=${time#*:}
     echo $((hours * 60 + minutes))
+}
+
+function calc_brightness {
+    day_length=$(is -v "day_length" 1)
+    cloud_cover=$(is -v "weather_cloud_cover" 1)
+    precipitation=$(is -v "weather_precipitation" 1)
+    humidity=$(is -v "weather_humidity" 1)
+
+    echo "$day_length * (1 - 0.8 * $cloud_cover) * (1 - 0.5 * $precipitation) * (1 - 0.3 * $humidity)" | bc -l | awk '{printf("%d\n",$1 + 0.5)}'
 }

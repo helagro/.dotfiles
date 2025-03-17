@@ -6,7 +6,7 @@ function p {
     if [ "$*" = "podd" ]; then
         mpv --shuffle --no-video --volume=$vol "$podd_url" --keep-open=always --screen-name=podd
     elif [ "$*" = "good" ]; then
-        mpv --shuffle --no-video --volume=$vol "$good_url" --keep-open=always --screen-name=good
+        mpv --shuffle --no-video --volume=$vol "$good_url" --loop-playlist=No --loop-file=no --keep-open=no --screen-name=good
     elif [ "$*" = "fish" ]; then
         "$HOME/.dotfiles/scripts/path/task/a.sh" $(tod) $fish 1 s
         mpv --no-video --volume=$vol --loop "$HOME/Library/Mobile Documents/com~apple~CloudDocs/media/audio/fish.mp3" --screen-name=fish

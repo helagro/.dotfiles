@@ -27,7 +27,7 @@ ZSH_HIGHLIGHT_REGEXP+=(
 # ------------------------- UNCATEGORISED ALIASES ------------------------ #
 
 alias c="qalc"
-alias lines="grep -v '^$' | wc -l"
+alias lines="grep -v '^$' | wc -l | tr -d '[:space:]'"
 alias weather="curl -s 'wttr.in?2AMn'"
 
 alias rand="$MY_SCRIPTS/lang/shell/rand.sh"

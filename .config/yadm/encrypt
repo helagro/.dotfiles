@@ -1,2 +1,3 @@
-.dotfiles/.zshrc/secret/*
+.dotfiles/.zshrc/secret/*sh
+.dotfiles/scripts/secret/*.sh
 

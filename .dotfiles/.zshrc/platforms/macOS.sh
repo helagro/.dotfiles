@@ -23,6 +23,9 @@ alias oblank="open 'obsidian://vault/vault/p/lect.md'"
 
 # ------------------------- OTHER FUNCTIONS ------------------------ #
 
+function test {
+}
+
 function lect {
     short lect
 
@@ -73,7 +76,7 @@ function act {
     fi
 
     local output=$(
-        cd $local_online_tools/dist/act
+        cd $local_onlie_tools/dist/act
         NODE_NO_WARNINGS=1 node index.js "$query"
     )
 
@@ -95,7 +98,7 @@ function act {
 
     # print ------------------------------------------------------ #
 
-    echo $output | rat.sh -pPl "json" | act_highlight
+    echo $output | rat.sh -pPl "json" | $HOME/.dotfiles/scripts/secret/act_highlight.sh
 }
 
 function theme {

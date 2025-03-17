@@ -43,7 +43,7 @@ function m_td_get {
         curl -sX GET \
             https://api.todoist.com/rest/v2/tasks \
             -H "Authorization: Bearer $TODOIST_TOKEN" -G \
-            --data-urlencode "filter=$1" | grep -E "content|priority|{|}|\"id\":"
+            --data-urlencode "filter=$1" | grep -E "content|priority|{|}|(\"id\":)|(\w$)"
     fi
 }
 
@@ -159,7 +159,9 @@ fi
 if $plain; then
     echo "$output"
 elif ! command -v todoist &>/dev/null; then
+    echo '['
     echo "$output" | rat.sh -pPl json
+    echo ']'
 else
     echo "$output" | colorize
 fi
