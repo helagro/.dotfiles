@@ -88,8 +88,10 @@ function upload_stored {
 
 # --------------------------- START -------------------------- #
 
-if process "$*" && [ "$did_local" = false ]; then
-    upload_stored
-fi
+(
+    if process "$*" && [ "$did_local" = false ]; then
+        upload_stored
+    fi
+) | $MY_SCRIPTS/lang/shell/utils/log.sh -o a
 
 exit 0

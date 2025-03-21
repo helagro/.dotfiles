@@ -395,7 +395,7 @@ function a {
         (
             (
                 if command -v a.sh >/dev/null 2>&1; then
-                    nohup a.sh "$*" >>$HOME/.dotfiles/logs/a.log 2>&1
+                    nohup a.sh "$*" &>/dev/null &
                 else
                     echo "FAILED TO ADD: '$*' - a.sh not found"
                 fi

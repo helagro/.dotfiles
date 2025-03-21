@@ -30,7 +30,7 @@ function a_ui {
 
     # Ask for lines until 'q' is entered
     while [[ $line != 'q' ]]; do
-        echo $line >>"$HOME/.dotfiles/logs/a_raw.log"
+        $MY_SCRIPTS/lang/shell/utils/log.sh a_raw "$line"
 
         # Add to history
         if [[ $line != ' '* ]]; then
@@ -53,9 +53,13 @@ function a_ui {
 
         # run -------------------------------------------------------- #
 
-        (
-            (nohup a.sh "$expanded_line" >>$HOME/.dotfiles/logs/a.log 2>&1 || echo "(ERR: a.sh not found)") &
-        )
+        if command -v a.sh &>/dev/null; then
+            (
+                nohup a.sh "$expanded_line" &>/dev/null &
+            )
+        else
+            echo "(ERR: a.sh not found)"
+        fi
         m_vared
     done
 

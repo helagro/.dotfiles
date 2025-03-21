@@ -209,7 +209,7 @@ function eve {
 
     # Deletes tasks tagged @rm. NOTE - Has safeties and redundancies
     local del_tasks=$(tdls '@rm' -epF 'p1' | grep '@rm' | head -n 10)
-    echo "$del_tasks" >>$HOME/.dotfiles/logs/eve.log
+    $MY_SCRIPTS/lang/shell/utils/log.sh eve "$del_tasks"
     local del_ids=$(echo -n "$del_tasks" | grep -o '^[0-9]*' | tr -s '[:space:]' ' ')
 
     if tdc $del_ids; then

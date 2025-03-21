@@ -112,7 +112,7 @@ function do_update {
         # Very neccessary, some runaway otherwise
         local item_copy="$(echo "$item" | sed -E 's/(#[a-zA-Z]+)\/[a-zA-Z]+/\1/g')"
 
-        (nohup a.sh "$item_copy" >>$HOME/.dotfiles/logs/a.log 2>&1 &)
+        (nohup a.sh "$item_copy" &>/dev/null &)
         item_copy=""
         close "$id" &
     else

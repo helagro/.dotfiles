@@ -76,7 +76,7 @@ function act {
     fi
 
     local output=$(
-        cd $local_onlie_tools/dist/act
+        cd $local_online_tools/dist/act
         NODE_NO_WARNINGS=1 node index.js "$query"
     )
 
