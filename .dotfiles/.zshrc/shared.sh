@@ -7,7 +7,6 @@ export PATH="$HOME/.dotfiles/scripts/path:$(printf "%s:" "$HOME/.dotfiles/script
 export DOC="$HOME/Documents"
 export DEV="$HOME/Developer"
 export VAULT="$HOME/vault"
-export MY_SCRIPTS="$HOME/.dotfiles/scripts"
 
 # NOTE - Items must end with a comma, even last one
 # NOTE - Used by todoist-app
@@ -28,13 +27,23 @@ ZSH_HIGHLIGHT_REGEXP+=(
 
 alias c="qalc"
 alias lines="grep -v '^$' | wc -l | tr -d '[:space:]'"
-alias weather="curl -s 'wttr.in?2AMn'"
 
 alias rand="$MY_SCRIPTS/lang/shell/rand.sh"
 
 alias st="python3 $MY_SCRIPTS/lang/python/st.py"
 
 # ------------------ UNCATEGORISED FUNCTIONS ----------------- #
+
+function weather {
+    local layout="2"
+
+    if [[ "$1" == "-l" ]]; then
+        layout="$2"
+        shift 2
+    fi
+
+    curl -s "wttr.in?${layout}AMnQ"
+}
 
 function pass {
     local do_copy=false

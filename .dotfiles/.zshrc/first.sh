@@ -1,4 +1,6 @@
-# NOTE - returns 1 if should stop sourcing
+#!/bin/zsh
+
+export MY_SCRIPTS="$HOME/.dotfiles/scripts"
 
 # -------------------------- ALIASES ------------------------- #
 
@@ -25,4 +27,25 @@ SAVEHIST=20000
 function rand_elem {
     local arr="$1"
     echo ${arr[RANDOM % $#arr + 1]}
+}
+
+function tgs {
+    local project=$1
+    shift
+
+    if [[ "$project" == "bodge" ]]; then
+        toggl start -P 201773261 "$*"
+    elif [[ "$project" == "study" ]]; then
+        toggl start -P 181245378 "$*"
+    elif [[ "$project" == "i" ]]; then
+        toggl start -P 202093636 "$*"
+    elif [[ "$project" == "p1" ]]; then
+        toggl start -P 205212384 "$*"
+    elif [[ "$project" == "exor" ]]; then
+        toggl start -P 203446800 "$*"
+    elif [[ "$project" == "none" ]]; then
+        toggl start "$*"
+    else
+        return 1
+    fi
 }

@@ -9,6 +9,7 @@ brew install "git" -q
 brew install "gnirehtet" -q
 brew install "go" -q
 brew install "gradle" -q
+brew install "graphviz" -q
 brew install "helm" -q
 brew install "jq" -q
 brew install "lftp" -q

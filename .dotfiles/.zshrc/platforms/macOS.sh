@@ -14,7 +14,6 @@ fi
 
 alias vi="nvim"
 alias archive="$HOME/Documents/archiver-go/build/macOS"
-alias breake="nvim $DOC/break-timer/.env"
 alias wifi="networksetup -setairportpower en0" # NOTE - on/off
 alias tg="toggl"
 alias tgc="toggl current | grep -vE 'Workspace|ID'"
@@ -22,6 +21,11 @@ alias tgc="toggl current | grep -vE 'Workspace|ID'"
 alias oblank="open 'obsidian://vault/vault/p/lect.md'"
 
 # ------------------------- OTHER FUNCTIONS ------------------------ #
+
+function breake {
+    local break_path=$(look_away --config-path)
+    nvim "$break_path"
+}
 
 function test {
 }
@@ -33,27 +37,6 @@ function lect {
     tdls @lect
 
     tgs study
-}
-
-function tgs {
-    local project=$1
-    shift
-
-    if [[ "$project" == "bodge" ]]; then
-        toggl start -P 201773261 "$*"
-    elif [[ "$project" == "study" ]]; then
-        toggl start -P 181245378 "$*"
-    elif [[ "$project" == "i" ]]; then
-        toggl start -P 202093636 "$*"
-    elif [[ "$project" == "p1" ]]; then
-        toggl start -P 205212384 "$*"
-    elif [[ "$project" == "exor" ]]; then
-        toggl start -P 203446800 "$*"
-    elif [[ "$project" == "none" ]]; then
-        toggl start "$*"
-    else
-        return 1
-    fi
 }
 
 function missing_sleep {
@@ -80,18 +63,36 @@ function act {
         NODE_NO_WARNINGS=1 node index.js "$query"
     )
 
-    # filters ---------------------------------------------------- #
+    # general filters ---------------------------------------------------- #
 
     print -n -u2 "\033[90mExcluding: "
 
     if [ $(tdl :inbox | wc -l) -le 8 ]; then
-        output=$(echo "$output" | grep -v '"inbox^"')
+        output=$(echo "$output" | grep -v 'inbox^')
         print -n -u2 "inbox, "
     fi
 
     if [ $(ob b | wc -l) -le 4 ]; then
-        output=$(echo "$output" | grep -v '"b^"')
+        output=$(echo "$output" | grep -v 'b^')
         print -n -u2 "b, "
+    fi
+
+    if ! $has_flashcards; then
+        output=$(echo "$output" | grep -v 'flashcards^')
+        print -n -u2 "flashcards, "
+    fi
+
+    # calendar filters ----------------------------------------------------------- #
+    local cal=$(short day tod)
+
+    if ! echo $cal | grep -Fq "full_detach"; then
+        output=$(echo "$output" | grep -v 'cook^' | grep -v 'buy^')
+        print -n -u2 "cook, buy, "
+
+        if ! echo $cal | grep -Fq "bedtime"; then
+            output=$(echo "$output" | grep -v 'floss^')
+            print -n -u2 "floss, "
+        fi
     fi
 
     print -u2 "\033[0m"

@@ -30,7 +30,7 @@ function a_ui {
 
     # Ask for lines until 'q' is entered
     while [[ $line != 'q' ]]; do
-        $MY_SCRIPTS/lang/shell/utils/log.sh a_raw "$line"
+        $MY_SCRIPTS/lang/shell/utils/log.sh -f a_raw "$line"
 
         # Add to history
         if [[ $line != ' '* ]]; then

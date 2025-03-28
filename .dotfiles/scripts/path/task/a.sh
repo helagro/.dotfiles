@@ -92,6 +92,6 @@ function upload_stored {
     if process "$*" && [ "$did_local" = false ]; then
         upload_stored
     fi
-) | $MY_SCRIPTS/lang/shell/utils/log.sh -o a
+) | $MY_SCRIPTS/lang/shell/utils/log.sh -sof a
 
 exit 0

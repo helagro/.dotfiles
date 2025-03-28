@@ -40,7 +40,7 @@ fi
 # tt --------------------------------------------------------- #
 
 if $HOME/.dotfiles/scripts/path/note/ob.sh b | grep -qFe "- [ ] tt"; then
-    if in_window "12:00" "18:00" && in_window -o "12:00" "18:00"; then
+    if in_window "12:45" "18:00" && in_window -o "12:00" "18:00"; then
         $HOME/.dotfiles/scripts/path/task/a.sh "!($remind_time) $remind_time tt @rm"
     fi
 fi

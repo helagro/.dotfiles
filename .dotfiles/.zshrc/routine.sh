@@ -74,6 +74,11 @@ function dawn {
     done
     state.sh | jq -r 'to_entries[] | select(.value == true) | .key' | to_color.sh magenta
 
+    local forecast=$(weather -l 1)
+    if echo $forecast | grep -q "rain"; then
+        echo "$forecast"
+    fi
+
     wait
     later
     echo
@@ -140,8 +145,8 @@ function eve {
     echo
 
     # Display weather if snow
-    forecast=$(weather)
-    if [ -n "$forecast" ] | grep -q "snow"; then
+    local forecast=$(weather)
+    if echo $forecast | grep -q "snow"; then
         echo "$forecast"
     fi
 
@@ -209,7 +214,7 @@ function eve {
 
     # Deletes tasks tagged @rm. NOTE - Has safeties and redundancies
     local del_tasks=$(tdls '@rm' -epF 'p1' | grep '@rm' | head -n 10)
-    $MY_SCRIPTS/lang/shell/utils/log.sh eve "$del_tasks"
+    $MY_SCRIPTS/lang/shell/utils/log.sh -f eve "$del_tasks"
     local del_ids=$(echo -n "$del_tasks" | grep -o '^[0-9]*' | tr -s '[:space:]' ' ')
 
     if tdc $del_ids; then
@@ -221,6 +226,7 @@ function eve {
     # flight mode ------------------------------------------------ #
 
     if [[ ! " $@ " == *" -F "* ]]; then
+        echo "Waiting for phone to probably set DND..."
         sleep 9
         short phondo "flight mode"
     fi
@@ -278,7 +284,8 @@ function bedtime {
     ob bedtime
     ob zink
 
-    if [[ $(sysctl -n kern.boottime | awk '{print $4}' | tr -d ',') -lt $(date -v-3d +%s) ]]; then
+    local uptime=$(sysctl -n kern.boottime | awk '{print $4}' | tr -d ',')
+    if [[ $uptime -lt $(date -v-3d +%s) ]]; then
         read "response?Shut down? (y/n): "
         if [[ "$response" == "y" ]]; then
             sudo shutdown -h now
@@ -343,5 +350,9 @@ function calc_brightness {
     precipitation=$(is -v "weather_precipitation" 1)
     humidity=$(is -v "weather_humidity" 1)
 
-    echo "$day_length * (1 - 0.8 * $cloud_cover) * (1 - 0.5 * $precipitation) * (1 - 0.3 * $humidity)" | bc -l | awk '{printf("%d\n",$1 + 0.5)}'
+    brightness=$(echo "$day_length * (1 - 0.8 * $cloud_cover) * (1 - 0.5 * $precipitation) * (1 - 0.3 * $humidity)" | bc -l | awk '{printf("%d\n",$1 + 0.5)}')
+
+    if [[ $brightness -gt 0 ]]; then
+        echo $brightness
+    fi
 }
