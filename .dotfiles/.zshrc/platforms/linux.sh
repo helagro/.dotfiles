@@ -9,5 +9,10 @@ function shout {
         content=$(cat)
     fi
 
-    echo -n $content | sudo wall -n
+    if sudo -v &>/dev/null; then
+        echo -n $content | sudo wall -n
+    else
+        echo -n $content | wall
+    fi
+
 }

@@ -28,8 +28,6 @@ ZSH_HIGHLIGHT_REGEXP+=(
 alias c="qalc"
 alias lines="grep -v '^$' | wc -l | tr -d '[:space:]'"
 
-alias rand="$MY_SCRIPTS/lang/shell/rand.sh"
-
 alias st="python3 $MY_SCRIPTS/lang/python/st.py"
 
 # ------------------ UNCATEGORISED FUNCTIONS ----------------- #
@@ -84,7 +82,23 @@ function _later_completions {
 }
 compdef _later_completions later
 
-function ob { ob.sh $*; }
+function obc {
+    local file="$1"
+    shift
+    local lang="markdown"
+
+    if [[ "$*" == *"-l"* ]]; then
+        lang="json"
+    fi
+
+    ob "$file" | python3 $MY_SCRIPTS/lang/python/ob_filter.py "$@" | rat.sh -Pl "$lang" --file-name "$file"
+}
+
+function ob {
+    set -- $($MY_SCRIPTS/lang/shell/expand_args.sh $*)
+
+    ob.sh $*
+}
 function _ob_completions {
     _files -W $VAULT
     _files -W $VAULT/i
@@ -258,10 +272,10 @@ function csv { conda run -n main python3 "$MY_SCRIPTS/lang/python/jsons_to_csv.p
 function plot {
     if [[ -p /dev/stdin ]]; then
         local input=$(cat)
-        nohup conda run -n main --live-stream python3 "$MY_SCRIPTS/lang/python/plot_json.py" "$input" "$1" &
+        (nohup conda run -n main --live-stream python3 "$MY_SCRIPTS/lang/python/plot_json.py" "$input" "$1" >/dev/null & )
         # conda run -n main --live-stream python3 "$MY_SCRIPTS/lang/python/plot_json.py" "$input" "$1"
     else
-        nohup conda run -n main --live-stream python3 "$MY_SCRIPTS/lang/python/plot_json.py" "$*" "$1" &
+        (nohup conda run -n main --live-stream python3 "$MY_SCRIPTS/lang/python/plot_json.py" "$*" "$1" >/dev/null &)
     fi
 }
 

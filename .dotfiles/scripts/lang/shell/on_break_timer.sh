@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-$HOME/.dotfiles/scripts/path/windows.sh >/dev/null
+(nohup $HOME/.dotfiles/scripts/path/windows.sh >/dev/null &)
 
 # display if late -------------------------------------------- #
 
@@ -21,6 +21,7 @@ fi
 
 note_name="auto/remind"
 [ -n "$1" ] && note_name="$1"
+
 note=$($HOME/.dotfiles/scripts/path/note/ob.sh "$note_name")
 matches=$(echo $note | $HOME/.dotfiles/scripts/path/state/state_switch.sh)
 

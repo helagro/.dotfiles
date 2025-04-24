@@ -1,3 +1,9 @@
+ask() {
+    echo -n "$1 (y/n) "
+    read response
+    [[ "$response" =~ ^[Yy]$ ]]
+}
+
 if [ -d "$HOME/.iterm2" ]; then
     defaults write com.googlecode.iterm2 PrefsCustomFolder "$HOME/.dotfiles"
 fi
@@ -34,3 +40,13 @@ duti -s com.microsoft.VSCode public.source-code all
 duti -s com.microsoft.VSCode public.text all
 duti -s com.microsoft.VSCode public.unix-executable all
 duti -s com.microsoft.VSCode .md all
+
+# =================================== OTHER ================================== #
+
+if ask "Install go"; then
+    brew install go
+fi
+
+if command -v go && ask "Install blink timer?"; then
+    go install github.com/helagro/look_away/cmd/look_away@latest
+fi

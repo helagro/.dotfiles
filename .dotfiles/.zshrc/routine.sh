@@ -137,6 +137,7 @@ function eve {
     # Reset
     echo "" >$VAULT/p/risk.md
     echo "" >$VAULT/p/p.md
+    echo "" >$VAULT/p/rule.md
 
     # other info ------------------------------------------------- #
 
@@ -152,8 +153,11 @@ function eve {
 
     tl.sh habits
 
-    echo -n temp:
-    sens temp
+    echo "Temp: $(sens temp)°C"
+
+    if [[ $(sens temp) -ge 22 ]]; then
+        echo "Cool down"
+    fi
 
     echo
 
@@ -281,6 +285,9 @@ function bedtime {
     fi
 
     short focus sleep
+
+    ob "p/auto/state bedtime" | state_switch.sh
+
     ob bedtime
     ob zink
 

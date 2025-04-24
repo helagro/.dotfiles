@@ -20,13 +20,13 @@ nohup "look_away" 2>&1 | $MY_SCRIPTS/lang/shell/utils/log.sh -sf break &
 # ------------------------- ARCHIVER ------------------------- #
 
 echo "   archiver" | log_login
-$HOME/Documents/archiver-go/build/macOS &| log_login
+$HOME/Documents/archiver-go/build/macOS 2>&1 | log_login
 
 # ------------------------- APP LIST ------------------------- #
 
 echo "   list_app" | log_login
-cd "$MY_SCRIPTS/lang/shell" && ./list_app.sh &| log_login
+cd "$MY_SCRIPTS/lang/shell" && ./list_app.sh 2>&1 | log_login
 
 # ------------------------ BREW STUFF ------------------------ #
 
-brew cleanup &| log_login
+brew cleanup 2>&1 | log_login

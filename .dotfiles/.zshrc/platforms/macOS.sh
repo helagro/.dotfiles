@@ -72,6 +72,11 @@ function act {
         print -n -u2 "inbox, "
     fi
 
+    if [ $(tdl :u -F '#ludilo|#run' | wc -l) -le 8 ]; then
+        output=$(echo "$output" | grep -v 'u^')
+        print -n -u2 "u, "
+    fi
+
     if [ $(ob b | wc -l) -le 4 ]; then
         output=$(echo "$output" | grep -v 'b^')
         print -n -u2 "b, "
@@ -277,10 +282,13 @@ function sw {
             echo "(Not tracking because time was less than 1 minute)"
         else
             if $offline_mode; then
-                a "$(tod) $2 $min #u"
+                local track_cmd="$(tod) $2 $min #u"
             else
-                a "$2 $min #u"
+                local track_cmd="$2 $min #u"
             fi
+
+            echo "$track_cmd" | to_color.sh yellow
+            a "$track_cmd"
         fi
 
         if ! $offline_mode; then

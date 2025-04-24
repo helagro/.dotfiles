@@ -4,7 +4,12 @@ vol=60
 
 function p {
     if [ "$*" = "podd" ]; then
-        mpv --shuffle --no-video --volume=$vol "$podd_url" --keep-open=always --screen-name=podd
+        if rand 2 >/dev/null; then
+            mpv --shuffle --no-video --volume=$vol "$podd_url" --keep-open=always --screen-name=podd
+        else
+            mpv --shuffle --no-video --volume=$vol "$podd_url_2" --keep-open=always --screen-name=podd
+        fi
+
     elif [ "$*" = "good" ]; then
         mpv --shuffle --no-video --volume=$vol "$good_url" --keep-open=always --screen-name=good
     elif [ "$*" = "fish" ]; then

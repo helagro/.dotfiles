@@ -29,6 +29,7 @@ brew install "sl" -q
 brew install "speedtest-cli" -q
 brew install "sshpass" -q
 brew install "textract" -q
+brew install "tmux" -q
 brew install "tree" -q
 brew install "yadm" -q
 brew install "zsh-autosuggestions" -q
