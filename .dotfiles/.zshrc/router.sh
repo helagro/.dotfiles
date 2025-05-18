@@ -27,9 +27,18 @@ if [[ "$PWD" == "$HOME/.dotfiles/config/tabs/hotkey"* ]]; then
     return 0
 fi
 
+# =================================== OTHER ================================== #
+
+export PATH="$HOME/.dotfiles/scripts/path:$(printf "%s:" "$HOME/.dotfiles/scripts/path"/*/):$PATH"
+
+source "$HOME/.dotfiles/.zshrc/special/act.sh"
+if [[ "$PWD" == "$HOME/.dotfiles/config/tabs/act" ]]; then
+    return 0
+fi
+
 # ========================== SHARED ========================== #
 
-source "$HOME/.dotfiles/.zshrc/shared.sh"
+source "$HOME/.dotfiles/.zshrc/main.sh"
 
 # ===================== PLATFORM SPECIFIC ==================== #
 

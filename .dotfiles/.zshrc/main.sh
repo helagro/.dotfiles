@@ -2,7 +2,7 @@
 
 # ------------------------- VARIABLES ------------------------ #
 export GPG_TTY=$(tty)
-export PATH="$HOME/.dotfiles/scripts/path:$(printf "%s:" "$HOME/.dotfiles/scripts/path"/*/):$PATH"
+export FZF_DEFAULT_OPTS="--ansi --no-sort --layout=reverse-list"
 
 export DOC="$HOME/Documents"
 export DEV="$HOME/Developer"
@@ -27,8 +27,8 @@ ZSH_HIGHLIGHT_REGEXP+=(
 
 alias c="qalc"
 alias lines="grep -v '^$' | wc -l | tr -d '[:space:]'"
-
 alias st="python3 $MY_SCRIPTS/lang/python/st.py"
+alias ect="cd $DEV/config && vd public/online-tools/act.tsv && firebase deploy && cd"
 
 # ------------------ UNCATEGORISED FUNCTIONS ----------------- #
 
@@ -209,9 +209,11 @@ alias gaa="git add ."      # Git Add All
 alias gcm="git commit -m " # Git Commit Message
 alias gsw="git switch "    # Git Switch
 
-function gclone { git clone "git@github.com:helagro/$1.git" $DEV/$1; }
-function gi { curl -s https://www.toptal.com/developers/gitignore/api/$@; }
-function yq { yadm add -u && yadm commit -m "$*" && yadm push; }
+function gclone { git clone "git@github.com:helagro/$1.git" $DEV/$1; }      # Git Clone
+function gi { curl -s https://www.toptal.com/developers/gitignore/api/$@; } # Git Ignore
+function yq { yadm add -u && yadm commit -m "$*" && yadm push; }            # Yadm Quick
+function gq { gql "$*" && git push; }                                       # Git Quick
+function gqa { gaa && git commit --amend && git push -f; }                  # Git Quick Amend
 
 # Git Quick Local
 function gql {
@@ -222,12 +224,6 @@ function gql {
 
     git add .
     git commit -m "$commit_message"
-}
-
-# Git Quick
-function gq {
-    gql "$*"
-    git push
 }
 
 # Git Delete Branch
@@ -272,7 +268,7 @@ function csv { conda run -n main python3 "$MY_SCRIPTS/lang/python/jsons_to_csv.p
 function plot {
     if [[ -p /dev/stdin ]]; then
         local input=$(cat)
-        (nohup conda run -n main --live-stream python3 "$MY_SCRIPTS/lang/python/plot_json.py" "$input" "$1" >/dev/null & )
+        (nohup conda run -n main --live-stream python3 "$MY_SCRIPTS/lang/python/plot_json.py" "$input" "$1" >/dev/null &)
         # conda run -n main --live-stream python3 "$MY_SCRIPTS/lang/python/plot_json.py" "$input" "$1"
     else
         (nohup conda run -n main --live-stream python3 "$MY_SCRIPTS/lang/python/plot_json.py" "$*" "$1" >/dev/null &)
@@ -330,100 +326,6 @@ function is {
 
     if [ -n "$code" ]; then
         return $code
-    fi
-}
-
-# -------------------------- TODOIST ------------------------- #
-
-alias td="todoist"
-alias tdl="$MY_SCRIPTS/lang/shell/tdl.sh"
-alias tdi="tdl '(tod|od|p1)'"
-alias tundo="tdls :inbox | tac | in.sh "
-
-alias tdis='td s && tdi'
-alias tdls='td s && tdl'
-
-function tdcp {
-    if [ -n "$1" ]; then
-        last_todoist_project="$1"
-    fi
-
-    if [ "$2" = "s" ]; then
-        td s
-    fi
-
-    local id_list=($(tdl "$last_todoist_project" | peco | awk '{print $1}' ORS=' ' | sed 's/\x1b\[[0-9;]*m//g'))
-    tdc "${id_list[@]}"
-    echo "${id_list[@]}"
-}
-
-function tdup {
-    # ARGS: update, project?, s?
-
-    if [ -n "$2" ]; then
-        last_todoist_project="$2"
-    fi
-
-    if [ "$3" = "s" ]; then
-        td s
-    fi
-
-    local id_list=($(tdl "$last_todoist_project" | peco | awk '{print $1}' ORS=' ' | sed 's/\x1b\[[0-9;]*m//g'))
-    tdu "$last_todoist_project $1" "${id_list[@]}"
-    echo "${id_list[@]}"
-}
-
-function tdu {
-    if $MY_SCRIPTS/lang/shell/is_help.sh $*; then
-        echo "tdu <update> <id>..."
-        return 0
-    fi
-
-    local update=$1
-    shift
-
-    for id in "$@"; do
-        local content_line=$(td show $id | grep Content | cut -d' ' -f2-)
-
-        a "$content_line" "$update"
-        tdc $id
-    done
-}
-
-function tdc {
-    for arg in "$@"; do
-        for id in ${(z)arg}; do 
-            if command -v todoist >/dev/null 2>&1; then
-                (nohup todoist c "$id" >/dev/null 2>&1 &)
-            else
-                curl -sX POST "https://api.todoist.com/rest/v2/tasks/$id/close" \
-                    -H "Authorization: Bearer $TODOIST_TOKEN"
-            fi
-        done
-    done
-}
-
-function a {
-    if [ -z "$*" ]; then  # If no arguments passed
-        if [ -t 0 ]; then # If terminal
-            a_ui
-        else # If piped
-            # Read lines from pipe
-            while read -r line; do
-                line=$(echo "$line" | sed -e 's/^- \[ \] //' -e 's/^- //') # Remove checkboxes
-                a "$line"
-            done
-        fi
-    else # If arguments passed
-        (
-            (
-                if command -v a.sh >/dev/null 2>&1; then
-                    nohup a.sh "$*" &>/dev/null &
-                else
-                    echo "FAILED TO ADD: '$*' - a.sh not found"
-                fi
-            ) &
-        )
     fi
 }
 

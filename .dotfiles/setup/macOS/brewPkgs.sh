@@ -5,6 +5,7 @@ brew install "asciiquarium" -q
 brew install "bat" -q
 brew install "coreutils" -q
 brew install "duti" -q
+brew install "fzf" -q
 brew install "git" -q
 brew install "gnirehtet" -q
 brew install "go" -q

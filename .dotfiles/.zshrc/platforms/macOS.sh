@@ -39,10 +39,6 @@ function lect {
     tgs study
 }
 
-function missing_sleep {
-    [ -n "$1" ] && [ "$1" != "null" ] && [ "$1" -lt "$sleep_goal" ]
-}
-
 function act {
     local local_online_tools="$HOME/Documents/online-tools"
     local query=$(echo "$*" | tr ' ' '/')
@@ -67,16 +63,6 @@ function act {
 
     print -n -u2 "\033[90mExcluding: "
 
-    if [ $(tdl :inbox | wc -l) -le 8 ]; then
-        output=$(echo "$output" | grep -v 'inbox^')
-        print -n -u2 "inbox, "
-    fi
-
-    if [ $(tdl :u -F '#ludilo|#run' | wc -l) -le 8 ]; then
-        output=$(echo "$output" | grep -v 'u^')
-        print -n -u2 "u, "
-    fi
-
     if [ $(ob b | wc -l) -le 4 ]; then
         output=$(echo "$output" | grep -v 'b^')
         print -n -u2 "b, "
@@ -87,16 +73,44 @@ function act {
         print -n -u2 "flashcards, "
     fi
 
+    if [[ $(obsi.sh 8 | wc -l) -lt 3 ]]; then
+        output=$(echo "$output" | grep -v 'obsi^')
+        print -n -u2 "obsi, "
+    fi
+
+    # todoist filters ------------------------------------------------------------ #
+
+    if [ $(tdl :inbox | wc -l) -le 8 ]; then
+        output=$(echo "$output" | grep -v 'inbox^')
+        print -n -u2 "inbox, "
+    fi
+
+    if [ $(tdl :u -F '#ludilo|#run' | wc -l) -le 10 ]; then
+        output=$(echo "$output" | grep -v 'u^')
+        print -n -u2 "u, "
+    fi
+
+    if [ $(tdl :u -F '#res' | wc -l) -le 2 ]; then
+        output=$(echo "$output" | grep -v 'res^')
+        print -n -u2 "res, "
+    fi
+
     # calendar filters ----------------------------------------------------------- #
+
     local cal=$(short day tod)
 
-    if ! echo $cal | grep -Fq "full_detach"; then
-        output=$(echo "$output" | grep -v 'cook^' | grep -v 'buy^')
-        print -n -u2 "cook, buy, "
+    if echo $cal | grep -Fq " detach"; then
+        output=$(echo "$output" | grep -v 'eve^')
+        print -n -u2 "eve, "
+    else
+        if ! echo $cal | grep -Fq "full_detach"; then
+            output=$(echo "$output" | grep -v 'cook^' | grep -v 'buy^' | grep -v 'walk^')
+            print -n -u2 "cook, buy, walk, "
 
-        if ! echo $cal | grep -Fq "bedtime"; then
-            output=$(echo "$output" | grep -v 'floss^')
-            print -n -u2 "floss, "
+            if ! echo $cal | grep -Fq "bedtime"; then
+                output=$(echo "$output" | grep -v 'floss^')
+                print -n -u2 "floss, "
+            fi
         fi
     fi
 
@@ -104,7 +118,13 @@ function act {
 
     # print ------------------------------------------------------ #
 
-    echo $output | rat.sh -pPl "json" | $HOME/.dotfiles/scripts/secret/act_highlight.sh
+    output=$(echo $output | rat.sh -pPl "json" | $HOME/.dotfiles/scripts/secret/act_highlight.sh)
+
+    if [[ $* == *"-p"* ]]; then
+        (echo $output && printf '\n%.0s' {1..5} && printf "\033[90m$*\033[0m\n%.0s" {1..55}) | less
+    else
+        echo $output
+    fi
 }
 
 function theme {

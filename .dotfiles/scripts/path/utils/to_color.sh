@@ -13,6 +13,7 @@ colors=(
     magenta "\x1b[1;35m"
     cyan "\x1b[1;36m"
     white "\x1b[1;37m"
+    gray "\x1b[0;37m"
     reset "\x1b[0m"
 )
 

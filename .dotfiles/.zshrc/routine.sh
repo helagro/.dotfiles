@@ -217,7 +217,7 @@ function eve {
     # auto del --------------------------------------------------- #
 
     # Deletes tasks tagged @rm. NOTE - Has safeties and redundancies
-    local del_tasks=$(tdls '@rm' -epF 'p1' | grep '@rm' | head -n 10)
+    local del_tasks=$(tdls '@rm' -pF 'p1' | grep '@rm' | head -n 10)
     $MY_SCRIPTS/lang/shell/utils/log.sh -f eve "$del_tasks"
     local del_ids=$(echo -n "$del_tasks" | grep -o '^[0-9]*' | tr -s '[:space:]' ' ')
 
