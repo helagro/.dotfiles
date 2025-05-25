@@ -92,8 +92,17 @@ function dawn {
     if [[ $(ob risk | lines) -gt 0 ]]; then
         ob risk
     fi
+    if [[ $(b.sh | lines) -le 4 ]]; then
+        a "#b train neck"
+    fi
 
     tdi
+
+    local cal=$(short day tod)
+    if echo $cal | grep -Fq "climb"; then
+        a "climb 1 s #u"
+        ob fys
+    fi
 
     # lastly ----------------------------------------------------- #
 

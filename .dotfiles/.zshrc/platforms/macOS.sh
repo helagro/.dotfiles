@@ -28,6 +28,8 @@ function breake {
 }
 
 function test {
+    local output=$(act b)
+
 }
 
 function lect {
@@ -95,6 +97,11 @@ function act {
         print -n -u2 "res, "
     fi
 
+    if [ $(tdl :u -F '#zz' | wc -l) -le 2 ]; then
+        output=$(echo "$output" | grep -v 'zz^')
+        print -n -u2 "zz, "
+    fi
+
     # calendar filters ----------------------------------------------------------- #
 
     local cal=$(short day tod)
@@ -114,10 +121,24 @@ function act {
         fi
     fi
 
-    print -u2 "\033[0m"
+    # big filters ----------------------------------------------------------------- #
+
+    ob b | while read -r break_item; do
+        local item=$(echo "$break_item" | grep -oE '[[:alnum:]_]([[:alnum:]_]| )+$')
+
+        if [[ -z "$item" ]]; then
+            continue
+        fi
+
+        if printf "%s\n" "$output" | grep -qF "$item"; then
+            print -n -u2 "$item, "
+            output=$(echo "$output" | grep -v "$item")
+        fi
+    done
 
     # print ------------------------------------------------------ #
 
+    print -u2 "\033[0m"
     output=$(echo $output | rat.sh -pPl "json" | $HOME/.dotfiles/scripts/secret/act_highlight.sh)
 
     if [[ $* == *"-p"* ]]; then

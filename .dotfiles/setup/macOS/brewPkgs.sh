@@ -40,6 +40,7 @@ brew install "1password" -q
 brew install "1password-cli" -q
 brew install "android-file-transfer" -q
 brew install "android-platform-tools" -q
+brew install "android-studio" -q
 brew install "arc" -q
 brew install "blackhole-2ch" -q
 brew install "caffeine" -q
