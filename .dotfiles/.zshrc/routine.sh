@@ -126,7 +126,6 @@ function dinner {
 
     echo
     ob dinner
-    ob eat
 }
 
 function eve {
@@ -180,28 +179,6 @@ function eve {
     vared -p "Screen: " -c screen
     a "screen $(hm $screen) s #u"
 
-    # auto track ------------------------------------------------- #
-
-    a "eve #u"
-    a "p_ett $(tdis | lines) s #u"
-
-    # Track sleep delay
-    local sleep_delay=$(fall_asleep_delay)
-    if [ -n "$sleep_delay" ]; then
-        a "$(in_days -1) sleep_delay $sleep_delay s #u"
-    fi
-
-    # Track bedtime minus detach
-    local bed_minus_detach=$(bed_minus_detach)
-    if [ -n "$bed_minus_detach" ]; then
-        a "$(tod) bed_minus_detach $bed_minus_detach s #u"
-    fi
-
-    local brightness=$(calc_brightness)
-    if [ -n "$brightness" ]; then
-        a "$(tod) brightness $brightness s #u"
-    fi
-
     # display main ----------------------------------------------- #
 
     # Show note
@@ -221,6 +198,29 @@ function eve {
         short focus sleep
         short night_shift 1
         theme 1
+    fi
+
+    # auto track ------------------------------------------------- #
+
+    a "eve #u"
+    a "p_ett $(tdis | lines) s #u"
+    short track_away
+
+    # Track sleep delay
+    local sleep_delay=$(fall_asleep_delay)
+    if [ -n "$sleep_delay" ]; then
+        a "$(in_days -1) sleep_delay $sleep_delay s #u"
+    fi
+
+    # Track bedtime minus detach
+    local bed_minus_detach=$(bed_minus_detach)
+    if [ -n "$bed_minus_detach" ]; then
+        a "$(tod) bed_minus_detach $bed_minus_detach s #u"
+    fi
+
+    local brightness=$(calc_brightness)
+    if [ -n "$brightness" ]; then
+        a "$(tod) brightness $brightness s #u"
     fi
 
     # auto del --------------------------------------------------- #

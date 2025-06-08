@@ -39,6 +39,8 @@ function lect {
     tdls @lect
 
     tgs study
+
+    a "social 1 s #u"
 }
 
 function act {
@@ -123,18 +125,20 @@ function act {
 
     # big filters ----------------------------------------------------------------- #
 
-    ob b | while read -r break_item; do
-        local item=$(echo "$break_item" | grep -oE '[[:alnum:]_]([[:alnum:]_]| )+$')
+    if [[ " $@ " == *" b "* ]]; then
+        ob b | while read -r break_item; do
+            local item=$(echo "$break_item" | grep -oE '[[:alnum:]_]([[:alnum:]_]| )+$')
 
-        if [[ -z "$item" ]]; then
-            continue
-        fi
+            if [[ -z "$item" ]]; then
+                continue
+            fi
 
-        if printf "%s\n" "$output" | grep -qF "$item"; then
-            print -n -u2 "$item, "
-            output=$(echo "$output" | grep -v "$item")
-        fi
-    done
+            if printf "%s\n" "$output" | grep -qF "$item"; then
+                print -n -u2 "$item, "
+                output=$(echo "$output" | grep -v "$item")
+            fi
+        done
+    fi
 
     # print ------------------------------------------------------ #
 

@@ -13,7 +13,7 @@ NORMAL='\033[0;39m'
 # Inputs
 do_watch=false
 filter=""
-input="#inbox"
+input=""
 plain=false
 computed=false
 
@@ -55,7 +55,7 @@ while [[ $# -gt 0 ]]; do
         shift 1
         ;;
     *)
-        if [[ "$input" == "#inbox" ]]; then
+        if [[ -z $input ]]; then
             input=$(echo "$1" | sed 's/:/#/g')
             shift
         else
