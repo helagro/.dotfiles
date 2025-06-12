@@ -131,7 +131,7 @@ function m_td_get {
 function add_line_nr {
     i=1
     while IFS= read -r line; do
-        echo "($i) $line"
+        printf "(%02d) %s\n" $i "$line"
         ((i++))
     done <<<"$tasks"
 }

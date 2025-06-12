@@ -32,6 +32,12 @@ alias ect="cd $DEV/config && vd public/online-tools/act.tsv && firebase deploy &
 
 # ------------------ UNCATEGORISED FUNCTIONS ----------------- #
 
+function ask {
+    echo -n "$1 (y/n) "
+    read response
+    [[ "$response" =~ ^[Yy]$ ]]
+}
+
 function weather {
     local layout="2"
 
@@ -106,26 +112,6 @@ function _ob_completions {
     _files -W $VAULT/tmp
 }
 compdef _ob_completions ob
-
-function cht {
-    if $MY_SCRIPTS/lang/shell/is_help.sh $*; then
-        echo "cht <language> <query>" \
-            "\n query is separated by +"
-        return 0
-    fi
-
-    if [ -z "$1" ]; then
-        echo "No language specified"
-        return 1
-    fi
-
-    if [ -z "$2" ]; then
-        echo "No query specified"
-        return 1
-    fi
-
-    curl "cht.sh/$1/$2"
-}
 
 function talk {
     if [[ "$*" == *"-s"* ]]; then
@@ -261,6 +247,8 @@ function year_day {
 
 # ------------------------- TRACKING ------------------------- #
 
+alias sens="loc"
+
 function hm { python3 $MY_SCRIPTS/lang/python/hm.py "$@" | rat.sh -pPl 'json'; }
 function group { python3 $MY_SCRIPTS/lang/python/group.py "$@" | rat.sh -pPl 'json'; }
 function csv { conda run -n main python3 "$MY_SCRIPTS/lang/python/jsons_to_csv.py" $@ | rat.sh -pPl 'tsv'; }
@@ -282,7 +270,7 @@ function to_days {
     done | jq -s 'add' | rat.sh -pl json
 }
 
-function sens {
+function loc {
     local do_new_line=true
 
     if [[ "$1" == '-n' ]]; then
@@ -352,11 +340,4 @@ function do_now {
             echo "---" >>"$file_name"
         fi
     fi
-}
-
-function randote {
-    local file=$(find "$VAULT/i" -type f | sort -R | head -n 1)
-    rat.sh -P "$file"
-
-    a ob
 }

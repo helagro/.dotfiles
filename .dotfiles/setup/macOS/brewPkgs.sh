@@ -22,7 +22,6 @@ brew install "ncdu" -q
 brew install "neovim" -q
 brew install "node" -q
 brew install "peco" -q
-brew install "postgresql@14" -q
 brew install "rbenv" -q
 brew install "sachaos/todoist/todoist" -q
 brew install "saulpw/vd/visidata" -q

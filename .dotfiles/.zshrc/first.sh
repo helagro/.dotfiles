@@ -25,11 +25,6 @@ SAVEHIST=20000
 
 # --------------------------- MAIN --------------------------- #
 
-function rand_elem {
-    local arr="$1"
-    echo ${arr[RANDOM % $#arr + 1]}
-}
-
 function tgs {
     local project=$1
     shift

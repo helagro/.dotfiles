@@ -14,22 +14,20 @@ fi
 
 alias vi="nvim"
 alias archive="$HOME/Documents/archiver-go/build/macOS"
-alias wifi="networksetup -setairportpower en0" # NOTE - on/off
+alias wifi="networksetup -setairportpower en0" # ARG - on/off
+alias oblank="open 'obsidian://vault/vault/_/blank.md'"
+
 alias tg="toggl"
 alias tgc="toggl current | grep -vE 'Workspace|ID'"
-
-alias oblank="open 'obsidian://vault/vault/p/lect.md'"
 
 # ------------------------- OTHER FUNCTIONS ------------------------ #
 
 function breake {
-    local break_path=$(look_away --config-path)
-    nvim "$break_path"
+    nvim "$(look_away --config-path)"
 }
 
 function test {
     local output=$(act b)
-
 }
 
 function lect {
@@ -39,7 +37,6 @@ function lect {
     tdls @lect
 
     tgs study
-
     a "social 1 s #u"
 }
 

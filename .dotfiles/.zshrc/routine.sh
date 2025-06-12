@@ -47,9 +47,7 @@ function dawn {
         (state_calc && dawn_state) &
         (
             local brightness=$(calc_brightness)
-            if [[ -n "$brightness" && "$brightness" -ge 400 ]]; then
-                echo "Brightness: $brightness"
-            fi
+            [[ -n "$brightness" && "$brightness" -ge 400 ]] && echo "Brightness: $brightness"
         ) &
     )
 
@@ -83,18 +81,10 @@ function dawn {
     later
     echo
 
-    if [[ $(ob rule | lines) -gt 0 ]]; then
-        ob rule
-    fi
-    if [[ $(ob p | lines) -gt 0 ]]; then
-        ob p
-    fi
-    if [[ $(ob risk | lines) -gt 0 ]]; then
-        ob risk
-    fi
-    if [[ $(b.sh | lines) -le 4 ]]; then
-        a "#b train neck"
-    fi
+    [[ $(ob rule | lines) -gt 0 ]] && ob rule
+    [[ $(ob p | lines) -gt 0 ]] && ob p
+    [[ $(ob risk | lines) -gt 0 ]] && ob risk
+    [[ $(b.sh | lines) -le 4 ]] && a "#b train neck"
 
     tdi
 
@@ -140,16 +130,24 @@ function eve {
         return 0
     fi
 
-    tg stop
+    # environment ------------------------------------------------ #
 
-    # Reset
+    if [[ ! " $@ " == *" -E "* ]]; then
+        short focus sleep # NOTE - should run early, before short phondo
+        short night_shift 1
+        theme 1
+
+        tg stop
+    fi
+
+    # reset ---------------------------------------------------------------------- #
+
     echo "" >$VAULT/p/risk.md
     echo "" >$VAULT/p/p.md
     echo "" >$VAULT/p/rule.md
 
     # other info ------------------------------------------------- #
 
-    # Display Tasks
     day tom
     echo
 
@@ -161,67 +159,36 @@ function eve {
 
     tl.sh habits
 
-    echo "Temp: $(sens temp)°C"
-
     if [[ $(sens temp) -ge 22 ]]; then
-        echo "Cool down"
+        echo "Cool down - ( $(sens temp)°C >= 22°C )"
     fi
 
     echo
 
     # manual track ------------------------------------------------- #
 
-    echo "https://track.toggl.com/timer"
-
     vared -p "Main: " -c main
-    a "main $(hm $main) s #u"
+    [[ -n "$main" ]] && a "main $(hm $main) s #u"
 
     vared -p "Screen: " -c screen
-    a "screen $(hm $screen) s #u"
-
-    # display main ----------------------------------------------- #
-
-    # Show note
-    ob eve
-
-    # Show charge
-    $HOME/.dotfiles/scripts/lang/shell/battery.sh 50
-
-    # State conditionals
-    ob "p/auto/state eve act.md" | state_switch.sh
-
-    b.sh
-
-    # environment ------------------------------------------------ #
-
-    if [[ ! " $@ " == *" -E "* ]]; then
-        short focus sleep
-        short night_shift 1
-        theme 1
-    fi
+    [[ -n "$screen" ]] && a "screen $(hm $screen) s #u"
 
     # auto track ------------------------------------------------- #
 
+    (eve_track &)
+
     a "eve #u"
     a "p_ett $(tdis | lines) s #u"
-    short track_away
+    (short track_away &)
 
-    # Track sleep delay
-    local sleep_delay=$(fall_asleep_delay)
-    if [ -n "$sleep_delay" ]; then
-        a "$(in_days -1) sleep_delay $sleep_delay s #u"
-    fi
+    # display main ----------------------------------------------- #
 
-    # Track bedtime minus detach
-    local bed_minus_detach=$(bed_minus_detach)
-    if [ -n "$bed_minus_detach" ]; then
-        a "$(tod) bed_minus_detach $bed_minus_detach s #u"
-    fi
+    ob eve
 
-    local brightness=$(calc_brightness)
-    if [ -n "$brightness" ]; then
-        a "$(tod) brightness $brightness s #u"
-    fi
+    $HOME/.dotfiles/scripts/lang/shell/battery.sh 50
+    ob "p/auto/state eve act.md" | state_switch.sh
+
+    b.sh
 
     # auto del --------------------------------------------------- #
 
@@ -238,80 +205,45 @@ function eve {
 
     # flight mode ------------------------------------------------ #
 
-    if [[ ! " $@ " == *" -F "* ]]; then
-        echo "Waiting for phone to probably set DND..."
-        sleep 9
-        short phondo "flight mode"
-    fi
-
+    [[ ! " $@ " == *" -F "* ]] && short phondo "flight mode"
 }
 
 function bedtime {
-    set -- $($MY_SCRIPTS/lang/shell/expand_args.sh $*)
+    short focus sleep
+    short home bedtime
 
-    local do_phone=1
-    local wifi=0
-
-    while [[ $# -gt 0 ]]; do
-        case "$1" in
-        -p)
-            do_phone="$2"
-            shift 2
-            ;;
-        -w)
-            wifi="$2"
-            shift 2
-            ;;
-        -h | --help)
-            print 'Usage: bedtime [options...]'
-            printf " %-3s %-20s %s\n" "-p" "<1/0>" "Do set phone settings"
-            printf " %-3s %-20s %s\n" "-w" "<1/0>" "Wifi on/off"
-            printf " %-3s %-20s %s\n" "-h," "--help" "Show this help message"
-            return 0
-            ;;
-        *)
-            echo "Unknown option: $1"
-            return 1
-            ;;
-        esac
-    done
-
-    echo "Temp: $(sens temp)°C"
+    # display -------------------------------------------------------------------- #
 
     if [[ $(sens temp) -lt 22.5 ]]; then
-        echo "Turn on radiator"
+        echo "Turn on radiator - ( $temp°C < 22.5°C )"
     fi
-
-    if [[ $do_phone -eq 1 ]]; then
-        short phondo "flight mode"
-    fi
-
-    if [[ $wifi -eq 1 ]]; then
-        wifi on
-    else
-        sleep 2
-        wifi off
-    fi
-
-    short focus sleep
 
     ob "p/auto/state bedtime" | state_switch.sh
 
     ob bedtime
     ob zink
 
+    # shut down ------------------------------------------------------------------ #
+
+    if ask "Set flight mode on phone?"; then
+        short phondo "flight mode"
+    fi
+
     local uptime=$(sysctl -n kern.boottime | awk '{print $4}' | tr -d ',')
     if [[ $uptime -lt $(date -v-3d +%s) ]]; then
-        read "response?Shut down? (y/n): "
-        if [[ "$response" == "y" ]]; then
+        if ask "Shut down?"; then
             sudo shutdown -h now
         fi
     fi
 
-    if pgrep -x Arc; then
-        read "response?Close browser? (y/n): "
-        if [[ "$response" == "y" ]]; then
-            pkill -2 Arc
+    if ask "Turn off wifi?"; then
+        wifi off
+        pkill -2 Arc
+    else
+        if pgrep -x Arc; then
+            if ask "Close browser?"; then
+                pkill -2 Arc
+            fi
         fi
     fi
 }
@@ -319,6 +251,19 @@ function bedtime {
 # ========================== HELPERS ========================= #
 
 function bed_minus_dinner { time_diff.sh -mp $(date +%H:%M) $(tl.sh 'routines/bed_time/start?sep=%3A'); }
+
+function eve_track {
+    # Track sleep delay
+    local sleep_delay=$(fall_asleep_delay)
+    [ -n "$sleep_delay" ] && a "$(in_days -1) sleep_delay $sleep_delay s #u"
+
+    # Track bedtime minus detach
+    local bed_minus_detach=$(bed_minus_detach)
+    [ -n "$bed_minus_detach" ] && a "$(tod) bed_minus_detach $bed_minus_detach s #u"
+
+    local brightness=$(calc_brightness)
+    [ -n "$brightness" ] && a "$(tod) brightness $brightness s #u"
+}
 
 function fall_asleep_delay {
     local bedtime=$(curl -s "$ROUTINE_ENDPOINT?q=bed_time" | sed 's/\./:/g' 2>/dev/null)
