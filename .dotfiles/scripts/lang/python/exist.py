@@ -45,7 +45,7 @@ def main() -> any:
             days = int(sys.argv[2])
         elif sys.argv[2] in ['count', 'cnt', 'len']:
             return count(attr)
-        elif sys.argv[2] in ['correlations', 'corr']:
+        elif sys.argv[-1] in ['correlations', 'corr']:
             return correlations(attr)
     else:
         days = 7
@@ -149,7 +149,7 @@ def _fetch_attribute_correlations(attr: str) -> list_attributes:
     results = response_data['results']
 
     # Filters
-    results = [result for result in results if result['stars'] >= 4]
+    results = [result for result in results if result['stars'] >= 5]
     results = [result for result in results if result['attribute2'] != attr]
     results = [result for result in results if result['attribute2'] != None]
     return results

@@ -44,11 +44,14 @@ function dawn {
 
     (
         # NOTE - Needs to run early to complete before "later"
-        (state_calc && dawn_state) &
+        (state_calc && dawn_calc) &
+
         (
             local brightness=$(calc_brightness)
             [[ -n "$brightness" && "$brightness" -ge 400 ]] && echo "Brightness: $brightness"
         ) &
+
+        (tl.sh logs | grep "Unauthorized access") &
     )
 
     # env -------------------------------------------------------- #
@@ -133,8 +136,9 @@ function eve {
     # environment ------------------------------------------------ #
 
     if [[ ! " $@ " == *" -E "* ]]; then
-        short focus sleep # NOTE - should run early, before short phondo
-        short night_shift 1
+
+        short -s focus sleep # NOTE - should run early, before short phondo
+        short -s night_shift 1
         theme 1
 
         tg stop
@@ -142,12 +146,17 @@ function eve {
 
     # reset ---------------------------------------------------------------------- #
 
+    if [[ $(ob rule | lines) -gt 0 ]]; then
+        ob rule
+    fi
+
     echo "" >$VAULT/p/risk.md
-    echo "" >$VAULT/p/p.md
     echo "" >$VAULT/p/rule.md
+    echo "" >$VAULT/p/p.md
 
     # other info ------------------------------------------------- #
 
+    later
     day tom
     echo
 
@@ -159,8 +168,9 @@ function eve {
 
     tl.sh habits
 
-    if [[ $(sens temp) -ge 22 ]]; then
-        echo "Cool down - ( $(sens temp)°C >= 22°C )"
+    local temp=$(sens temp)
+    if [[ $temp -ge 20 ]]; then
+        echo "Cool down - ( 20°C <= $temp°C )"
     fi
 
     echo
@@ -205,17 +215,20 @@ function eve {
 
     # flight mode ------------------------------------------------ #
 
-    [[ ! " $@ " == *" -F "* ]] && short phondo "flight mode"
+    if [[ ! " $@ " == *" -F "* ]]; then
+        read
+        short phondo "flight mode"
+    fi
 }
 
 function bedtime {
-    short focus sleep
-    short home bedtime
+    short -s focus sleep
+    short -s home bedtime
 
     # display -------------------------------------------------------------------- #
 
-    if [[ $(sens temp) -lt 22.5 ]]; then
-        echo "Turn on radiator - ( $temp°C < 22.5°C )"
+    if [[ $(sens temp) -lt 21 ]]; then
+        echo "Turn on radiator - ( $temp°C < 21°C )"
     fi
 
     ob "p/auto/state bedtime" | state_switch.sh
@@ -226,7 +239,7 @@ function bedtime {
     # shut down ------------------------------------------------------------------ #
 
     if ask "Set flight mode on phone?"; then
-        short phondo "flight mode"
+        short -s phondo "flight mode"
     fi
 
     local uptime=$(sysctl -n kern.boottime | awk '{print $4}' | tr -d ',')
@@ -255,7 +268,7 @@ function bed_minus_dinner { time_diff.sh -mp $(date +%H:%M) $(tl.sh 'routines/be
 function eve_track {
     # Track sleep delay
     local sleep_delay=$(fall_asleep_delay)
-    [ -n "$sleep_delay" ] && a "$(in_days -1) sleep_delay $sleep_delay s #u"
+    [ $? -eq 0 ] && [ -n "$sleep_delay" ] && a "$(in_days -1) sleep_delay $sleep_delay s #u"
 
     # Track bedtime minus detach
     local bed_minus_detach=$(bed_minus_detach)
@@ -271,14 +284,24 @@ function fall_asleep_delay {
         return 1
     fi
 
-    local sleep_time=$(is sleep_start 1 | hm | jq '.[]' | sed 's/"//g' 2>/dev/null)
-    if [ $? -ne 0 ] || [ -z "$sleep_time" ]; then
+    if [[ -n $1 ]]; then
+        # Perminant debug option
+        local sleep_start="$1"
+    else
+        local sleep_start=$(is sleep_start 1 | hm | jq '.[]' | sed 's/"//g' 2>/dev/null)
+    fi
+
+    if [ $? -ne 0 ] || [ -z "$sleep_start" ] || [[ $sleep_start == "null" ]]; then
         return 1
     fi
-    sleep_time=$(time_diff.sh "12:00" "$sleep_time")
 
-    local time=$(time_diff.sh -p $bedtime $sleep_time)
-    if [ $? -ne 0 ]; then
+    # Converts to 24-hour format from starting at 12:00 (but not normal 12h clock!)
+    sleep_start=$(time_diff.sh "12:00" "$sleep_start")
+
+    # echo "Sleep start: $sleep_start"
+    # echo "Bedtime: $bedtime"
+    local time=$(time_diff.sh $bedtime $sleep_start)
+    if time_diff.sh -p "12:00" "$time" >/dev/null; then
         return 1
     fi
 

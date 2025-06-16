@@ -25,9 +25,9 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-seconds1=$(date -j -f "%H:%M" "$2" +"%s" 2>/dev/null)
-seconds2=$(date -j -f "%H:%M" "$1" +"%s" 2>/dev/null)
-diff=$((seconds1 - seconds2))
+seconds2=$(date -j -f "%H:%M" "$2" +"%s" 2>/dev/null)
+seconds1=$(date -j -f "%H:%M" "$1" +"%s" 2>/dev/null)
+diff=$((seconds2 - seconds1))
 
 if [ $diff -lt 0 ]; then
     if $positive_only; then

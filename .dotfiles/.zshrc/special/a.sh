@@ -30,11 +30,29 @@ function a_ui {
 
     # Ask for lines until 'q' is entered
     while [[ $line != 'q' ]]; do
+
+        # log ------------------------------------------------------------------------ #
+
         $MY_SCRIPTS/lang/shell/utils/log.sh -f a_raw "$line"
 
         # Add to history
         if [[ $line != ' '* ]]; then
             print -s -- "$line"
+        fi
+
+        # commands ------------------------------------------------------------------- #
+
+        # identify
+        if [[ $line == 'i' ]]; then
+            (afplay $HOME/.dotfiles/assets/audio/brown_noise.mp3 &)
+
+            printf "\033[41m"
+            clear
+            sleep 0.5
+            printf "\033[0m"
+            clear
+            line=""
+            continue
         fi
 
         # escape characters ------------------------------------------ #

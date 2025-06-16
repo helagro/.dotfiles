@@ -43,14 +43,7 @@ def main(input, args):
     lines = input.splitlines()
     found_tags = set()
 
-    for i, line in enumerate(lines):
-        if re.match(r"^#+ Checklist", line):
-            hashtags_count = line.count("#")
-            break
-
-    if i == -1:
-        print("No checklist found")
-        return
+    i, hashtags_count = find_start(lines)
 
     for i in range(i + 1, len(lines)):
         line = lines[i]
@@ -72,6 +65,14 @@ def main(input, args):
         print(tags_str)
     else:
         print(f'<!-- {tags_str} -->')
+
+
+def find_start(lines):
+    for i, line in enumerate(lines):
+        if re.match(r"^#+ Checklist", line):
+            hashtags_count = line.count("#")
+            return i, hashtags_count
+    return -1, -1
 
 
 def excluded_by_tags(line, tags):

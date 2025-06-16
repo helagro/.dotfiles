@@ -88,6 +88,15 @@ function _later_completions {
 }
 compdef _later_completions later
 
+function latero {
+    local url="$*"
+    if [[ $url != http* ]]; then
+        url="https://$url"
+    fi
+
+    later "open \"$url\""
+}
+
 function obc {
     local file="$1"
     shift
