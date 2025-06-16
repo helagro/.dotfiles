@@ -30,7 +30,7 @@ HEADERS = {'Authorization': f'Token {EXIST_TOKEN_READ}'}
 # ------------------------- PUBLIC FUNCTIONS ------------------------ #
 
 
-def main() -> any:
+def main():
     args_len = len(sys.argv)
 
     attr = sys.argv[1]
@@ -40,13 +40,14 @@ def main() -> any:
 
         return sorted(list_attributes(groups=groups))
 
+    if sys.argv[-1] in ['correlations', 'corr']:
+        return correlations(sys.argv[1:-1])
+
     if args_len >= 3:
         if sys.argv[2].isnumeric():
             days = int(sys.argv[2])
         elif sys.argv[2] in ['count', 'cnt', 'len']:
             return count(attr)
-        elif sys.argv[-1] in ['correlations', 'corr']:
-            return correlations(attr)
     else:
         days = 7
 
@@ -114,9 +115,14 @@ def count(attr: str) -> int:
     return _fetch_attribute_values(attr, None, None)['total_count']
 
 
-def correlations(attr: str) -> list_attributes:
-    results = _fetch_attribute_correlations(attr)
-    results = sorted(results, key=lambda x: x['value'], reverse=True)
+def correlations(attrs: list[str | None]) -> list:
+    results = []
+    if not attrs:
+        attrs.append(None)
+
+    for attr in attrs:
+        results.extend(_fetch_attribute_correlations(attr))
+        results = sorted(results, key=lambda x: x['value'], reverse=True)
 
     keys = [
         'attribute2',
@@ -133,11 +139,13 @@ def correlations(attr: str) -> list_attributes:
 # ------------------------- FETCH FUNCTIONS ------------------------ #
 
 
-def _fetch_attribute_correlations(attr: str) -> list_attributes:
+def _fetch_attribute_correlations(attr: str | None) -> list:
     params = {
         'attribute': attr,
         'confident': True,
+        'latest': attr is None,
     }
+    print(f"Fetching correlations for attribute: {params}", flush=True)
     response = requests.get(f'https://exist.io/api/2/correlations/', params=params, headers=HEADERS)
 
     if not response.ok:
@@ -155,7 +163,7 @@ def _fetch_attribute_correlations(attr: str) -> list_attributes:
     return results
 
 
-def _fetch_attribute_values(attr: str, days: int | None, date_max: str = None, url=None) -> dict:
+def _fetch_attribute_values(attr: str, days: int | None, date_max: str | None = None, url=None) -> dict:
     if days and days < 1: return {}
 
     if url is None:

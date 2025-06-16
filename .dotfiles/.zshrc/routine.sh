@@ -64,7 +64,9 @@ function dawn {
 
     # Display main stuff
     $HOME/.dotfiles/scripts/lang/shell/task/run_task_sys.sh | to_color.sh cyan
-    short day tod | to_color.sh blue
+
+    local cal=$(short day tod)
+    echo "$cal" | to_color.sh blue
 
     ob dawn
 
@@ -91,7 +93,13 @@ function dawn {
 
     tdi
 
-    local cal=$(short day tod)
+    # calendar conditionals ---------------------------------------------------------- #
+
+    if echo $cal | grep -Fq "badminton"; then
+        a "tod pack racket"
+        echo "pack racket - badminton"
+    fi
+
     if echo $cal | grep -Fq "climb"; then
         a "climb 1 s #u"
         ob fys
