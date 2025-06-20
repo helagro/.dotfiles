@@ -12,7 +12,9 @@ export VAULT="$HOME/vault"
 # NOTE - Used by todoist-app
 export DISABLED_TD_APP_ITEMS="---,ob,"
 
-# ---------------------------- ZSH STYLE --------------------------- #
+# ---------------------------- ZSH SETTINGS --------------------------- #
+
+setopt autopushd
 
 ZSH_HIGHLIGHT_HIGHLIGHTERS+=(regexp main)
 
@@ -46,7 +48,7 @@ function weather {
         shift 2
     fi
 
-    curl -s "wttr.in?${layout}AMnQ"
+    curl -s --max-time 4 "wttr.in?${layout}AMnQ"
 }
 
 function pass {
@@ -329,13 +331,32 @@ function is {
 # ------------------------- OBSIDIAN ------------------------- #
 
 function do_now {
-    local do_write=false
-    if [[ "$1" == "-w" ]]; then
-        do_write=true
-        shift
-    fi
+    set -- $($MY_SCRIPTS/lang/shell/expand_args.sh $*)
 
-    local file_name="$VAULT/$*.md"
+    local do_write=false
+    local do_add=true
+
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+        -h | --help)
+            echo "Usage: do_now [-w] <file_name>"
+            echo "  -w: Overwrite the contents following '---'"
+            return 0
+            ;;
+        -w | --write)
+            do_write=true
+            shift 1
+            ;;
+        -D | --do-not-add)
+            do_add=false
+            shift 1
+            ;;
+        *)
+            local file_name="$VAULT/$1.md"
+            shift
+            ;;
+        esac
+    done
 
     if [[ ! -e "$file_name" ]]; then
         echo "$file_name does not exist"
@@ -343,10 +364,19 @@ function do_now {
     fi
 
     local content=$(cat "$file_name")
-    if echo $content | awk '/---/ {found = NR; next} NR > found' | a; then
+    local tasks=$(echo $content | awk '/---/ {found = NR; next} NR > found')
+
+    if [[ $? -eq 0 ]]; then
+        if $do_add; then
+            echo "$tasks" | a
+        fi
+
         if $do_write; then
-            echo $content | awk '/---/ {found = 1; next} found' >"$file_name"
+            echo "$content" | awk '/---/ {exit} {print}' >"$file_name"
             echo "---" >>"$file_name"
         fi
+    else
+        echo "Error reading file: $file_name"
+        return 1
     fi
 }

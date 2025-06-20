@@ -145,7 +145,6 @@ def _fetch_attribute_correlations(attr: str | None) -> list:
         'confident': True,
         'latest': attr is None,
     }
-    print(f"Fetching correlations for attribute: {params}", flush=True)
     response = requests.get(f'https://exist.io/api/2/correlations/', params=params, headers=HEADERS)
 
     if not response.ok:

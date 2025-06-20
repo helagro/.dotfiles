@@ -13,8 +13,7 @@ for line in "${tasks[@]}"; do
         continue
     fi
 
-    if echo "$line" | grep -sq "$(date +'%y/%m/%d')"; then
-
+    if echo "$line" | grep -sq "$(date +'%Y-%m-%d')"; then
         task_str=$(echo "$line" | sed -E 's|^.*#run\/[a-zA-Z0-9]*||' | sed 's/:/#/g')
         task_id=$(echo "$line" | grep -o '^[0-9]*')
         

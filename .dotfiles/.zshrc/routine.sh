@@ -96,8 +96,8 @@ function dawn {
     # calendar conditionals ---------------------------------------------------------- #
 
     if echo $cal | grep -Fq "badminton"; then
-        a "tod pack racket"
-        echo "pack racket - badminton"
+        a "tod pack racket & shoes @rm"
+        echo "pack racket - badminton & shoes"
     fi
 
     if echo $cal | grep -Fq "climb"; then
@@ -158,9 +158,9 @@ function eve {
         ob rule
     fi
 
-    echo "" >$VAULT/p/risk.md
-    echo "" >$VAULT/p/rule.md
-    echo "" >$VAULT/p/p.md
+    do_now -Dw p/risk
+    do_now -Dw p/rule
+    do_now -Dw p/p
 
     # other info ------------------------------------------------- #
 
@@ -206,7 +206,9 @@ function eve {
     $HOME/.dotfiles/scripts/lang/shell/battery.sh 50
     ob "p/auto/state eve act.md" | state_switch.sh
 
-    b.sh
+    if [[ $(date +"%m") -gt 5 ]] && [[ $(date +"%m") -le 8 ]]; then # Is Jun, Jul or Aug
+        echo "optimize melatonin"
+    fi
 
     # auto del --------------------------------------------------- #
 
@@ -232,6 +234,7 @@ function eve {
 function bedtime {
     short -s focus sleep
     short -s home bedtime
+    short -s bedtime_brightness
 
     # display -------------------------------------------------------------------- #
 
