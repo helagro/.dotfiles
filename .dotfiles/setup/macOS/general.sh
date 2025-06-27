@@ -13,6 +13,7 @@ if ! command -v brew &>/dev/null; then
 fi
 
 brew tap zackelia/formulae
+npm i -g firebase
 
 # --------------------------- DUTI --------------------------- #
 
@@ -45,6 +46,10 @@ duti -s com.microsoft.VSCode .md all
 
 if ask "Install go"; then
     brew install go
+fi
+
+if ask "Install toggl cli?"; then
+    go get github.com/sachaos/toggl
 fi
 
 if command -v go && ask "Install blink timer?"; then

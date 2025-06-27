@@ -242,6 +242,11 @@ function bedtime {
         echo "Turn on radiator - ( $temp°C < 21°C )"
     fi
 
+    local month=$(date +%m)
+    if [[ "$month" == "03" || "$month" == "04" || "$month" == "05" ]]; then
+        echo "earbuds"
+    fi
+
     ob "p/auto/state bedtime" | state_switch.sh
 
     ob bedtime

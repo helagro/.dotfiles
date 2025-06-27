@@ -32,4 +32,8 @@ elif [ "$(uname)" = "Linux" ]; then
     ./linux/general.sh
 fi
 
+if command -v conda &>/dev/null; then
+    conda env create -f $HOME/.dotfiles/config/environment.yml
+fi
+
 source $HOME/.zshrc

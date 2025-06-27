@@ -254,6 +254,7 @@ function sw {
     local do_focus=false
     local do_silent=false
     local offline_mode=false
+    local skip_tgs=false
 
     # Parse options
     while [[ $# -gt 0 ]]; do
@@ -278,6 +279,10 @@ function sw {
             printf " %-3s %-20s %s\n" "-h," "--help" "Show this help message"
             return 0
             ;;
+        -T | --skip-tgs)
+            skip_tgs=true
+            shift
+            ;;
         *)
             break
             ;;
@@ -295,7 +300,7 @@ function sw {
     fi
 
     # If exor type activity
-    if ! $offline_mode && [[ $2 == "medd" || $2 == "yoga" ]]; then
+    if ! $offline_mode && !$skip_tgs && [[ $2 == "medd" || $2 == "yoga" ]]; then
         tgs exor "$2"
     fi
 
@@ -333,7 +338,7 @@ function sw {
             a "$track_cmd"
         fi
 
-        if ! $offline_mode; then
+        if ! $offline_mode && ! $skip_tgs; then
             tg stop
         fi
     fi

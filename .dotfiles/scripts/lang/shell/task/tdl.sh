@@ -111,6 +111,7 @@ function main {
     else
         tasks=$(echo "$tasks" | add_line_nr)
         echo "$tasks" >"$HOME/.dotfiles/tmp/tdl.txt"
+        echo "\n$tasks" | $HOME/.dotfiles/scripts/lang/shell/utils/log.sh -sf tdl
         echo "$tasks" | colorize
     fi
 }
