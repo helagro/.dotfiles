@@ -40,24 +40,22 @@ function lect {
     a "social 1 s #u"
 }
 
+function act_td_filter {
+    if [ $(tdl -F '#ludilo|#run' :$1 | wc -l) -le $2 ]; then
+        echo "$3" | grep -v "$1^"
+        print -n -u2 "$1, "
+    else
+        echo "$3"
+    fi
+}
+
 function act {
-    local local_online_tools="$HOME/Documents/online-tools"
+    local local_online_tools="$HOME/Developer/server-app"
     local query=$(echo "$*" | tr ' ' '/')
 
-    if rand 4 >/dev/null; then
-        local table=$(curl -s --connect-timeout 2 "$MY_CONFIG_URL/online-tools/act.tsv")
-
-        if [ -n "$table" ]; then
-            echo "$table" >$local_online_tools/data/act.tsv
-            print -u2 "Successfully updated act.tsv"
-        else
-            print -u2 "Failed to update act.tsv"
-        fi
-    fi
-
     local output=$(
-        cd $local_online_tools/dist/act
-        NODE_NO_WARNINGS=1 node index.js "$query"
+        cd $local_online_tools/dist/routes/act
+        NODE_NO_WARNINGS=1 DO_LOG=false node index.js "$query"
     )
 
     # general filters ---------------------------------------------------- #
@@ -79,27 +77,23 @@ function act {
         print -n -u2 "obsi, "
     fi
 
+    if ! state.sh -s 'tv'; then
+        output=$(echo "$output" | grep -v 'review_tv^')
+        print -n -u2 "review_tv, "
+    fi
+
     # todoist filters ------------------------------------------------------------ #
 
-    if [ $(tdl :inbox | wc -l) -le 8 ]; then
-        output=$(echo "$output" | grep -v 'inbox^')
-        print -n -u2 "inbox, "
-    fi
-
-    if [ $(tdl :u -F '#ludilo|#run' | wc -l) -le 10 ]; then
-        output=$(echo "$output" | grep -v 'u^')
-        print -n -u2 "u, "
-    fi
-
-    if [ $(tdl :u -F '#res' | wc -l) -le 2 ]; then
-        output=$(echo "$output" | grep -v 'res^')
-        print -n -u2 "res, "
-    fi
-
-    if [ $(tdl :u -F '#zz' | wc -l) -le 2 ]; then
-        output=$(echo "$output" | grep -v 'zz^')
-        print -n -u2 "zz, "
-    fi
+    output=$(act_td_filter 'bdg' 2 "$output")
+    output=$(act_td_filter 'by' 4 "$output")
+    output=$(act_td_filter 'do' 5 "$output")
+    output=$(act_td_filter 'eval' 4 "$output")
+    output=$(act_td_filter 'inbox' 10 "$output")
+    # output=$(act_td_filter 'nopc' 0 "$output")
+    output=$(act_td_filter 'p1' 0 "$output")
+    output=$(act_td_filter 'res' 7 "$output")
+    output=$(act_td_filter 'u' 10 "$output")
+    output=$(act_td_filter 'zz' 2 "$output")
 
     # calendar filters ----------------------------------------------------------- #
 
@@ -110,8 +104,8 @@ function act {
         print -n -u2 "eve, "
     else
         if ! echo $cal | grep -Fq "full_detach"; then
-            output=$(echo "$output" | grep -v 'cook^' | grep -v 'buy^' | grep -v 'walk^')
-            print -n -u2 "cook, buy, walk, "
+            output=$(echo "$output" | grep -v 'cook^' | grep -v 'by^' | grep -v 'walk^')
+            print -n -u2 "cook, by, walk, "
 
             if ! echo $cal | grep -Fq "bedtime"; then
                 output=$(echo "$output" | grep -v 'floss^')
@@ -140,12 +134,18 @@ function act {
     # print ------------------------------------------------------ #
 
     print -u2 "\033[0m"
-    output=$(echo $output | rat.sh -pPl "json" | $HOME/.dotfiles/scripts/secret/act_highlight.sh)
+    echo $output | rat.sh -pPl "json" | $HOME/.dotfiles/scripts/secret/act_highlight.sh
 
-    if [[ $* == *"-p"* ]]; then
-        (echo $output && printf '\n%.0s' {1..5} && printf "\033[90m$*\033[0m\n%.0s" {1..55}) | less
-    else
-        echo $output
+    # sync ----------------------------------------------------------------------- #
+
+    if rand 3 >/dev/null; then
+        local table=$(curl -s --connect-timeout 2 "$MY_CONFIG_URL/server-app/act.tsv")
+
+        if [ -n "$table" ]; then
+            echo "$table" >$local_online_tools/data/act.tsv
+        else
+            print -u2 "Failed to update act.tsv"
+        fi
     fi
 }
 
@@ -300,7 +300,7 @@ function sw {
     fi
 
     # If exor type activity
-    if ! $offline_mode && !$skip_tgs && [[ $2 == "medd" || $2 == "yoga" ]]; then
+    if ! $offline_mode && ! $skip_tgs && [[ $2 == "medd" || $2 == "yoga" ]]; then
         tgs exor "$2"
     fi
 

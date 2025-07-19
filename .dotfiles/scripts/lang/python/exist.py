@@ -32,6 +32,7 @@ HEADERS = {'Authorization': f'Token {EXIST_TOKEN_READ}'}
 
 def main():
     args_len = len(sys.argv)
+    days = 7
 
     attr = sys.argv[1]
 
@@ -48,11 +49,16 @@ def main():
             days = int(sys.argv[2])
         elif sys.argv[2] in ['count', 'cnt', 'len']:
             return count(attr)
-    else:
-        days = 7
 
     date_max_input = sys.argv[3] if args_len >= 4 else None
-    return values(attr, days, date_max_input)
+    result = values(attr, days, date_max_input)
+
+    if sys.argv[-1] in ['pos', '+', 'nonull']:
+        result = {k: v for k, v in result.items() if v is not None}
+    if sys.argv[-1] in ['pos', '+']:
+        result = {k: v for k, v in result.items() if v > 0}
+
+    return result
 
 
 # ------------------------- ABILITIES ------------------------ #
@@ -82,10 +88,12 @@ def list_attributes(results=[], url='https://exist.io/api/2/attributes/', groups
     return names
 
 
-def values(attr: str, days: int, date_max_input=None, url=None) -> dict:
+def values(attr: str, days: int, date_max_input: None | datetime | str = None, url=None) -> dict:
     ''' NOTE - Used by env-tracker'''
 
-    if _is_valid_date(date_max_input):
+    if isinstance(date_max_input, datetime):
+        date_max = date_max_input
+    if _is_valid_date_str(date_max_input):
         date_max = datetime.strptime(date_max_input, '%Y-%m-%d')
     elif is_valid_int(date_max_input):
         days_before = int(date_max_input)
@@ -107,7 +115,6 @@ def values(attr: str, days: int, date_max_input=None, url=None) -> dict:
             return {**returned['results'], **next_page}
     except KeyError as e:
         print(f"KeyError: {e}")
-        print(returned)
         exit(1)
 
 
@@ -191,7 +198,10 @@ def _fetch_attribute_values(attr: str, days: int | None, date_max: str | None = 
 # ---------------------- HELPER METHODS ---------------------- #
 
 
-def _is_valid_date(date: str | None) -> bool:
+def _is_valid_date_str(date: str | None | datetime) -> bool:
+    if not isinstance(date, str):
+        return False
+
     try:
         datetime.strptime(date, '%Y-%m-%d')
         return True
@@ -199,7 +209,13 @@ def _is_valid_date(date: str | None) -> bool:
         return False
 
 
-def is_valid_int(value: str | None) -> bool:
+def is_valid_int(value: str | None | datetime) -> bool:
+    if value is None:
+        return False
+
+    if isinstance(value, datetime):
+        return False
+
     try:
         int(value)
         return True

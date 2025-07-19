@@ -31,12 +31,16 @@ fi
 
 # Parses arguments, and removes .md extension
 input=$(echo "$*" | sed 's/\.md$//g' 2>/dev/null)
-vault="$HOME/vault" # Can't use exported, called by break timer
+vault="$HOME/vaultz" # Can't use exported, called by break timer
 
-(
-    action "$vault/i/$input.md" 2>/dev/null ||
-        action "$vault/p/$input.md" 2>/dev/null ||
-        action "$vault/tmp/$input.md" 2>/dev/null ||
-        action "$vault/_/log/$input.md" 2>/dev/null ||
-        action "$vault/$input.md" 2>/dev/null
-) || exit 1
+if [[ -d $vault ]]; then
+    (
+        action "$vault/i/$input.md" 2>/dev/null ||
+            action "$vault/p/$input.md" 2>/dev/null ||
+            action "$vault/tmp/$input.md" 2>/dev/null ||
+            action "$vault/_/log/$input.md" 2>/dev/null ||
+            action "$vault/$input.md" 2>/dev/null
+    ) || exit 1
+else
+    curl -s "https://raw.githubusercontent.com/helagro/notes/refs/heads/main/$input.md"
+fi

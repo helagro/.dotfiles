@@ -2,7 +2,25 @@ function on_tab {
     clear
 }
 
-# -------------------------- TODOIST ------------------------- #
+# =================================== LATER ================================== #
+
+function later { python3 $HOME/.dotfiles/scripts/lang/python/later.py "$@"; }
+function _later_completions {
+    _arguments '*:command:_command_names'
+}
+compdef _later_completions later
+
+function latera { later "a \"$*\""; }
+function latero {
+    local url="$*"
+    if [[ $url != http* ]]; then
+        url="https://$url"
+    fi
+
+    later "open \"$url\""
+}
+
+# ================================== TODOIST ================================= #
 
 alias td="todoist"
 alias tdl="$MY_SCRIPTS/lang/shell/task/tdl.sh"
@@ -85,24 +103,34 @@ function tdu {
 }
 
 function tdc {
-    for arg in "$@"; do
-        for id in ${(z)arg}; do 
-            if [[ ${#id} -lt 3 ]]; then
+    ping -c 1 -t 1 8.8.8.8 &>/dev/null
+    local ping_exit_code=$?
+    if [[ $ping_exit_code != 0 ]]; then
+        echo "[OFFLINE]"
+    fi
+
+    for arg in "$@"; do # For every arg
+        for id in ${(z)arg}; do # For every id in the arg
+            if [[ ${#id} -lt 4 ]]; then # If provided tdl index instead
                 cat "$HOME/.dotfiles/tmp/tdl.txt" | while IFS= read -r line; do
-                    if [[ $line == "($id)"* ]]; then
+                    if [[ $line == "($id)"* ]]; then # If tdl line matches
                         id=$(echo "$line" | awk '{print $2}')
                         echo "$line" >> "$HOME/.dotfiles/logs/tdc.log"
-                        echo $id
+                        echo $line
                         break
                     fi
                 done
             fi
 
-            if command -v todoist >/dev/null 2>&1; then
-                (nohup todoist c "$id" >/dev/null 2>&1 &)
-            else
-                curl -sX POST "https://api.todoist.com/rest/v2/tasks/$id/close" \
-                    -H "Authorization: Bearer $TODOIST_TOKEN"
+            if [[ $ping_exit_code == 0 ]]; then # If is online
+                if command -v todoist >/dev/null 2>&1; then
+                    (nohup todoist c "$id" >/dev/null 2>&1 &)
+                else
+                    curl -sX POST "https://api.todoist.com/rest/v2/tasks/$id/close" \
+                        -H "Authorization: Bearer $TODOIST_TOKEN"
+                fi
+            else # If is offline
+                later "tdc \"$id\""
             fi
         done
     done

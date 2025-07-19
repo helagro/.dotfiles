@@ -3,6 +3,10 @@
 # ------------------------- VARIABLES ------------------------ #
 
 LATER_TASKS_INIT=$( cat $HOME/.dotfiles/tmp/later.txt | wc -l | tr -d '[:space:]' )
+if [[ $? -ne 0 ]]; then
+    touch $HOME/.dotfiles/tmp/later.txt
+    LATER_TASKS_INIT=0
+fi
 
 # Colors
 BLUE='\033[34m'
@@ -27,9 +31,7 @@ if [[ -t 0 ]]; then # Run from terminal
     task_string=$(todoist l -f "$project")
 
 else # Read from pipe
-
-    # Reads from stdin, ignoring ansii codes
-    task_string=$(cat | sed -E 's/\x1B\[[0-9;]*[a-zA-Z]//g')
+    task_string=$(cat)
 fi
 
 readonly task_string

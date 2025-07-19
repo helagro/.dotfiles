@@ -16,6 +16,7 @@ filter=""
 input=""
 plain=false
 computed=false
+json=false
 
 # ------------------------- PARSE ARGUMENTS ------------------------ #
 
@@ -48,10 +49,15 @@ while [[ $# -gt 0 ]]; do
         printf " %-3s %-20s %s\n" "-c" "--computed" "Use computed filter"
         printf " %-3s %-20s %s\n" "-w" "--watch" "Watch for changes"
         printf " %-3s %-20s %s\n" "-h" "--help" "Show this help message"
+        printf " %-3s %-20s %s\n" "-j" "--json" "Output in JSON format"
         exit 0
         ;;
     -w | --watch)
         do_watch=true
+        shift 1
+        ;;
+    -j | --json)
+        json=true
         shift 1
         ;;
     *)
@@ -104,7 +110,7 @@ function main {
 
     if $plain; then
         echo "$tasks"
-    elif ! command -v todoist &>/dev/null; then
+    elif $json || ! command -v todoist &>/dev/null; then
         echo '['
         echo "$tasks" | rat.sh -pPl json
         echo ']'
@@ -119,7 +125,7 @@ function main {
 # ============================= HELPER FUNCTIONS ============================= #
 
 function m_td_get {
-    if command -v todoist &>/dev/null; then
+    if ! $json && command -v todoist &>/dev/null; then
         todoist --indent list --filter "$1"
     else
         curl -sX GET \

@@ -13,7 +13,7 @@ if ! command -v brew &>/dev/null; then
 fi
 
 brew tap zackelia/formulae
-npm i -g firebase
+npm i -g firebase-tools
 
 # --------------------------- DUTI --------------------------- #
 

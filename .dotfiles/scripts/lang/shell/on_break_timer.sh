@@ -6,12 +6,12 @@
 
 cal=$(echo tod | shortcuts run day --output-type public.plain-text)
 
-if ! echo $cal | grep -Fq "bed_time"; then
-    print -n "bed_time"
-    exit 0
-fi
-
 if ! echo $cal | grep -Fq "full_detach"; then
+    if ! echo $cal | grep -Fq "bed_time"; then
+        print -n "bed_time"
+        exit 0
+    fi
+
     print -n "full_detach"
     afplay $HOME/.dotfiles/assets/audio/brown_noise.mp3
     exit 0

@@ -38,21 +38,15 @@ function dawn {
         echo "(waiting for internet...)"
     done
 
-    td s
-
-    # async ------------------------------------------------------ #
-
     (
-        # NOTE - Needs to run early to complete before "later"
-        (state_calc && dawn_calc) &
-
         (
             local brightness=$(calc_brightness)
             [[ -n "$brightness" && "$brightness" -ge 400 ]] && echo "Brightness: $brightness"
         ) &
-
-        (tl.sh logs | grep "Unauthorized access") &
     )
+
+    td s
+    state_calc && daily_calcs
 
     # env -------------------------------------------------------- #
 
@@ -86,9 +80,9 @@ function dawn {
     later
     echo
 
-    [[ $(ob rule | lines) -gt 0 ]] && ob rule
-    [[ $(ob p | lines) -gt 0 ]] && ob p
-    [[ $(ob risk | lines) -gt 0 ]] && ob risk
+    [[ $(ob rule | lines) -gt 1 ]] && ob rule
+    [[ $(ob p | lines) -gt 1 ]] && ob p
+    [[ $(ob risk | lines) -gt 1 ]] && ob risk
     [[ $(b.sh | lines) -le 4 ]] && a "#b train neck"
 
     tdi
@@ -154,7 +148,7 @@ function eve {
 
     # reset ---------------------------------------------------------------------- #
 
-    if [[ $(ob rule | lines) -gt 0 ]]; then
+    if [[ $(ob rule | lines) -gt 1 ]]; then
         ob rule
     fi
 
@@ -259,7 +253,7 @@ function bedtime {
     fi
 
     local uptime=$(sysctl -n kern.boottime | awk '{print $4}' | tr -d ',')
-    if [[ $uptime -lt $(date -v-3d +%s) ]]; then
+    if [[ $uptime -lt $(date -v-8d +%s) ]]; then
         if ask "Shut down?"; then
             sudo shutdown -h now
         fi
@@ -290,6 +284,7 @@ function eve_track {
     local bed_minus_detach=$(bed_minus_detach)
     [ -n "$bed_minus_detach" ] && a "$(tod) bed_minus_detach $bed_minus_detach s #u"
 
+    # Track brightness
     local brightness=$(calc_brightness)
     [ -n "$brightness" ] && a "$(tod) brightness $brightness s #u"
 }

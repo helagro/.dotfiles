@@ -11,32 +11,49 @@ def add_to_later(command):
 
 
 def run_later():
+    lines_to_save = []
+
     with open(FILE_PATH, "r") as file:
         line = file.readline()
         while line:
-            handle_line(line.strip())
+            text = line.strip()
+            save_line = handle_line(text)
+
+            if save_line:
+                lines_to_save.append(text)
+
             line = file.readline()
 
     with open(FILE_PATH, "w") as file:
         file.write('')
+        for line in lines_to_save:
+            file.write(f'{line}\n')
 
 
 def handle_line(line):
+    ''' Handles line. Returns if should save line '''
     if not line:
-        return
+        return False
 
+    should_save = False
     action = input(f'"{line}" :', )
-    if action == 'y':
+
+    if 's' in action:
+        should_save = True
+
+    if 'y' in action:
         subprocess.run(["zsh", "-i", "-c", f"{line}"], stdout=sys.stdout, stderr=sys.stderr, text=True, shell=False)
-    elif action == 'n':
-        return
+    if 'n' in action:
+        pass
     elif action == 'c':
         os.system(f'printf "{line}" | pbcopy')
     elif action == 'q':
         exit(0)
-    else:
-        print('Invalid input - enter (y, n, c or q)')
+    elif not should_save:
+        print('Invalid input - enter (y, n, c, s or q)')
         handle_line(line)
+
+    return should_save
 
 
 if __name__ == '__main__':

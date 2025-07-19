@@ -13,7 +13,7 @@ function p {
     elif [ "$*" = "good" ]; then
         mpv --shuffle --no-video --volume=$vol "$good_url" --keep-open=always --screen-name=good
     elif [ "$*" = "fish" ]; then
-        "$HOME/.dotfiles/scripts/path/task/a.sh" $(tod) $fish 1 s
+        # "$HOME/.dotfiles/scripts/path/task/a.sh" $(tod) $fish 1 s
         mpv --no-video --volume=$vol --loop "$HOME/Library/Mobile Documents/com~apple~CloudDocs/media/audio/fish.mp3" --screen-name=fish
     elif [ "$*" = "brown" ]; then
         mpv --no-video --loop --msg-level=all=info --volume=65 "$HOME/Library/Mobile Documents/com~apple~CloudDocs/media/audio/brown_noise.mp3" --screen-name=brown

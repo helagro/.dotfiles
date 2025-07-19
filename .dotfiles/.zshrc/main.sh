@@ -8,13 +8,15 @@ export DOC="$HOME/Documents"
 export DEV="$HOME/Developer"
 export VAULT="$HOME/vault"
 
+export LOCAL_SERVER_IP="192.168.3.46"
 # NOTE - Items must end with a comma, even last one
-# NOTE - Used by todoist-app
+# NOTE - Used by server-app
 export DISABLED_TD_APP_ITEMS="---,ob,"
 
 # ---------------------------- ZSH SETTINGS --------------------------- #
 
 setopt autopushd
+export LANG=en_US.UTF-8
 
 ZSH_HIGHLIGHT_HIGHLIGHTERS+=(regexp main)
 
@@ -30,9 +32,19 @@ ZSH_HIGHLIGHT_REGEXP+=(
 alias c="qalc"
 alias lines="grep -v '^$' | wc -l | tr -d '[:space:]'"
 alias st="python3 $MY_SCRIPTS/lang/python/st.py"
-alias ect="cd $DEV/config && vd public/online-tools/act.tsv && firebase deploy && cd"
+alias ect="cd $DEV/config && vd public/server-app/act.tsv && firebase deploy && cd"
 
 # ------------------ UNCATEGORISED FUNCTIONS ----------------- #
+
+function tab {
+    cd "$HOME/.dotfiles/config/tabs/$1"
+    exec zsh
+}
+
+function addo {
+    cd $VAULT
+    git add "$1.md"
+}
 
 function ask {
     echo -n "$1 (y/n) "
@@ -84,20 +96,6 @@ function yadm_enc {
     echo -n "" | pbcopy
 }
 
-function later { python3 $HOME/.dotfiles/scripts/lang/python/later.py "$@"; }
-function _later_completions {
-    _arguments '*:command:_command_names'
-}
-compdef _later_completions later
-
-function latero {
-    local url="$*"
-    if [[ $url != http* ]]; then
-        url="https://$url"
-    fi
-
-    later "open \"$url\""
-}
 
 function obc {
     local file="$1"
@@ -289,7 +287,7 @@ function loc {
         shift
     fi
 
-    local result=$(curl -sS --connect-timeout 2 "192.168.3.46:8004/$1")
+    local result=$(curl -sS --connect-timeout 2 "$LOCAL_SERVER_IP:8004/$1")
 
     if $do_new_line; then
         echo "$result" | rat.sh -pPl "json"
@@ -364,7 +362,7 @@ function do_now {
     fi
 
     local content=$(cat "$file_name")
-    local tasks=$(echo $content | awk '/---/ {found = NR; next} NR > found')
+    local tasks=$(echo $content | awk '/----/ {found = NR; next} NR > found')
 
     if [[ $? -eq 0 ]]; then
         if $do_add; then
@@ -372,8 +370,8 @@ function do_now {
         fi
 
         if $do_write; then
-            echo "$content" | awk '/---/ {exit} {print}' >"$file_name"
-            echo "---" >>"$file_name"
+            echo "$content" | awk '/----/ {exit} {print}' >"$file_name"
+            echo "----" >>"$file_name"
         fi
     else
         echo "Error reading file: $file_name"
