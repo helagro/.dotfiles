@@ -4,7 +4,6 @@ This is my read-only interface to the api provided by exist.io
 
 # TODO:
 - Clean up
-- Export
 - Better error handling
 - Right way of paging for all methods
 - Help menu
@@ -17,6 +16,7 @@ import os
 import sys
 import json
 from datetime import datetime, timedelta
+from typing import Any
 
 # ------------------------- VARIABLES ------------------------ #
 
@@ -36,23 +36,25 @@ def main():
 
     attr = sys.argv[1]
 
+    # List command
     if attr in ['l', 'list']:
         groups = sys.argv[2] if args_len >= 3 else ''
+        return sorted(get_attributes(groups=groups))
 
-        return sorted(list_attributes(groups=groups))
-
+    # Correlations command
     if sys.argv[-1] in ['correlations', 'corr']:
-        return correlations(sys.argv[1:-1])
+        return get_correlations(sys.argv[1:-1])
 
     if args_len >= 3:
         if sys.argv[2].isnumeric():
             days = int(sys.argv[2])
         elif sys.argv[2] in ['count', 'cnt', 'len']:
-            return count(attr)
+            return get_count(attr)
 
     date_max_input = sys.argv[3] if args_len >= 4 else None
-    result = values(attr, days, date_max_input)
+    result = get_values(attr, days, date_max_input)
 
+    # Filter results
     if sys.argv[-1] in ['pos', '+', 'nonull']:
         result = {k: v for k, v in result.items() if v is not None}
     if sys.argv[-1] in ['pos', '+']:
@@ -64,7 +66,7 @@ def main():
 # ------------------------- ABILITIES ------------------------ #
 
 
-def list_attributes(results=[], url='https://exist.io/api/2/attributes/', groups='') -> list:
+def get_attributes(results=[], url='https://exist.io/api/2/attributes/', groups='') -> list:
     params = {
         'limit': 100,
         'groups': groups,
@@ -83,12 +85,12 @@ def list_attributes(results=[], url='https://exist.io/api/2/attributes/', groups
 
     next = response_data['next']
     if next is not None:
-        names += list_attributes(results, next, groups)
+        names += get_attributes(results, next, groups)
 
     return names
 
 
-def values(attr: str, days: int, date_max_input: None | datetime | str = None, url=None) -> dict:
+def get_values(attr: str, days: int, date_max_input: None | datetime | str = None, url=None) -> dict:
     ''' NOTE - Used by env-tracker'''
 
     if isinstance(date_max_input, datetime):
@@ -111,26 +113,18 @@ def values(attr: str, days: int, date_max_input: None | datetime | str = None, u
                 print(f"Only {returned['total_count']} values found.", file=sys.stderr)
             return returned['results']
         else:
-            next_page = values(attr, days - 100, date_max_input=date_max, url=next)
+            next_page = get_values(attr, days - 100, date_max_input=date_max, url=next)
             return {**returned['results'], **next_page}
     except KeyError as e:
         print(f"KeyError: {e}")
         exit(1)
 
 
-def count(attr: str) -> int:
+def get_count(attr: str) -> int:
     return _fetch_attribute_values(attr, None, None)['total_count']
 
 
-def correlations(attrs: list[str | None]) -> list:
-    results = []
-    if not attrs:
-        attrs.append(None)
-
-    for attr in attrs:
-        results.extend(_fetch_attribute_correlations(attr))
-        results = sorted(results, key=lambda x: x['value'], reverse=True)
-
+def get_correlations(attrs: list[Any]) -> list:
     keys = [
         'attribute2',
         'value',
@@ -139,6 +133,15 @@ def correlations(attrs: list[str | None]) -> list:
         'stars',
         'period',
     ]
+    results = []
+
+    if not attrs:
+        attrs.append(None)
+        keys.insert(0, 'attribute')
+
+    for attr in attrs:
+        results.extend(_fetch_attribute_correlations(attr))
+        results = sorted(results, key=lambda x: x['value'], reverse=True)
 
     return [{key: d[key] for key in keys if key in d} for d in results]
 

@@ -31,7 +31,7 @@ fi
 
 # Parses arguments, and removes .md extension
 input=$(echo "$*" | sed 's/\.md$//g' 2>/dev/null)
-vault="$HOME/vaultz" # Can't use exported, called by break timer
+vault="$HOME/vault" # Can't use exported, called by break timer
 
 if [[ -d $vault ]]; then
     (

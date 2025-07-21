@@ -41,7 +41,7 @@ function lect {
 }
 
 function act_td_filter {
-    if [ $(tdl -F '#ludilo|#run' :$1 | wc -l) -le $2 ]; then
+    if [ $(tdl -F '#ludilo|#run|/ph' :$1 | wc -l) -le $2 ]; then
         echo "$3" | grep -v "$1^"
         print -n -u2 "$1, "
     else

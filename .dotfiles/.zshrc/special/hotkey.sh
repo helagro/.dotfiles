@@ -2,6 +2,10 @@
 
 vol=60
 
+function on_tab {
+    clear
+}
+
 function p {
     if [ "$*" = "podd" ]; then
         if rand 2 >/dev/null; then

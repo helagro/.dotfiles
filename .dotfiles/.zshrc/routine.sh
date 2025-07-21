@@ -56,9 +56,6 @@ function dawn {
 
     # display ---------------------------------------------------- #
 
-    # Display main stuff
-    $HOME/.dotfiles/scripts/lang/shell/task/run_task_sys.sh | to_color.sh cyan
-
     local cal=$(short day tod)
     echo "$cal" | to_color.sh blue
 
@@ -138,7 +135,6 @@ function eve {
     # environment ------------------------------------------------ #
 
     if [[ ! " $@ " == *" -E "* ]]; then
-
         short -s focus sleep # NOTE - should run early, before short phondo
         short -s night_shift 1
         theme 1
@@ -202,19 +198,6 @@ function eve {
 
     if [[ $(date +"%m") -gt 5 ]] && [[ $(date +"%m") -le 8 ]]; then # Is Jun, Jul or Aug
         echo "optimize melatonin"
-    fi
-
-    # auto del --------------------------------------------------- #
-
-    # Deletes tasks tagged @rm. NOTE - Has safeties and redundancies
-    local del_tasks=$(tdls '@rm' -pF 'p1' | grep '@rm' | head -n 10)
-    $MY_SCRIPTS/lang/shell/utils/log.sh -f eve "$del_tasks"
-    local del_ids=$(echo -n "$del_tasks" | grep -o '^[0-9]*' | tr -s '[:space:]' ' ')
-
-    if tdc $del_ids; then
-        echo "Auto-deleted $(echo -n "$del_ids" | wc -w | tr -d '[:space:]') task(s)"
-    else
-        echo 'Auto task deletion failed'
     fi
 
     # flight mode ------------------------------------------------ #

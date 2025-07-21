@@ -1,5 +1,7 @@
 #!/bin/zsh
 
+tomp=" tom #run :p "
+
 # =========================== SETUP ========================== #
 
 ZSH_HIGHLIGHT_REGEXP+=(
