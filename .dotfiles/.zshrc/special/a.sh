@@ -1,6 +1,7 @@
 #!/bin/zsh
 
 tomp=" tom #run :p "
+yd="yesterday"
 
 # =========================== SETUP ========================== #
 
@@ -28,10 +29,11 @@ function on_tab {
 # ======================== A FUNCTIONS ======================= #
 
 function a_ui {
-    m_vared
+    added_items_amt=0
+    print_top_right "($added_items_amt)"
 
-    # Ask for lines until 'q' is entered
-    while [[ $line != 'q' ]]; do
+    while :; do
+        m_vared
 
         # log ------------------------------------------------------------------------ #
 
@@ -42,19 +44,20 @@ function a_ui {
             print -s -- "$line"
         fi
 
+        # show number
+        ((added_items_amt++))
+        print_top_right "($added_items_amt)"
+
         # commands ------------------------------------------------------------------- #
 
-        # identify
-        if [[ $line == 'i' ]]; then
-            (afplay $HOME/.dotfiles/assets/audio/brown_noise.mp3 &)
-
-            printf "\033[41m"
-            clear
-            sleep 0.5
-            printf "\033[0m"
-            clear
-            line=""
+        if [[ $line == 'c' ]]; then
+            printf "\033]1337;ClearScrollback\a"
+            added_items_amt=0
+            print_top_right "($added_items_amt)"
             continue
+        elif [[ $line == 'q' ]]; then
+            echo "quit"
+            return 0
         fi
 
         # escape characters ------------------------------------------ #
@@ -80,10 +83,16 @@ function a_ui {
         else
             echo "(ERR: a.sh not found)"
         fi
-        m_vared
     done
+}
 
-    echo "quit"
+# ============================= HELPER FUNCTIONS ============================= #
+
+function print_top_right {
+    local text="$1"
+    local cols=$(tput cols)
+    local col=$((cols - ${#text} + 1))
+    print -n "\e7\e[1;${col}H${text}\e8"
 }
 
 function m_vared {

@@ -43,7 +43,7 @@ def handle_line(line):
 
     if 'y' in action:
         subprocess.run(["zsh", "-i", "-c", f"{line}"], stdout=sys.stdout, stderr=sys.stderr, text=True, shell=False)
-    if 'n' in action:
+    elif 'n' in action:
         pass
     elif action == 'c':
         os.system(f'printf "{line}" | pbcopy')

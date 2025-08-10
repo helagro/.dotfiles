@@ -25,7 +25,7 @@ function latero {
 alias td="todoist"
 alias tdl="$MY_SCRIPTS/lang/shell/task/tdl.sh"
 alias tdi="tdl '(tod|od|p1)'"
-alias tundo="tdls :inbox | tac | in.sh "
+alias tundo="tdls :inbox -p | tac | in.sh "
 
 alias tds='(td s &)'
 alias tdis='td s && tdi'

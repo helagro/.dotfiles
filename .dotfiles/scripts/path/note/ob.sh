@@ -1,3 +1,5 @@
+#!/bin/zsh
+
 # =========================== HELP =========================== #
 
 if $HOME/.dotfiles/scripts/lang/shell/is_help.sh $*; then
@@ -20,7 +22,7 @@ if [[ "$1" == "-e" ]]; then
     }
 else
     function action {
-        bat -P "$1"
+        /Users/h/.dotfiles/scripts/path/utils/rat.sh -P "$1"
     }
 fi
 

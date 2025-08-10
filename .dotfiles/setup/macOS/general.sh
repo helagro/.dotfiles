@@ -52,6 +52,10 @@ if ask "Install toggl cli?"; then
     go get github.com/sachaos/toggl
 fi
 
+if ask "Install gosling?"; then
+    go install github.com/Samyak2/gosling@latest
+fi
+
 if command -v go && ask "Install blink timer?"; then
     go install github.com/helagro/look_away/cmd/look_away@latest
 fi

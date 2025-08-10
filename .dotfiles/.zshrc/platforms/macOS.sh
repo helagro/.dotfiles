@@ -23,7 +23,12 @@ alias tgc="toggl current | grep -vE 'Workspace|ID'"
 # ------------------------- OTHER FUNCTIONS ------------------------ #
 
 function breake {
-    nvim "$(look_away --config-path)"
+    local config_path=$(look_away --config-path)
+    if [ -z "$config_path" ]; then
+        config_path="$HOME/Library/Application Support/look_away/config.yaml"
+    fi
+
+    nvim "$config_path"
 }
 
 function test {
@@ -308,9 +313,9 @@ function sw {
 
     # Run stopwatch
     if $do_silent; then
-        caffeinate -disu -i $DOC/stopwatch/main "$1" 1>&2
+        command -v 'caffeinate' && caffeinate -disu -i $DOC/stopwatch/main "$1" 1>&2
     else
-        caffeinate -disu -i $DOC/stopwatch/main "$1"
+        command -v 'caffeinate' && caffeinate -disu -i $DOC/stopwatch/main "$1"
 
         if [ $? -ne 2 ]; then
             asciiquarium

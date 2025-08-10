@@ -36,6 +36,7 @@ alias ect="cd $DEV/config && vd public/server-app/act.tsv && firebase deploy && 
 
 # ------------------ UNCATEGORISED FUNCTIONS ----------------- #
 
+
 function tab {
     cd "$HOME/.dotfiles/config/tabs/$1"
     exec zsh

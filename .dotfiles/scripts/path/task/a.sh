@@ -55,7 +55,12 @@ function process_server {
 
     [ -z "$TDA_URL" ] && echo "Missing TDA_URL" && return 1
 
-    local resCode=$(curl -s -b "a75h=$A75H" -o /dev/null -w "%{http_code}" -X POST --data-raw "$1" $TDA_URL)
+    local json_payload=$(python3 "$HOME/.dotfiles/scripts/lang/python/addMetadata.py" "$1")
+    if [ $? -eq 0 ]; then
+        local resCode=$(curl -s -b "a75h=$A75H" -o /dev/null -w "%{http_code}" -H "Content-Type: application/json" -X POST --data-raw "$json_payload" $TDA_URL)
+    else
+        local resCode=$(curl -s -b "a75h=$A75H" -o /dev/null -w "%{http_code}" -X POST --data-raw "$1" $TDA_URL)
+    fi
 
     return $((resCode != 200))
 }

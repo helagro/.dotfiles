@@ -2,6 +2,16 @@
 
 (nohup $HOME/.dotfiles/scripts/path/windows.sh >/dev/null &)
 
+# =============================== DEPENDENCIES =============================== #
+
+export PATH="/opt/homebrew/bin:$PATH"
+
+if ! command -v "shuf" &>/dev/null; then
+    echo "ERR: shuf command not found"
+    exit 1
+fi
+
+
 # display if late -------------------------------------------- #
 
 cal=$(echo tod | shortcuts run day --output-type public.plain-text)

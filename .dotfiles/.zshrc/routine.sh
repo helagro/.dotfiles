@@ -82,6 +82,10 @@ function dawn {
     [[ $(ob risk | lines) -gt 1 ]] && ob risk
     [[ $(b.sh | lines) -le 4 ]] && a "#b train neck"
 
+    if state.sh -s 'headache'; then
+        ob 'head period'
+    fi
+
     tdi
 
     # calendar conditionals ---------------------------------------------------------- #
@@ -138,6 +142,7 @@ function eve {
         short -s focus sleep # NOTE - should run early, before short phondo
         short -s night_shift 1
         theme 1
+        pkill 'ChatGPT'
 
         tg stop
     fi
@@ -167,8 +172,8 @@ function eve {
     tl.sh habits
 
     local temp=$(sens temp)
-    if [[ $temp -ge 20 ]]; then
-        echo "Cool down - ( 20°C <= $temp°C )"
+    if [[ $temp -ge 21 ]]; then
+        echo "Cool down - ( $temp >= 21°C )"
     fi
 
     echo
@@ -328,7 +333,7 @@ function calc_brightness {
     precipitation=$(is -v "weather_precipitation" 1)
     humidity=$(is -v "weather_humidity" 1)
 
-    brightness=$(echo "$day_length * (1 - 0.8 * $cloud_cover) * (1 - 0.5 * $precipitation) * (1 - 0.3 * $humidity)" | bc -l | awk '{printf("%d\n",$1 + 0.5)}')
+    brightness=$(echo "($day_length/31)^2 * (1 - 0.8 * $cloud_cover) * (1 - 0.5 * $precipitation) * (1 - 0.3 * $humidity)" | bc -l | awk '{printf("%d\n",$1 + 0.5)}')
 
     if [[ $brightness -gt 0 ]]; then
         echo $brightness
