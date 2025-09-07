@@ -10,10 +10,6 @@ cal=$(echo tod | shortcuts run day --output-type public.plain-text)
         echo "relaxation content"
     fi
 
-    if ! echo $cal | grep -Fq "detach" && echo $cal | grep -Fq "bed_time"; then
-        echo "prepp bedtime"
-    fi
-
     windows.sh
 
     $HOME/.dotfiles/scripts/lang/shell/battery.sh 30

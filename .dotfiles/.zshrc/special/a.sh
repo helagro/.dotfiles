@@ -1,7 +1,20 @@
 #!/bin/zsh
 
+function T { true; }
+function F { false; }
+
+# =========================== VARIABLES ========================== #
+
+# CONSTANTS
+
 tomp=" tom #run :p "
+tomb=" tom #run :b "
 yd="yesterday"
+
+# OPTIONS
+
+blank=F
+speak=F
 
 # =========================== SETUP ========================== #
 
@@ -14,6 +27,7 @@ ZSH_HIGHLIGHT_REGEXP+=(
     ';' fg=yellow,bold
     '@\w+' fg=blue
     '\$\([^\$]+\)' fg=cyan
+    '^RUN[[:space:]]' fg=cyan,bold
 )
 
 unset ZSH_AUTOSUGGEST_STRATEGY
@@ -33,14 +47,15 @@ function a_ui {
     print_top_right "($added_items_amt)"
 
     while :; do
+        $blank && my_clear
+
         m_vared
 
         # log ------------------------------------------------------------------------ #
 
-        $MY_SCRIPTS/lang/shell/utils/log.sh -f a_raw "$line"
-
         # Add to history
         if [[ $line != ' '* ]]; then
+            $MY_SCRIPTS/lang/shell/utils/log.sh -f a_raw "$line"
             print -s -- "$line"
         fi
 
@@ -51,9 +66,14 @@ function a_ui {
         # commands ------------------------------------------------------------------- #
 
         if [[ $line == 'c' ]]; then
-            printf "\033]1337;ClearScrollback\a"
-            added_items_amt=0
-            print_top_right "($added_items_amt)"
+            my_clear
+            continue
+        elif [[ $line == 'RUN'* ]]; then
+            command=$(echo "$line" | sed -E 's/RUN[[:space:]]+//g')
+            eval "$command"
+            continue
+        elif [[ $line == 'l' ]]; then
+            say "$added_items_amt"
             continue
         elif [[ $line == 'q' ]]; then
             echo "quit"
@@ -77,6 +97,7 @@ function a_ui {
         # run -------------------------------------------------------- #
 
         if command -v a.sh &>/dev/null; then
+            $speak && say "$expanded_line"
             (
                 nohup a.sh "$expanded_line" &>/dev/null &
             )
@@ -88,11 +109,17 @@ function a_ui {
 
 # ============================= HELPER FUNCTIONS ============================= #
 
+function my_clear {
+    printf "\033]1337;ClearScrollback\a"
+    added_items_amt=0
+    print_top_right " ($added_items_amt)"
+}
+
 function print_top_right {
     local text="$1"
     local cols=$(tput cols)
     local col=$((cols - ${#text} + 1))
-    print -n "\e7\e[1;${col}H${text}\e8"
+    print -n "\e7\e[1;${col}H\033[33m${text}\033[0m\e8"
 }
 
 function m_vared {

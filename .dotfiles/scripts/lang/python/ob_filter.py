@@ -49,7 +49,8 @@ def main(input, args):
         line = lines[i]
 
         if re.match(r".*\^\w+.*", line):
-            found_tags.add(re.findall(r"\^\w+", line)[0][1:])
+            matches = re.findall(r"\^\w+", line)
+            found_tags.update(m[1:] for m in matches)
 
         if args.list:
             continue

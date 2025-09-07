@@ -32,10 +32,15 @@ ZSH_HIGHLIGHT_REGEXP+=(
 alias c="qalc"
 alias lines="grep -v '^$' | wc -l | tr -d '[:space:]'"
 alias st="python3 $MY_SCRIPTS/lang/python/st.py"
-alias ect="cd $DEV/config && vd public/server-app/act.tsv && firebase deploy && cd"
 
 # ------------------ UNCATEGORISED FUNCTIONS ----------------- #
 
+function ect {
+    pushd $DEV/config > /dev/null
+    vd public/server-app/act.tsv
+    ask "Deploy to Firebase?" && firebase deploy
+    popd > /dev/null
+}
 
 function tab {
     cd "$HOME/.dotfiles/config/tabs/$1"
@@ -43,8 +48,9 @@ function tab {
 }
 
 function addo {
-    cd $VAULT
+    pushd $VAULT > /dev/null
     git add "$1.md"
+    popd > /dev/null
 }
 
 function ask {

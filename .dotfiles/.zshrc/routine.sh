@@ -160,7 +160,7 @@ function eve {
     # other info ------------------------------------------------- #
 
     later
-    day tom
+    day tom | grep -vE 'detach|full_detach|full_detach|bed_time'
     echo
 
     # Display weather if snow
@@ -194,6 +194,9 @@ function eve {
     a "p_ett $(tdis | lines) s #u"
     (short track_away &)
 
+    # Can't be called in morning because of offline items
+    a "$(in_days -1) mindwork $(is -v meditation_min 1 1) #u"
+
     # display main ----------------------------------------------- #
 
     ob eve
@@ -204,6 +207,11 @@ function eve {
     if [[ $(date +"%m") -gt 5 ]] && [[ $(date +"%m") -le 8 ]]; then # Is Jun, Jul or Aug
         echo "optimize melatonin"
     fi
+
+   local e1_res=$(is -v "$e1" 1)
+   if [[ "$e1_res" == "1" ]]; then
+       ask "cort_diff -2.5?" && a "cort_diff -2.5 #u"
+   fi
 
     # flight mode ------------------------------------------------ #
 

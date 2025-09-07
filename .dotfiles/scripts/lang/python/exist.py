@@ -144,8 +144,11 @@ def get_correlations(attrs: list[Any]) -> list:
 
     for attr in attrs:
         results.extend(_fetch_attribute_correlations(attr))
-        results = sorted(results, key=lambda x: x['value'], reverse=True)
 
+    for attr in attrs:
+        results = [v for v in results if v['attribute2'] != attr]
+
+    results = sorted(results, key=lambda x: x['value'], reverse=True)
     return [{key: d[key] for key in keys if key in d} for d in results]
 
 
@@ -171,6 +174,7 @@ def _fetch_attribute_correlations(attr: str | None) -> list:
     # Filters
     results = [result for result in results if result['attribute2'] != attr]
     results = [result for result in results if result['attribute2'] != None]
+    results = [result for result in results if result['stars'] == 5]
     return results
 
 

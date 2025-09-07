@@ -148,6 +148,7 @@ function act {
 
         if [ -n "$table" ]; then
             echo "$table" >$local_online_tools/data/act.tsv
+            print -u2 "Updated act.tsv"
         else
             print -u2 "Failed to update act.tsv"
         fi
@@ -305,7 +306,7 @@ function sw {
     fi
 
     # If exor type activity
-    if ! $offline_mode && ! $skip_tgs && [[ $2 == "medd" || $2 == "yoga" ]]; then
+    if ! $offline_mode && ! $skip_tgs && [[ $2 == "medd" || $2 == "yoga" || $2 == "mindwork" ]]; then
         tgs exor "$2"
     fi
 
@@ -313,9 +314,9 @@ function sw {
 
     # Run stopwatch
     if $do_silent; then
-        command -v 'caffeinate' && caffeinate -disu -i $DOC/stopwatch/main "$1" 1>&2
+        command -v 'caffeinate' >/dev/null && caffeinate -disu -i $DOC/stopwatch/main "$1" 1>&2
     else
-        command -v 'caffeinate' && caffeinate -disu -i $DOC/stopwatch/main "$1"
+        command -v 'caffeinate' >/dev/null && caffeinate -disu -i $DOC/stopwatch/main "$1"
 
         if [ $? -ne 2 ]; then
             asciiquarium

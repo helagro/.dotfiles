@@ -1,6 +1,6 @@
 timer:
-    duration_minutes: 21
-    break_seconds: 20
+    duration_minutes: 30
+    break_seconds: 0
 notifications:
     use_alert: true
     show_notification: true
