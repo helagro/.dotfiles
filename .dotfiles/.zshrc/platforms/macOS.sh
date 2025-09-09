@@ -259,7 +259,6 @@ function sw {
     local time=-1
     local do_focus=false
     local do_silent=false
-    local offline_mode=false
     local skip_tgs=false
 
     # Parse options
@@ -267,10 +266,6 @@ function sw {
         case "$1" in
         -f | --focus)
             do_focus=true
-            shift
-            ;;
-        -o | --offline)
-            offline_mode=true
             shift
             ;;
         -s | --silent)
@@ -281,7 +276,6 @@ function sw {
             print 'Usage: sw [options...] <duration> <activity>'
             printf " %-3s %-20s %s\n" "-f" "--focus" "Do set focus"
             printf " %-3s %-20s %s\n" "-s" "--silent" "Silent mode"
-            printf " %-3s %-20s %s\n" "-o" "--offline" "Offline mode"
             printf " %-3s %-20s %s\n" "-h," "--help" "Show this help message"
             return 0
             ;;
@@ -305,8 +299,10 @@ function sw {
         time=$1
     fi
 
+    ping -c1 -t1 8.8.8.8 &>/dev/null && local offline=false || local offline=true
+
     # If exor type activity
-    if ! $offline_mode && ! $skip_tgs && [[ $2 == "medd" || $2 == "yoga" || $2 == "mindwork" ]]; then
+    if ! $offline && ! $skip_tgs && [[ $2 == "medd" || $2 == "yoga" || $2 == "mindwork" ]]; then
         tgs exor "$2"
     fi
 
@@ -334,7 +330,7 @@ function sw {
         if [ "$min" -eq 0 ]; then
             echo "(Not tracking because time was less than 1 minute)"
         else
-            if $offline_mode; then
+            if $offline; then
                 local track_cmd="$(tod) $2 $min #u"
             else
                 local track_cmd="$2 $min #u"
@@ -344,7 +340,7 @@ function sw {
             a "$track_cmd"
         fi
 
-        if ! $offline_mode && ! $skip_tgs; then
+        if ! $offline && ! $skip_tgs; then
             tg stop
         fi
     fi

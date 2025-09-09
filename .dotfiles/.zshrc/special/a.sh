@@ -16,6 +16,10 @@ yd="yesterday"
 blank=F
 speak=F
 
+# ACCESSABLE
+
+prev=""
+
 # =========================== SETUP ========================== #
 
 ZSH_HIGHLIGHT_REGEXP+=(
@@ -97,10 +101,12 @@ function a_ui {
         # run -------------------------------------------------------- #
 
         if command -v a.sh &>/dev/null; then
-            $speak && say "$expanded_line"
             (
                 nohup a.sh "$expanded_line" &>/dev/null &
             )
+            
+            $speak && say "$expanded_line"
+            prev=$(printf '%s' "$expanded_line" | sed -E 's/#[[:alnum:]]+//g')
         else
             echo "(ERR: a.sh not found)"
         fi
