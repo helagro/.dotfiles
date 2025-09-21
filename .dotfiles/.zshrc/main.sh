@@ -11,11 +11,12 @@ export VAULT="$HOME/vault"
 export LOCAL_SERVER_IP="192.168.3.46"
 # NOTE - Items must end with a comma, even last one
 # NOTE - Used by server-app
-export DISABLED_TD_APP_ITEMS="---,ob,"
+export DISABLED_TD_APP_ITEMS="---,ob,null,"
 
 # ---------------------------- ZSH SETTINGS --------------------------- #
 
 setopt autopushd
+setopt extended_glob
 export LANG=en_US.UTF-8
 
 ZSH_HIGHLIGHT_HIGHLIGHTERS+=(regexp main)
@@ -185,9 +186,7 @@ function talk {
 
 function clr {
     local cols=$(tput cols)
-    for ((i = 0; i < $cols; i++)); do
-        echo -n "="
-    done
+    printf '%*s' $cols | tr ' ' '='
 
     echo "\n"
     clear

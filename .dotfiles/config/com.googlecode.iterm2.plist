@@ -3067,6 +3067,8 @@
 	<false/>
 	<key>DockIconTogglesWindow</key>
 	<true/>
+	<key>EnableAPIServer</key>
+	<true/>
 	<key>EnableDivisionView</key>
 	<true/>
 	<key>EnableProxyIcon</key>
@@ -3679,13 +3681,13 @@
 				<key>Alpha Component</key>
 				<real>1</real>
 				<key>Blue Component</key>
-				<real>0.36961132287979126</real>
+				<real>0.20111119747161865</real>
 				<key>Color Space</key>
 				<string>P3</string>
 				<key>Green Component</key>
-				<real>0.61515069007873535</real>
+				<real>0.69782495498657227</real>
 				<key>Red Component</key>
-				<real>0.4043872058391571</real>
+				<real>0.33170223236083984</real>
 			</dict>
 			<key>Ansi 3 Color</key>
 			<dict>
@@ -3896,13 +3898,13 @@
 				<key>Alpha Component</key>
 				<real>1</real>
 				<key>Blue Component</key>
-				<real>0.48089599609375</real>
+				<real>0.49420160055160522</real>
 				<key>Color Space</key>
 				<string>P3</string>
 				<key>Green Component</key>
-				<real>0.48089599609375</real>
+				<real>0.49420160055160522</real>
 				<key>Red Component</key>
-				<real>0.48089599609375</real>
+				<real>0.49420160055160522</real>
 			</dict>
 			<key>Ansi 8 Color (Light)</key>
 			<dict>
@@ -5082,13 +5084,13 @@
 				<key>Alpha Component</key>
 				<real>1</real>
 				<key>Blue Component</key>
-				<real>0.33093160390853882</real>
+				<real>0.21124833822250366</real>
 				<key>Color Space</key>
 				<string>P3</string>
 				<key>Green Component</key>
-				<real>0.58896011114120483</real>
+				<real>0.6513633131980896</real>
 				<key>Red Component</key>
-				<real>0.44007670879364014</real>
+				<real>0.41110002994537354</real>
 			</dict>
 			<key>Ansi 3 Color</key>
 			<dict>
@@ -5112,14 +5114,16 @@
 			</dict>
 			<key>Ansi 3 Color (Light)</key>
 			<dict>
+				<key>Alpha Component</key>
+				<real>1</real>
 				<key>Blue Component</key>
-				<real>0.0</real>
+				<real>0.20586514472961426</real>
 				<key>Color Space</key>
-				<string>sRGB</string>
+				<string>P3</string>
 				<key>Green Component</key>
-				<real>0.53725490196078429</real>
+				<real>0.5653759241104126</real>
 				<key>Red Component</key>
-				<real>0.70980392156862748</real>
+				<real>0.67609643936157227</real>
 			</dict>
 			<key>Ansi 4 Color</key>
 			<dict>
@@ -5205,14 +5209,16 @@
 			</dict>
 			<key>Ansi 6 Color (Light)</key>
 			<dict>
+				<key>Alpha Component</key>
+				<real>1</real>
 				<key>Blue Component</key>
-				<real>0.59607843137254901</real>
+				<real>0.52569127082824707</real>
 				<key>Color Space</key>
-				<string>sRGB</string>
+				<string>P3</string>
 				<key>Green Component</key>
-				<real>0.63137254901960782</real>
+				<real>0.56801563501358032</real>
 				<key>Red Component</key>
-				<real>0.16470588235294117</real>
+				<real>0.2926822304725647</real>
 			</dict>
 			<key>Ansi 7 Color</key>
 			<dict>
@@ -5256,25 +5262,29 @@
 			</dict>
 			<key>Ansi 8 Color (Dark)</key>
 			<dict>
+				<key>Alpha Component</key>
+				<real>1</real>
 				<key>Blue Component</key>
-				<real>0.21176470588235294</real>
+				<real>0.46413987874984741</real>
 				<key>Color Space</key>
-				<string>sRGB</string>
+				<string>P3</string>
 				<key>Green Component</key>
-				<real>0.16862745098039217</real>
+				<real>0.45160573720932007</real>
 				<key>Red Component</key>
-				<real>0.0</real>
+				<real>0.42396420240402222</real>
 			</dict>
 			<key>Ansi 8 Color (Light)</key>
 			<dict>
+				<key>Alpha Component</key>
+				<real>1</real>
 				<key>Blue Component</key>
-				<real>0.21176470588235294</real>
+				<real>0.37921702861785889</real>
 				<key>Color Space</key>
-				<string>sRGB</string>
+				<string>P3</string>
 				<key>Green Component</key>
-				<real>0.16862745098039217</real>
+				<real>0.35107901692390442</real>
 				<key>Red Component</key>
-				<real>0.0</real>
+				<real>0.29016387462615967</real>
 			</dict>
 			<key>Ansi 9 Color</key>
 			<dict>
@@ -5907,7 +5917,7 @@
 			<key>Non-ASCII Anti Aliased</key>
 			<true/>
 			<key>Normal Font</key>
-			<string>JetBrainsMonoNFM-Regular 13</string>
+			<string>JetBrainsMonoNFM-Regular 14</string>
 			<key>Only The Default BG Color Uses Transparency</key>
 			<false/>
 			<key>Option Key Sends</key>

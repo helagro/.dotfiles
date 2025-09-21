@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-set -- $($MY_SCRIPTS/lang/shell/expand_args.sh "$@")
+set -- $($HOME/.dotfiles/scripts/lang/shell/expand_args.sh "$@")
 
 do_output=false
 do_stdin=false

@@ -1,41 +1,107 @@
 #!/bin/zsh
 
-function T { true; }
-function F { false; }
+sign="-"
+is_adding=0
 
-# =========================== VARIABLES ========================== #
-
-# CONSTANTS
+# ================================= CONSTANTS ================================ #
 
 tomp=" tom #run :p "
 tomb=" tom #run :b "
 yd="yesterday"
 
+# =============================== USER FEATURES ============================== #
+
+function py {
+    python3 "$MY_SCRIPTS/lang/python/a.py" "$@"
+}
+
+function len {
+    say $(py len)
+}
+
+function comp {
+    if [[ $1 == '1' ]] || [[ -z $1 && -z $ZSH_AUTOSUGGEST_STRATEGY ]]; then
+        ZSH_AUTOSUGGEST_STRATEGY=(history)
+    else
+        unset ZSH_AUTOSUGGEST_STRATEGY
+    fi
+}
+
+function hist {
+    comp $1
+
+    if [[ $1 == '1' ]] || [[ -z $1 && $blank == 1 ]]; then
+        blank=0
+        my_clear
+        divide
+    else
+        speak=0
+        blank=1
+    fi
+}
+
+function help {
+    echo "options - blank | speak"
+    echo "accessable - start_time \n"
+
+    cat <<< "functions:
+    - comp 1/0 - turn on or off completions 
+    - hist 1/0 - turn on or off history (comp, speak, blank)
+    - len - get length of history
+    - py <args> - run python script a.py with args
+    - help"
+}
+
+
 # OPTIONS
 
-blank=F
-speak=F
+blank=0
+speak=0
 
 # ACCESSABLE
 
-prev=""
+start_time="$(date +"%Y-%m-%d %H:%M:%S")"
 
 # =========================== SETUP ========================== #
 
 ZSH_HIGHLIGHT_REGEXP+=(
     '#[a-z0-9]+[a-zA-Z0-9]*' fg=green,bold
-    '(?<=\s|^)p3(?=\s|$)' fg=magenta,underline
-    '(\s|^)p1(\s|$)' fg=red,bold
-    '\*\*.+\*\*' fg=red,bold
-    '(?<!\*)\*[^*]+\*(?!\*)' fg=magenta,underline
     ';' fg=yellow,bold
     '@\w+' fg=blue
+
+    '(\s|^)p1(\s|$)' fg=red,bold
+    '(\s|^)p2(\s|$)' fg=red,bold
+    '\*\*.+\*\*' fg=red,bold
+
+    '(?<=\s|^)p3(?=\s|$)' fg=magenta,underline
+    '(?<!\*)\*[^*]+\*(?!\*)' fg=magenta,underline
+
     '\$\([^\$]+\)' fg=cyan
+    '(?<=^|\s)>(-?\d|\w)+(?=$|\s)' fg=cyan,bold
     '^RUN[[:space:]]' fg=cyan,bold
 )
 
-unset ZSH_AUTOSUGGEST_STRATEGY
 unset HISTFILE SAVEHIST
+
+cmds=(
+  "RUN exec zsh"
+  "RUN blank="
+  "RUN comp"
+  'RUN echo $start_time'
+  "RUN help"
+  "RUN py"
+  "RUN len"
+  "null"
+  "RUN speak="
+  'RUN echo $prev_time'
+  "RUN hist"
+  '$prev'
+)
+
+for cmd in "${cmds[@]}"; do
+  print -s -- "$cmd"
+done
+
 
 # ========================= GENERAL FUNCTIONS ======================== #
 
@@ -47,44 +113,57 @@ function on_tab {
 # ======================== A FUNCTIONS ======================= #
 
 function a_ui {
-    added_items_amt=0
-    print_top_right "($added_items_amt)"
+    divide "$start_time"
+    print_top_right
+
+    if ! command -v a.sh &>/dev/null; then
+        echo "a.sh not found!"
+        return
+    fi
 
     while :; do
-        $blank && my_clear
+        if [[ $blank == 1 ]]; then
+            my_clear
+        fi
 
         m_vared
 
         # log ------------------------------------------------------------------------ #
 
-        # Add to history
-        if [[ $line != ' '* ]]; then
+        # Add to history & logs
+        if [[ $line != ' '* && $line != *'@p'* ]]; then
             $MY_SCRIPTS/lang/shell/utils/log.sh -f a_raw "$line"
-            print -s -- "$line"
+            if [[ $line != *'#'* ]]; then 
+                print -s -- "$line"
+                print -s -- " "
+            fi
         fi
 
         # show number
-        ((added_items_amt++))
-        print_top_right "($added_items_amt)"
+        print_top_right
 
         # commands ------------------------------------------------------------------- #
 
         if [[ $line == 'c' ]]; then
+            py clear
             my_clear
+
+            start_time="$(date +"%Y-%m-%d %H:%M:%S")"
+            divide "$start_time"
             continue
         elif [[ $line == 'RUN'* ]]; then
             command=$(echo "$line" | sed -E 's/RUN[[:space:]]+//g')
             eval "$command"
             continue
-        elif [[ $line == 'l' ]]; then
-            say "$added_items_amt"
+        elif [[ $line == 'd' ]]; then
+            divide
             continue
         elif [[ $line == 'q' ]]; then
             echo "quit"
             return 0
         fi
 
-        # escape characters ------------------------------------------ #
+        # expansions ------------------------------------------ #
 
         local escaped=$(echo "$line" | sed -E \
             -e "s/'/\\'/g" \
@@ -92,57 +171,85 @@ function a_ui {
             -e 's/"/\\"/g')
         local expanded_line=$(eval echo \"$escaped\" | tr -d '\\')
 
-        if [[ "$expanded_line" == "$line" ]]; then
-            did_expand_a=false
-        else
-            did_expand_a=true
+        if [[ $expanded_line =~ '(?<=^|\s)>((-?\d|\w)+)(?=$|\s)' ]]; then
+            replacement=$(py get "$match[1]")
+            local part_to_replace=">${match[1]}"
+            
+            expanded_line=$(py replace "$expanded_line" "$part_to_replace" "$replacement")
+        fi
+
+        if [[ "$expanded_line" != "$line" ]]; then
+            sign="!"
         fi
 
         # run -------------------------------------------------------- #
 
-        if command -v a.sh &>/dev/null; then
+        prev_time=$(date +"%Y-%m-%d %H:%M:%S")
+        if [[ $expanded_line == [[:space:]]# ]]; then
+            sign="×"
+        else
+            is_adding=1
             (
-                nohup a.sh "$expanded_line" &>/dev/null &
+                (
+                    nohup a.sh "$expanded_line" &>/dev/null
+                    py add "$expanded_line"
+                ) &
             )
             
-            $speak && say "$expanded_line"
+            [[ $speak == 1 ]] && say "$expanded_line"
+
+            # Saves line as prev, without the destinations
             prev=$(printf '%s' "$expanded_line" | sed -E 's/#[[:alnum:]]+//g')
-        else
-            echo "(ERR: a.sh not found)"
         fi
     done
 }
 
 # ============================= HELPER FUNCTIONS ============================= #
 
+
+function divide {
+    local time="$1"
+    [[ -z $time ]] && time="$(date +"%Y-%m-%d %H:%M:%S")"
+
+    local text=" $time "
+    local cols=$(tput cols)
+
+    (( pad = (cols - ${#text}) / 4 ))
+
+    echo -n '\033[33m'
+    printf '%*s' $pad '' | tr ' ' ' '
+    printf '%*s' $pad '' | tr ' ' '-'
+    printf '%s' "$text"
+    printf '%*s' $pad '' | tr ' ' '-'
+    echo '\033[0m'
+}
+
 function my_clear {
     printf "\033]1337;ClearScrollback\a"
-    added_items_amt=0
-    print_top_right " ($added_items_amt)"
+    print_top_right
 }
 
 function print_top_right {
-    local text="$1"
+    local num=$(cat "$HOME/.dotfiles/tmp/a.txt" | wc -l | tr -d '[:space:]')
+    local text=" ($num)"
+
+    [[ $num -eq 0 ]] && return
+
     local cols=$(tput cols)
-    local col=$((cols - ${#text} + 1))
+    local col=$((cols -  $((${#num} + 3)) + 1))
+
     print -n "\e7\e[1;${col}H\033[33m${text}\033[0m\e8"
 }
 
 function m_vared {
     line=""
-    local offline_amt=$(cat "$HOME/.dotfiles/tmp/a.txt" | wc -l | tr -d '[:space:]')
-    local sign="-"
+    local count=$(py len)
+    local num_text=$(printf '%d' $(($count + $is_adding)))
+    local padded_num=$(printf "%02d" $num_text)
 
-    if [[ $did_expand_a == true ]]; then
-        sign="!"
-    fi
-
-    if [[ $offline_amt != '0' ]]; then
-        local padded_offline_amt=$(printf "%02d" $offline_amt)
-        vared -p "%B%F{yellow}($padded_offline_amt) $sign%f%b " line
-    else
-        vared -p "%B%F{yellow}$sign%f%b " line
-    fi
+    vared -p "%B%F{yellow}$padded_num $sign%f%b " line
 
     line=$(echo "$line" | tr -d '\\')
+    sign="-"
+    is_adding=0
 }

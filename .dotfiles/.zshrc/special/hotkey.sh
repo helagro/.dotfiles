@@ -26,6 +26,15 @@ function p {
         mpv --no-video --volume=$vol "$HOME/Library/Mobile Documents/com~apple~CloudDocs/media/audio/pmr-shortened.mp3" --screen-name=pmr
     elif [ "$*" = "ram" ]; then
         mpv --shuffle --no-video "$ram_url" --screen-name=ram
+    elif [ "$*" = "breath" ]; then
+        "$HOME/.dotfiles/scripts/path/task/a.sh" $(tod) mindwork 8
+
+        if [[ -f "$HOME/Library/Mobile Documents/com~apple~CloudDocs/media/audio/breath.mp3" ]]; then
+            mpv --no-video --volume=$vol "$HOME/Library/Mobile Documents/com~apple~CloudDocs/media/audio/breath.mp3" --screen-name=breath
+        else
+            # Fallback
+            mpv --no-video --volume=$vol "https://youtu.be/Za4gLn2KoHM" --screen-name=breath
+        fi
     elif [ "$*" = "work" ]; then
         mpv --shuffle --no-video --loop --volume=$vol 'https://youtube.com/playlist?list=PLAy7-c9usC7SusYkjodaoIyC24Yp8YjJ6&si=lYZsiknp00HECD2W' --screen-name=work
     else

@@ -22,6 +22,11 @@ alias tgc="toggl current | grep -vE 'Workspace|ID'"
 
 # ------------------------- OTHER FUNCTIONS ------------------------ #
 
+function reinstall {
+    cd "$MY_SCRIPTS/lang/shell" && ./list_app.sh
+    ob reinstall
+}
+
 function breake {
     local config_path=$(look_away --config-path)
     if [ -z "$config_path" ]; then
@@ -90,11 +95,10 @@ function act {
     # todoist filters ------------------------------------------------------------ #
 
     output=$(act_td_filter 'bdg' 2 "$output")
-    output=$(act_td_filter 'by' 4 "$output")
+    output=$(act_td_filter 'by' 6 "$output")
     output=$(act_td_filter 'do' 5 "$output")
     output=$(act_td_filter 'eval' 4 "$output")
-    output=$(act_td_filter 'inbox' 10 "$output")
-    # output=$(act_td_filter 'nopc' 0 "$output")
+    output=$(act_td_filter 'inbox' 15 "$output")
     output=$(act_td_filter 'p1' 0 "$output")
     output=$(act_td_filter 'res' 7 "$output")
     output=$(act_td_filter 'u' 10 "$output")
@@ -209,6 +213,8 @@ function e_completion {
 compdef e_completion e
 
 # ---------------------- APPLE SHORTCUTS --------------------- #
+
+alias home="short -s home"
 
 function short {
     local do_silent=false
@@ -340,9 +346,10 @@ function sw {
             a "$track_cmd"
         fi
 
-        if ! $offline && ! $skip_tgs; then
-            tg stop
-        fi
+    fi
+    
+    if ! $offline && ! $skip_tgs; then
+        tg stop
     fi
 
     # Turn off focus?

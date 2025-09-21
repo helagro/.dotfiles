@@ -2,7 +2,6 @@ function dawn {
     wifi on
 
     local focus_mode="off"
-    local theme=0
     local night_shift=0
 
     set -- $($MY_SCRIPTS/lang/shell/expand_args.sh $*)
@@ -12,16 +11,12 @@ function dawn {
             focus_mode="$2"
             shift 2
             ;;
-        -t | --theme)
-            theme="$2"
-            shift 2
-            ;;
         -n | --night)
             night_shift=1
             shift
             ;;
         -h | --help)
-            echo "Usage: dawn [-f <focus_mode>] [-t <theme>] -n (night shift)"
+            echo "Usage: dawn [-f <focus_mode>] -n (night shift)"
             return 0
             ;;
         *)
@@ -30,6 +25,12 @@ function dawn {
             ;;
         esac
     done
+
+    if ask "Light theme?"; then
+        theme 0
+    else
+        theme 1
+    fi
 
     # sync ------------------------------------------------------- #
 
@@ -52,7 +53,6 @@ function dawn {
 
     short -s focus "$focus_mode"
     short -s night_shift "$night_shift"
-    theme $theme
 
     # display ---------------------------------------------------- #
 
@@ -120,6 +120,8 @@ function dinner {
     local time_diff=$(bed_minus_dinner)
     [ -n "$time_diff" ] && a "bed_minus_dinner $time_diff s #u" && echo "tracked bed_minus_dinner AS $time_diff"
 
+    $MY_SCRIPTS/lang/shell/battery.sh 50
+
     echo
     ob dinner
 }
@@ -169,6 +171,8 @@ function eve {
         echo "$forecast"
     fi
 
+    $MY_SCRIPTS/lang/shell/battery.sh 40
+
     tl.sh habits
 
     local temp=$(sens temp)
@@ -194,8 +198,6 @@ function eve {
     a "p_ett $(tdis | lines) s #u"
     (short track_away &)
 
-    # Can't be called in morning because of offline items
-    a "$(in_days -1) mindwork $(is -v meditation_min 1 1) #u"
 
     # display main ----------------------------------------------- #
 
@@ -242,6 +244,10 @@ function bedtime {
     ob bedtime
     ob zink
 
+    if [[ $(date +"%m") -le 2 || $(date +"%m") -ge 9 ]]; then
+        echo "have warm clothes near"
+    fi
+
     # shut down ------------------------------------------------------------------ #
 
     if ask "Set flight mode on phone?"; then
@@ -283,6 +289,9 @@ function eve_track {
     # Track brightness
     local brightness=$(calc_brightness)
     [ -n "$brightness" ] && a "$(tod) brightness $brightness s #u"
+
+    # Can't be called in morning because of offline items
+    a "$(in_days -1) mindwork $(is -v meditation_min 1 1) #u"
 }
 
 function fall_asleep_delay {

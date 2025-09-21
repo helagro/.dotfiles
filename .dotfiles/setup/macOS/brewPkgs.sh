@@ -4,7 +4,9 @@ brew install "aichat" -q
 brew install "asciiquarium" -q
 brew install "bat" -q
 brew install "coreutils" -q
+brew install "docker" -q
 brew install "duti" -q
+brew install "fortune" -q
 brew install "fzf" -q
 brew install "git" -q
 brew install "gnirehtet" -q
@@ -43,13 +45,13 @@ brew install "arc" -q
 brew install "blackhole-2ch" -q
 brew install "caffeine" -q
 brew install "chatgpt" -q
-brew install "docker" -q
 brew install "flutter" -q
 brew install "font-jetbrains-mono-nerd-font" -q
+brew install "gcloud-cli" -q
 brew install "google-cloud-sdk" -q
-brew install "hiddenbar" -q
 brew install "iterm2" -q
 brew install "middleclick" -q
+brew install "miniconda" -q
 brew install "mission-control-plus" -q
 brew install "monitorcontrol" -q
 brew install "neardrop" -q
