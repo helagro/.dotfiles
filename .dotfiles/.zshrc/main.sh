@@ -31,8 +31,10 @@ ZSH_HIGHLIGHT_REGEXP+=(
 # ------------------------- UNCATEGORISED ALIASES ------------------------ #
 
 alias c="qalc"
-alias lines="grep -v '^$' | wc -l | tr -d '[:space:]'"
 alias st="python3 $MY_SCRIPTS/lang/python/st.py"
+
+alias lines="grep -v '^$' | wc -l | tr -d '[:space:]'"
+alias len_tod='grep -F $(day) | lines'
 
 # ------------------ UNCATEGORISED FUNCTIONS ----------------- #
 
@@ -241,7 +243,12 @@ function repo {
 
 # --------------------------- DATES -------------------------- #
 
-function in_days {
+function day {
+    if [[ -z "$1" ]]; then
+        date +'%Y-%m-%d'
+        return
+    fi
+
     if [[ "$1" == *-* ]]; then
         date -v"$1"d +"%Y-%m-%d"
     else

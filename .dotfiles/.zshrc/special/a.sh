@@ -1,9 +1,15 @@
 #!/bin/zsh
 
 sign="-"
-is_adding=0
 
 # ================================= CONSTANTS ================================ #
+
+reminder_text=$(ob "p/auto/ash remind")
+init_cols=$(tput cols)
+
+p=">-1"
+pp=">-1p"
+pd=">-1d"
 
 tomp=" tom #run :p "
 tomb=" tom #run :b "
@@ -11,13 +17,17 @@ yd="yesterday"
 
 # =============================== USER FEATURES ============================== #
 
+alias pyg="py get --"
+
 function py {
     python3 "$MY_SCRIPTS/lang/python/a.py" "$@"
 }
 
+
 function len {
     say $(py len)
 }
+
 
 function comp {
     if [[ $1 == '1' ]] || [[ -z $1 && -z $ZSH_AUTOSUGGEST_STRATEGY ]]; then
@@ -26,6 +36,7 @@ function comp {
         unset ZSH_AUTOSUGGEST_STRATEGY
     fi
 }
+
 
 function hist {
     comp $1
@@ -39,6 +50,7 @@ function hist {
         blank=1
     fi
 }
+
 
 function help {
     echo "options - blank | speak"
@@ -84,18 +96,21 @@ ZSH_HIGHLIGHT_REGEXP+=(
 unset HISTFILE SAVEHIST
 
 cmds=(
-  "RUN exec zsh"
   "RUN blank="
   "RUN comp"
+  "RUN exec zsh"
   'RUN echo $start_time'
   "RUN help"
+  '$pp'
+  '$pd'
+  '$p'
+  "RUN pyg"
   "RUN py"
   "RUN len"
   "null"
   "RUN speak="
-  'RUN echo $prev_time'
   "RUN hist"
-  '$prev'
+  ">-1"
 )
 
 for cmd in "${cmds[@]}"; do
@@ -107,13 +122,14 @@ done
 
 function on_tab {
     clr
+    divide "$start_time"
     a
 }
 
 # ======================== A FUNCTIONS ======================= #
 
 function a_ui {
-    divide "$start_time"
+    next_idx=$(py len)
     print_top_right
 
     if ! command -v a.sh &>/dev/null; then
@@ -139,21 +155,22 @@ function a_ui {
             fi
         fi
 
-        # show number
-        print_top_right
-
         # commands ------------------------------------------------------------------- #
 
         if [[ $line == 'c' ]]; then
             py clear
             my_clear
+            
+            py map set -k offline_start -v "0" 
+            next_idx=0
 
             start_time="$(date +"%Y-%m-%d %H:%M:%S")"
             divide "$start_time"
             continue
         elif [[ $line == 'RUN'* ]]; then
             command=$(echo "$line" | sed -E 's/RUN[[:space:]]+//g')
-            eval "$command"
+            local output=$(eval "$command")
+            [[ -n $output ]] && echo " 🖨️ $output"
             continue
         elif [[ $line == 'd' ]]; then
             divide
@@ -172,7 +189,7 @@ function a_ui {
         local expanded_line=$(eval echo \"$escaped\" | tr -d '\\')
 
         if [[ $expanded_line =~ '(?<=^|\s)>((-?\d|\w)+)(?=$|\s)' ]]; then
-            replacement=$(py get "$match[1]")
+            replacement=$(py get -- "$match[1]")
             local part_to_replace=">${match[1]}"
             
             expanded_line=$(py replace "$expanded_line" "$part_to_replace" "$replacement")
@@ -184,72 +201,88 @@ function a_ui {
 
         # run -------------------------------------------------------- #
 
-        prev_time=$(date +"%Y-%m-%d %H:%M:%S")
         if [[ $expanded_line == [[:space:]]# ]]; then
             sign="×"
         else
-            is_adding=1
+            next_idx=$(($(py len) + 1))
             (
-                (
-                    nohup a.sh "$expanded_line" &>/dev/null
-                    py add "$expanded_line"
-                ) &
+                {
+                    py add -- "$expanded_line" &
+                    nohup a.sh "$expanded_line" &>/dev/null &
+                    wait
+                    print_top_right
+                } &
             )
             
             [[ $speak == 1 ]] && say "$expanded_line"
-
-            # Saves line as prev, without the destinations
-            prev=$(printf '%s' "$expanded_line" | sed -E 's/#[[:alnum:]]+//g')
+            print_if_reminder
         fi
     done
 }
 
+
 # ============================= HELPER FUNCTIONS ============================= #
+
+
+function print_if_reminder {
+    if reminder=$(echo "- [ ] $reminder_text |" | grep -m1 -F -- "$expanded_line"); then
+        reminder_parts=("${(@s:|:)reminder}")
+        echo " 🔔 ${reminder_parts[2]## }"
+    fi
+}
 
 
 function divide {
     local time="$1"
     [[ -z $time ]] && time="$(date +"%Y-%m-%d %H:%M:%S")"
-
     local text=" $time "
-    local cols=$(tput cols)
-
-    (( pad = (cols - ${#text}) / 4 ))
-
+    
     echo -n '\033[33m'
-    printf '%*s' $pad '' | tr ' ' ' '
-    printf '%*s' $pad '' | tr ' ' '-'
+    printf '%*s' $(( init_cols / 2 - ${#text} / 2)) '' | tr ' ' '-'
     printf '%s' "$text"
-    printf '%*s' $pad '' | tr ' ' '-'
     echo '\033[0m'
 }
+
 
 function my_clear {
     printf "\033]1337;ClearScrollback\a"
     print_top_right
 }
 
+
 function print_top_right {
-    local num=$(cat "$HOME/.dotfiles/tmp/a.txt" | wc -l | tr -d '[:space:]')
-    local text=" ($num)"
+    local old_offline_amt=$(py map get -k offline_amt -d 0)
+    local offline_amt=$(cat "$HOME/.dotfiles/tmp/a.txt" | wc -l | tr -d '[:space:]')
 
-    [[ $num -eq 0 ]] && return
+    [[ $old_offline_amt -eq 0 && $offline_amt -eq 0 ]] && return
+    
+    if [[ $offline_amt -eq 0 ]]; then
+        local offline_start='?'
+    else
+        if [[ $old_offline_amt -eq 0 ]]; then
+            local last_idx=$(($(py len) - 1))
+            py map set -k offline_start -v "$last_idx" 
+            local offline_start=$last_idx
+        else
+            local offline_start=$(py map get -k offline_start -d "?")
+        fi
+    fi
 
+    local text=" ($offline_start|$offline_amt)"
     local cols=$(tput cols)
-    local col=$((cols -  $((${#num} + 3)) + 1))
-
+    local col=$((cols -  $((${#text})) + 1))
     print -n "\e7\e[1;${col}H\033[33m${text}\033[0m\e8"
+
+    py map set -k offline_amt -v "$offline_amt"
 }
 
-function m_vared {
-    line=""
-    local count=$(py len)
-    local num_text=$(printf '%d' $(($count + $is_adding)))
-    local padded_num=$(printf "%02d" $num_text)
 
+function m_vared {
+    local padded_num=$(printf "%02d" $next_idx)
+
+    line=""
     vared -p "%B%F{yellow}$padded_num $sign%f%b " line
 
     line=$(echo "$line" | tr -d '\\')
     sign="-"
-    is_adding=0
 }

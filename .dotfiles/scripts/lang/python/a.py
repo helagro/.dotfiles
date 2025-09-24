@@ -10,24 +10,29 @@ import re
 
 @dataclass
 class Meta:
+    map: dict
     count: int = 0
 
 
 @dataclass
 class GetCommand:
     index: int
+    include_project: bool
     get_time: bool = False
+    get_dest: bool = False
 
     @staticmethod
     def from_code(code: str):
+        include_project = 'p' in code
         get_time = 't' in code
+        get_dest = 'd' in code
 
         number_str = re.search(r'-?\d+', code)
         if not number_str:
             raise ValueError("Invalid code format - No number found")
 
         index = int(number_str.group())
-        return GetCommand(index=index, get_time=get_time)
+        return GetCommand(index=index, get_time=get_time, include_project=include_project, get_dest=get_dest)
 
 
 HISTORY_FILE = "/tmp/a_history.txt"
@@ -39,6 +44,10 @@ METADATA_FILE = "/tmp/a_meta.txt"
 def main():
     parser = argparse.ArgumentParser(prog="a.py", description="Backend for adding")
     subparsers = parser.add_subparsers(dest="command", required=True)
+
+    # misc commands
+    clear_parser = subparsers.add_parser("clear", help="Clear history")
+    len_parser = subparsers.add_parser("len", help="Get length of history")
 
     # add command
     add_parser = subparsers.add_parser("add", help="Add a name")
@@ -56,9 +65,17 @@ def main():
     replace_parser.add_argument("to_replace", help="string to replace with")
     replace_parser.add_argument("replacement", help="replacement string")
 
-    # misc commands
-    clear_parser = subparsers.add_parser("clear", help="Clear history")
-    len_parser = subparsers.add_parser("len", help="Get length of history")
+    # map command
+    map_parser = subparsers.add_parser("map", help="Interact with a map")
+    map_subparsers = map_parser.add_subparsers(dest="operation", required=True)
+
+    map_add_parser = map_subparsers.add_parser("set", help="Set map to")
+    map_add_parser.add_argument("-k", "--key", help="Key")
+    map_add_parser.add_argument("-v", "--value", help="Value")
+
+    map_get_parser = map_subparsers.add_parser("get", help="Get map item")
+    map_get_parser.add_argument("-k", "--key", help="Key")
+    map_get_parser.add_argument("-d", "--default", help="Default value")
 
     args = parser.parse_args()
 
@@ -72,6 +89,12 @@ def main():
         clear()
     elif args.command == "len":
         print(length())
+    elif args.command == "map":
+        if (args.operation == "set"):
+            map_set(args.key, args.value)
+        elif (args.operation == "get"):
+            res = map_get(args.key, args.default)
+            print(res)
 
 
 def add(content, method=None, offline=False):
@@ -97,10 +120,18 @@ def get(code):
         print("Not found")
         return
 
+    content = line[0]
+
     if command.get_time:
         print(line[1])
+    elif command.get_dest:
+        dests = re.findall(r'#\w+', content)
+        print(" ".join(dests))
     else:
-        print(line[0])
+        if not command.include_project:
+            content = re.sub(r'#\w+', '', content).strip()
+
+        print(content)
 
 
 def clear():
@@ -117,7 +148,24 @@ def length() -> int:
     return get_meta().count
 
 
+def map_set(key: str, value: str):
+    update_meta(lambda m: set_map(m.map, key, value))
+
+
+def map_get(key: str, default: str):
+    meta = get_meta()
+
+    if key in meta.map:
+        return meta.map[key]
+    else:
+        return default
+
+
 # =================================== UTILS ================================== #
+
+
+def set_map(map: dict, key: str, value: str):
+    map[key] = value
 
 
 def get_line(line_number) -> list[str] | None:
@@ -131,7 +179,7 @@ def get_line(line_number) -> list[str] | None:
 
 def get_meta() -> Meta:
     if not os.path.exists(METADATA_FILE):
-        return Meta()
+        return Meta(map={})
 
     with open(METADATA_FILE) as f:
         data = json.load(f)

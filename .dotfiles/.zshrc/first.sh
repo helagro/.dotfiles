@@ -5,7 +5,6 @@ export MY_SCRIPTS="$HOME/.dotfiles/scripts"
 # -------------------------- ALIASES ------------------------- #
 
 alias is_dark='[[ $(defaults read -g AppleInterfaceStyle 2>/dev/null) == "Dark" ]]'
-alias tod="date +'%Y-%m-%d'"
 alias gpt4="aichat -s -m openai:gpt-4o"
 alias rand="$MY_SCRIPTS/lang/shell/rand.sh"
 

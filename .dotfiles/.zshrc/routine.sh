@@ -138,6 +138,8 @@ function eve {
         return 0
     fi
 
+    ob x | grep -qF $(day) && a "x"
+
     # environment ------------------------------------------------ #
 
     if [[ ! " $@ " == *" -E "* ]]; then
@@ -162,7 +164,7 @@ function eve {
     # other info ------------------------------------------------- #
 
     later
-    day tom | grep -vE 'detach|full_detach|full_detach|bed_time'
+    info tom | grep -vE 'detach|full_detach|full_detach|bed_time'
     echo
 
     # Display weather if snow
@@ -280,18 +282,18 @@ function bed_minus_dinner { time_diff.sh -mp $(date +%H:%M) $(tl.sh 'routines/be
 function eve_track {
     # Track sleep delay
     local sleep_delay=$(fall_asleep_delay)
-    [ $? -eq 0 ] && [ -n "$sleep_delay" ] && a "$(in_days -1) sleep_delay $sleep_delay s #u"
+    [ $? -eq 0 ] && [ -n "$sleep_delay" ] && a "$(day -1) sleep_delay $sleep_delay s #u"
 
     # Track bedtime minus detach
     local bed_minus_detach=$(bed_minus_detach)
-    [ -n "$bed_minus_detach" ] && a "$(tod) bed_minus_detach $bed_minus_detach s #u"
+    [ -n "$bed_minus_detach" ] && a "$(day) bed_minus_detach $bed_minus_detach s #u"
 
     # Track brightness
     local brightness=$(calc_brightness)
-    [ -n "$brightness" ] && a "$(tod) brightness $brightness s #u"
+    [ -n "$brightness" ] && a "$(day) brightness $brightness s #u"
 
     # Can't be called in morning because of offline items
-    a "$(in_days -1) mindwork $(is -v meditation_min 1 1) #u"
+    a "$(day -1) mindwork $(is -v meditation_min 1 1) #u"
 }
 
 function fall_asleep_delay {

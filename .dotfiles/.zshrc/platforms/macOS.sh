@@ -72,10 +72,6 @@ function act {
 
     print -n -u2 "\033[90mExcluding: "
 
-    if [ $(ob b | wc -l) -le 4 ]; then
-        output=$(echo "$output" | grep -v 'b^')
-        print -n -u2 "b, "
-    fi
 
     if ! $has_flashcards; then
         output=$(echo "$output" | grep -v 'flashcards^')
@@ -90,6 +86,18 @@ function act {
     if ! state.sh -s 'tv'; then
         output=$(echo "$output" | grep -v 'review_tv^')
         print -n -u2 "review_tv, "
+    fi
+
+    # note filters --------------------------------------------------------------- #
+
+    if [ $(ob b | wc -l) -le 4 ]; then
+        output=$(echo "$output" | grep -v 'b^')
+        print -n -u2 "b, "
+    fi
+
+    if [ $(ob p | wc -l) -ge 3 ]; then
+        output=$(echo "$output" | grep -v 'plan^')
+        print -n -u2 "plan, "
     fi
 
     # todoist filters ------------------------------------------------------------ #
@@ -247,7 +255,7 @@ function inv {
     short invert $1
 }
 
-function day {
+function info {
     short day "$1" | to_color.sh blue
     echo
 
@@ -337,7 +345,7 @@ function sw {
             echo "(Not tracking because time was less than 1 minute)"
         else
             if $offline; then
-                local track_cmd="$(tod) $2 $min #u"
+                local track_cmd="$(day) $2 $min #u"
             else
                 local track_cmd="$2 $min #u"
             fi
