@@ -93,10 +93,13 @@ function upload_stored {
 
 # --------------------------- START -------------------------- #
 
-(
-    if process "$*" && [ "$did_local" = false ]; then
-        upload_stored
-    fi
-) | $HOME/.dotfiles/scripts/lang/shell/utils/log.sh -sof a
+for input in ${(s:&& :)*}; do
+    (
+        if process "$input" && [ "$did_local" = false ]; then
+            upload_stored
+        fi
+    ) | $HOME/.dotfiles/scripts/lang/shell/utils/log.sh -sof a
+done
+
 
 exit 0

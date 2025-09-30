@@ -27,8 +27,6 @@ function p {
     elif [ "$*" = "ram" ]; then
         mpv --shuffle --no-video "$ram_url" --screen-name=ram
     elif [ "$*" = "breath" ]; then
-        "$HOME/.dotfiles/scripts/path/task/a.sh" $(day) mindwork 8
-
         if [[ -f "$HOME/Library/Mobile Documents/com~apple~CloudDocs/media/audio/breath.mp3" ]]; then
             mpv --no-video --volume=$vol "$HOME/Library/Mobile Documents/com~apple~CloudDocs/media/audio/breath.mp3" --screen-name=breath
         else

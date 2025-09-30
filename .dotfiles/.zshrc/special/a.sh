@@ -1,19 +1,28 @@
 #!/bin/zsh
 
+exec 3>/dev/tty
 sign="-"
+pyg_res=""
+_color=1
 
 # ================================= CONSTANTS ================================ #
 
 reminder_text=$(ob "p/auto/ash remind")
 init_cols=$(tput cols)
 
+max_pyg_preview=6
+whiper=$(printf '%*s' $((max_pyg_preview + 1)) '')
+
 p=">-1"
 pp=">-1p"
 pd=">-1d"
+ps=">-1s"
+pS=">-1S"
 
 tomp=" tom #run :p "
 tomb=" tom #run :b "
 yd="yesterday"
+tea="water 750 && mint 1 && #b prepp tea"
 
 # =============================== USER FEATURES ============================== #
 
@@ -51,17 +60,36 @@ function hist {
     fi
 }
 
+function color {
+    if [[ $1 == '1' ]] || [[ -z $1 && $_color == 0 ]]; then
+        _color=1
+        red_mode 0 >&3
 
-function help {
-    echo "options - blank | speak"
-    echo "accessable - start_time \n"
+        ZSH_HIGHLIGHT_REGEXP+=(
+            '#[a-z0-9]+[a-zA-Z0-9]*' fg=green,bold
+            ';' fg=yellow,bold
+            '&&' fg=yellow,bold
+            '@\w+' fg=blue
 
-    cat <<< "functions:
-    - comp 1/0 - turn on or off completions 
-    - hist 1/0 - turn on or off history (comp, speak, blank)
-    - len - get length of history
-    - py <args> - run python script a.py with args
-    - help"
+            '(\s|^)p1(\s|$)' fg=red,bold
+            '(\s|^)p2(\s|$)' fg=red,bold
+            '\*\*.+\*\*' fg=red,bold
+
+            '(?<=\s|^)p3(?=\s|$)' fg=magenta,underline
+            '(?<!\*)\*[^*]+\*(?!\*)' fg=magenta,underline
+
+            '\$\([^\$]+\)' fg=cyan
+            '(?<=^|\s)>(-?\d|\w)+(?=$|\s)' fg=cyan,bold
+            '^RUN[[:space:]]' fg=cyan,bold
+            '^(c|d|q)$' fg=cyan,bold
+        )
+
+        command -v divide >/dev/null 2>&1 && divide
+    else
+        _color=0
+        ZSH_HIGHLIGHT_REGEXP=()
+        red_mode 1 >&3
+    fi
 }
 
 
@@ -72,35 +100,18 @@ speak=0
 
 # ACCESSABLE
 
-start_time="$(date +"%Y-%m-%d %H:%M:%S")"
-
 # =========================== SETUP ========================== #
-
-ZSH_HIGHLIGHT_REGEXP+=(
-    '#[a-z0-9]+[a-zA-Z0-9]*' fg=green,bold
-    ';' fg=yellow,bold
-    '@\w+' fg=blue
-
-    '(\s|^)p1(\s|$)' fg=red,bold
-    '(\s|^)p2(\s|$)' fg=red,bold
-    '\*\*.+\*\*' fg=red,bold
-
-    '(?<=\s|^)p3(?=\s|$)' fg=magenta,underline
-    '(?<!\*)\*[^*]+\*(?!\*)' fg=magenta,underline
-
-    '\$\([^\$]+\)' fg=cyan
-    '(?<=^|\s)>(-?\d|\w)+(?=$|\s)' fg=cyan,bold
-    '^RUN[[:space:]]' fg=cyan,bold
-)
 
 unset HISTFILE SAVEHIST
 
 cmds=(
   "RUN blank="
   "RUN comp"
-  "RUN exec zsh"
   'RUN echo $start_time'
-  "RUN help"
+#   "RUN exec zsh" - breaks things
+  '$tea'
+  '$pS'
+  '$ps'
   '$pp'
   '$pd'
   '$p'
@@ -116,6 +127,8 @@ cmds=(
 for cmd in "${cmds[@]}"; do
   print -s -- "$cmd"
 done
+
+color 1
 
 
 # ========================= GENERAL FUNCTIONS ======================== #
@@ -166,11 +179,17 @@ function a_ui {
 
             start_time="$(date +"%Y-%m-%d %H:%M:%S")"
             divide "$start_time"
+            print_top_right
             continue
         elif [[ $line == 'RUN'* ]]; then
             command=$(echo "$line" | sed -E 's/RUN[[:space:]]+//g')
-            local output=$(eval "$command")
+            tmpfile=$(mktemp)
+            
+            eval "$command" >"$tmpfile"
+            local output=$(<"$tmpfile")
+
             [[ -n $output ]] && echo " 🖨️ $output"
+            rm "$tmpfile"
             continue
         elif [[ $line == 'd' ]]; then
             divide
@@ -189,10 +208,12 @@ function a_ui {
         local expanded_line=$(eval echo \"$escaped\" | tr -d '\\')
 
         if [[ $expanded_line =~ '(?<=^|\s)>((-?\d|\w)+)(?=$|\s)' ]]; then
-            replacement=$(py get -- "$match[1]")
+            pyg_res=$(py get -- "$match[1]")
             local part_to_replace=">${match[1]}"
             
-            expanded_line=$(py replace "$expanded_line" "$part_to_replace" "$replacement")
+            expanded_line=$(py replace "$expanded_line" "$part_to_replace" "$pyg_res")
+        else
+            pyg_res=""
         fi
 
         if [[ "$expanded_line" != "$line" ]]; then
@@ -237,43 +258,75 @@ function divide {
     [[ -z $time ]] && time="$(date +"%Y-%m-%d %H:%M:%S")"
     local text=" $time "
     
-    echo -n '\033[33m'
-    printf '%*s' $(( init_cols / 2 - ${#text} / 2)) '' | tr ' ' '-'
-    printf '%s' "$text"
-    echo '\033[0m'
+    {
+        echo -n '\033[33m'
+        printf '%*s' $(( init_cols / 2 - ${#text} / 2)) '' | tr ' ' '-'
+        printf '%s' "$text"
+        echo '\033[0m'
+    } >&3
 }
 
 
 function my_clear {
-    printf "\033]1337;ClearScrollback\a"
+    printf "\033]1337;ClearScrollback\a" >&3
+    
+    local cols=$(tput cols)
+    local whipe_col=$((cols - $max_pyg_preview))
+    print -n "\e7\e[1;${whipe_col}H\033[35m${whiper}\033[0m\e8" >&3 
+
     print_top_right
 }
 
 
 function print_top_right {
+    local row=1
+    local cols=$(tput cols)
+    local whipe_col=$((cols - $max_pyg_preview))
+
     local old_offline_amt=$(py map get -k offline_amt -d 0)
     local offline_amt=$(cat "$HOME/.dotfiles/tmp/a.txt" | wc -l | tr -d '[:space:]')
 
-    [[ $old_offline_amt -eq 0 && $offline_amt -eq 0 ]] && return
-    
-    if [[ $offline_amt -eq 0 ]]; then
-        local offline_start='?'
-    else
-        if [[ $old_offline_amt -eq 0 ]]; then
-            local last_idx=$(($(py len) - 1))
-            py map set -k offline_start -v "$last_idx" 
-            local offline_start=$last_idx
+    if [[ $old_offline_amt -ne 0 || $offline_amt -ne 0 ]]; then
+        if [[ $offline_amt -eq 0 ]]; then
+            local offline_start='?'
         else
-            local offline_start=$(py map get -k offline_start -d "?")
+            if [[ $old_offline_amt -eq 0 ]]; then
+                local last_idx=$(($(py len) - 1))
+                py map set -k offline_start -v "$last_idx" 
+                local offline_start=$last_idx
+            else
+                local offline_start=$(py map get -k offline_start -d "?")
+            fi
         fi
+
+        local text=" ($offline_start|$offline_amt)"
+        local col=$((cols - $((${#text})) + 1))
+
+        print -n "\e7\e[${row};${whipe_col}H\033[35m${whiper}\033[0m\e8" >&3
+        print -n "\e7\e[1;${col}H\033[33m${text}\033[0m\e8" >&3
+
+        row=$((row + 1))
+        py map set -k offline_amt -v "$offline_amt"
     fi
 
-    local text=" ($offline_start|$offline_amt)"
-    local cols=$(tput cols)
-    local col=$((cols -  $((${#text})) + 1))
-    print -n "\e7\e[1;${col}H\033[33m${text}\033[0m\e8"
+    if [[ -n $pyg_res ]]; then
+        print -n "\e7\e[${row};${whipe_col}H\033[35m${whiper}\033[0m\e8" >&3
 
-    py map set -k offline_amt -v "$offline_amt"
+        local truncated=" ${pyg_res[1,$max_pyg_preview]}"
+
+        if (( ${#pyg_res} > max_pyg_preview )); then
+            truncated+="…"
+        fi
+
+        local text=" $truncated"
+        local col=$((cols - ${#text} + 1))
+
+        print -n "\e7\e[${row};${whipe_col}H\033[35m${whiper}\033[0m\e8" >&3
+        sleep 0.1
+        print -n "\e7\e[${row};${col}H\033[35m${text}\033[0m\e8" >&3
+
+        pyg_res=""
+    fi
 }
 
 

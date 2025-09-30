@@ -19,20 +19,32 @@ class GetCommand:
     index: int
     include_project: bool
     get_time: bool = False
+    get_date: bool = False
     get_dest: bool = False
+    first_split: bool = False
+    last_splits: bool = False
 
     @staticmethod
     def from_code(code: str):
         include_project = 'p' in code
         get_time = 't' in code
+        get_date = 'T' in code
         get_dest = 'd' in code
+        first_split = 's' in code
+        last_splits = 'S' in code
 
         number_str = re.search(r'-?\d+', code)
         if not number_str:
             raise ValueError("Invalid code format - No number found")
 
         index = int(number_str.group())
-        return GetCommand(index=index, get_time=get_time, include_project=include_project, get_dest=get_dest)
+        return GetCommand(index=index,
+                          get_time=get_time,
+                          include_project=include_project,
+                          get_dest=get_dest,
+                          get_date=get_date,
+                          first_split=first_split,
+                          last_splits=last_splits)
 
 
 HISTORY_FILE = "/tmp/a_history.txt"
@@ -120,16 +132,31 @@ def get(code):
         print("Not found")
         return
 
-    content = line[0]
-
     if command.get_time:
         print(line[1])
-    elif command.get_dest:
-        dests = re.findall(r'#\w+', content)
+        return
+    elif command.get_date:
+        print(line[1].split(" ")[0])
+        return
+
+    content = line[0]
+    dests = re.findall(r'#\w+', content)
+
+    if command.get_dest:
         print(" ".join(dests))
     else:
-        if not command.include_project:
+        # NOTE - Removes if splitting in case destinatino is cut out
+        if not command.include_project or command.first_split or command.last_splits:
             content = re.sub(r'#\w+', '', content).strip()
+
+        if command.first_split:
+            content = " ".join(dests) + " " + content.split(';')[0] + ";"
+        if command.last_splits:
+            splits = content.split(';')
+            if len(splits) > 1:
+                content = ";" + ";".join(splits[1:]) + " " + " ".join(dests)
+            else:
+                content = "; " + " ".join(dests)
 
         print(content)
 

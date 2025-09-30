@@ -50,122 +50,6 @@ function lect {
     a "social 1 s #u"
 }
 
-function act_td_filter {
-    if [ $(tdl -F '#ludilo|#run|/ph' :$1 | wc -l) -le $2 ]; then
-        echo "$3" | grep -v "$1^"
-        print -n -u2 "$1, "
-    else
-        echo "$3"
-    fi
-}
-
-function act {
-    local local_online_tools="$HOME/Developer/server-app"
-    local query=$(echo "$*" | tr ' ' '/')
-
-    local output=$(
-        cd $local_online_tools/dist/routes/act
-        NODE_NO_WARNINGS=1 DO_LOG=false node index.js "$query"
-    )
-
-    # general filters ---------------------------------------------------- #
-
-    print -n -u2 "\033[90mExcluding: "
-
-
-    if ! $has_flashcards; then
-        output=$(echo "$output" | grep -v 'flashcards^')
-        print -n -u2 "flashcards, "
-    fi
-
-    if [[ $(obsi.sh 8 | wc -l) -lt 3 ]]; then
-        output=$(echo "$output" | grep -v 'obsi^')
-        print -n -u2 "obsi, "
-    fi
-
-    if ! state.sh -s 'tv'; then
-        output=$(echo "$output" | grep -v 'review_tv^')
-        print -n -u2 "review_tv, "
-    fi
-
-    # note filters --------------------------------------------------------------- #
-
-    if [ $(ob b | wc -l) -le 4 ]; then
-        output=$(echo "$output" | grep -v 'b^')
-        print -n -u2 "b, "
-    fi
-
-    if [ $(ob p | wc -l) -ge 3 ]; then
-        output=$(echo "$output" | grep -v 'plan^')
-        print -n -u2 "plan, "
-    fi
-
-    # todoist filters ------------------------------------------------------------ #
-
-    output=$(act_td_filter 'bdg' 2 "$output")
-    output=$(act_td_filter 'by' 6 "$output")
-    output=$(act_td_filter 'do' 5 "$output")
-    output=$(act_td_filter 'eval' 4 "$output")
-    output=$(act_td_filter 'inbox' 15 "$output")
-    output=$(act_td_filter 'p1' 0 "$output")
-    output=$(act_td_filter 'res' 7 "$output")
-    output=$(act_td_filter 'u' 10 "$output")
-    output=$(act_td_filter 'zz' 2 "$output")
-
-    # calendar filters ----------------------------------------------------------- #
-
-    local cal=$(short day tod)
-
-    if echo $cal | grep -Fq " detach"; then
-        output=$(echo "$output" | grep -v 'eve^')
-        print -n -u2 "eve, "
-    else
-        if ! echo $cal | grep -Fq "full_detach"; then
-            output=$(echo "$output" | grep -v 'cook^' | grep -v 'by^' | grep -v 'walk^')
-            print -n -u2 "cook, by, walk, "
-
-            if ! echo $cal | grep -Fq "bedtime"; then
-                output=$(echo "$output" | grep -v 'floss^')
-                print -n -u2 "floss, "
-            fi
-        fi
-    fi
-
-    # big filters ----------------------------------------------------------------- #
-
-    if [[ " $@ " == *" b "* ]]; then
-        ob b | while read -r break_item; do
-            local item=$(echo "$break_item" | grep -oE '[[:alnum:]_]([[:alnum:]_]| )+$')
-
-            if [[ -z "$item" ]]; then
-                continue
-            fi
-
-            if printf "%s\n" "$output" | grep -qF "$item"; then
-                print -n -u2 "$item, "
-                output=$(echo "$output" | grep -v "$item")
-            fi
-        done
-    fi
-
-    # print ------------------------------------------------------ #
-
-    print -u2 "\033[0m"
-    echo $output | rat.sh -pPl "json" | $HOME/.dotfiles/scripts/secret/act_highlight.sh
-
-    # sync ----------------------------------------------------------------------- #
-
-    if rand 3 >/dev/null; then
-        local table=$(curl -s --connect-timeout 2 "$MY_CONFIG_URL/server-app/act.tsv")
-
-        if [ -n "$table" ]; then
-            echo "$table" >$local_online_tools/data/act.tsv
-            print -u2 "Updated act.tsv"
-        else
-            print -u2 "Failed to update act.tsv"
-        fi
-    fi
-}
 
 function theme {
     local new_mode=$1
@@ -360,7 +244,6 @@ function sw {
         tg stop
     fi
 
-    # Turn off focus?
     if $do_focus; then
         short focus off
     fi

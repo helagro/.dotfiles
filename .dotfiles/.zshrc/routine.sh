@@ -53,6 +53,7 @@ function dawn {
 
     short -s focus "$focus_mode"
     short -s night_shift "$night_shift"
+    red_mode 0
 
     # display ---------------------------------------------------- #
 
@@ -182,6 +183,10 @@ function eve {
         echo "Cool down - ( $temp >= 21°C )"
     fi
 
+    if state.sh -s 'sleepy'; then
+        echo "Turn off alarm? - ( sleepy )"
+    fi
+
     echo
 
     # manual track ------------------------------------------------- #
@@ -229,6 +234,7 @@ function bedtime {
     short -s focus sleep
     short -s home bedtime
     short -s bedtime_brightness
+    red_mode 1
 
     # display -------------------------------------------------------------------- #
 

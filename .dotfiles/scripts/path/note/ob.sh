@@ -40,8 +40,8 @@ if [[ -d $vault ]]; then
         action "$vault/i/$input.md" 2>/dev/null ||
             action "$vault/p/$input.md" 2>/dev/null ||
             action "$vault/_/log/$input.md" 2>/dev/null ||
-            action "$vault/$input.md" 2>/dev/null
-            action "$vault/tmp/$input.md" 2>/dev/null ||
+            action "$vault/$input.md" 2>/dev/null ||
+            action "$vault/tmp/$input.md" 2>/dev/null
     ) || exit 1
 else
     curl -s "https://raw.githubusercontent.com/helagro/notes/refs/heads/main/$input.md"

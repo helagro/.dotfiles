@@ -24,6 +24,19 @@ SAVEHIST=20000
 
 # --------------------------- MAIN --------------------------- #
 
+function day {
+    if [[ -z "$1" ]]; then
+        date +'%Y-%m-%d'
+        return
+    fi
+
+    if [[ "$1" == *-* ]]; then
+        date -v"$1"d +"%Y-%m-%d"
+    else
+        date -v+"$1"d +"%Y-%m-%d"
+    fi
+}
+
 function tgs {
     local project=$1
     shift
@@ -42,5 +55,25 @@ function tgs {
         toggl start "$*"
     else
         return 1
+    fi
+}
+
+function red_mode {
+    if [[ $1 == '1' ]]; then
+        print -n "\033]10;rgb:ff/ff/ff\007"
+        print -n "\033]11;rgb:00/00/00\007"
+
+        short -s filter 1
+
+        ZSH_HIGHLIGHT_REGEXP=()
+    else
+        print -n "\033]110\007"
+        print -n "\033]111\007"
+        [[ -z $2 || $2 != 0 ]] && short -s filter 0
+
+        ZSH_HIGHLIGHT_REGEXP=(
+            '\$[a-zA-Z0-9_][a-zA-Z0-9_]*' fg=cyan
+            '[ \t]-*[0-9]+(\.[0-9]+)*(?=([ \t]|$|\)))' fg=blue
+        )
     fi
 }

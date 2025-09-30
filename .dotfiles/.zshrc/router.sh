@@ -31,10 +31,6 @@ fi
 
 export PATH="$HOME/.dotfiles/scripts/path:$(printf "%s:" "$HOME/.dotfiles/scripts/path"/*/):$PATH"
 
-source "$HOME/.dotfiles/.zshrc/special/act.sh"
-if [[ "$PWD" == "$HOME/.dotfiles/config/tabs/act" ]]; then
-    return 0
-fi
 
 # ========================== SHARED ========================== #
 
@@ -63,6 +59,12 @@ elif [ "$(uname)" = "Linux" ]; then
     source "$HOME/.dotfiles/.zshrc/platforms/linux.sh"
 fi
 
+# ========================== SPECIAL ACT ========================= #
+
+if [[ "$PWD" == "$HOME/.dotfiles/config/tabs/act" ]]; then
+    source "$HOME/.dotfiles/.zshrc/special/act.sh"
+fi
+
 # ========================== PLUGINS ========================= #
 
 if command -v brew >/dev/null 2>&1 && [ -f $(brew --prefix)/opt/zsh-vi-mode/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh ]; then
@@ -70,6 +72,7 @@ if command -v brew >/dev/null 2>&1 && [ -f $(brew --prefix)/opt/zsh-vi-mode/shar
 fi
 
 # =========================== LAST =========================== #
+
 
 if [[ -n "$ZSH_HIGHLIGHT_STYLES" ]]; then
     ZSH_HIGHLIGHT_STYLES+=(
