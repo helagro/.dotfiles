@@ -62,7 +62,7 @@ fi
 # ========================== SPECIAL ACT ========================= #
 
 if [[ "$PWD" == "$HOME/.dotfiles/config/tabs/act" ]]; then
-    source "$HOME/.dotfiles/.zshrc/special/act.sh"
+    source "$HOME/.dotfiles/.zshrc/special/acts.sh"
 fi
 
 # ========================== PLUGINS ========================= #

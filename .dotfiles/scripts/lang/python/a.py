@@ -18,37 +18,47 @@ class Meta:
 class GetCommand:
     index: int
     include_project: bool
+    include_labels: bool = False
     get_time: bool = False
     get_date: bool = False
     get_dest: bool = False
+    get_labels: bool = False
     first_split: bool = False
     last_splits: bool = False
 
     @staticmethod
     def from_code(code: str):
-        include_project = 'p' in code
+        include_project = 'd' in code
+        include_labels = 'L' not in code
         get_time = 't' in code
         get_date = 'T' in code
-        get_dest = 'd' in code
+        get_dest = 'D' in code
+        get_labels = 'l' in code
         first_split = 's' in code
         last_splits = 'S' in code
 
         number_str = re.search(r'-?\d+', code)
         if not number_str:
-            raise ValueError("Invalid code format - No number found")
+            index = -1
+        else:
+            index = int(number_str.group())
 
-        index = int(number_str.group())
         return GetCommand(index=index,
                           get_time=get_time,
                           include_project=include_project,
+                          include_labels=include_labels,
                           get_dest=get_dest,
                           get_date=get_date,
+                          get_labels=get_labels,
                           first_split=first_split,
                           last_splits=last_splits)
 
 
 HISTORY_FILE = "/tmp/a_history.txt"
 METADATA_FILE = "/tmp/a_meta.txt"
+
+DEST_PATTERN = r'#\w+'
+LABEL_PATTERN = r'@\w+'
 
 # ================================ COMMANDS ================================ #
 
@@ -120,47 +130,6 @@ def add(content, method=None, offline=False):
     update_meta(lambda m: setattr(m, 'count', m.count + 1))
 
 
-def get(code):
-    try:
-        command = GetCommand.from_code(code)
-    except ValueError as e:
-        print(e, file=sys.stderr)
-        return
-
-    line = get_line(command.index)
-    if not line:
-        print("Not found")
-        return
-
-    if command.get_time:
-        print(line[1])
-        return
-    elif command.get_date:
-        print(line[1].split(" ")[0])
-        return
-
-    content = line[0]
-    dests = re.findall(r'#\w+', content)
-
-    if command.get_dest:
-        print(" ".join(dests))
-    else:
-        # NOTE - Removes if splitting in case destinatino is cut out
-        if not command.include_project or command.first_split or command.last_splits:
-            content = re.sub(r'#\w+', '', content).strip()
-
-        if command.first_split:
-            content = " ".join(dests) + " " + content.split(';')[0] + ";"
-        if command.last_splits:
-            splits = content.split(';')
-            if len(splits) > 1:
-                content = ";" + ";".join(splits[1:]) + " " + " ".join(dests)
-            else:
-                content = "; " + " ".join(dests)
-
-        print(content)
-
-
 def clear():
     if os.path.exists(HISTORY_FILE):
         os.remove(HISTORY_FILE)
@@ -188,6 +157,69 @@ def map_get(key: str, default: str):
         return default
 
 
+# ================================ GET COMMAND =============================== #
+
+
+def get(code):
+    try:
+        command = GetCommand.from_code(code)
+    except ValueError as e:
+        print(e, file=sys.stderr)
+        return
+
+    line = get_line(command.index)
+    if not line:
+        print("Not found")
+        return
+
+    selected_parts = get_parts(command, line)
+    if type(selected_parts) is str:
+        print(selected_parts)
+        return
+
+    content = line[0]
+    dests = re.findall(DEST_PATTERN, content)
+
+    # NOTE - Removes if splitting in case destination is cut out
+    if not command.include_project or command.first_split or command.last_splits:
+        content = re.sub(DEST_PATTERN, '', content).strip()
+
+    if not command.include_labels:
+        content = re.sub(LABEL_PATTERN, '', content).replace('  ', ' ').strip()
+
+    if command.first_split:
+        content = " ".join(dests) + " " + content.split(';')[0] + ";"
+    if command.last_splits:
+        splits = content.split(';')
+        if len(splits) > 1:
+            content = ";" + ";".join(splits[1:]) + " " + " ".join(dests)
+        else:
+            content = "; " + " ".join(dests)
+
+    print(content)
+
+
+def get_parts(command: GetCommand, line: list[str]) -> str | None:
+    res: list[str] = []
+    content = line[0]
+
+    if command.get_time:
+        res.append(line[1])
+
+    if command.get_date:
+        res.append(line[1].split(" ")[0])
+
+    if command.get_dest:
+        dests = re.findall(DEST_PATTERN, content)
+        res.append(" ".join(dests))
+
+    if command.get_labels:
+        labels = re.findall(LABEL_PATTERN, content)
+        res.append(" ".join(labels))
+
+    return " ".join(res) if len(res) > 0 else None
+
+
 # =================================== UTILS ================================== #
 
 
@@ -196,6 +228,9 @@ def set_map(map: dict, key: str, value: str):
 
 
 def get_line(line_number) -> list[str] | None:
+    if not os.path.exists(HISTORY_FILE):
+        return None
+
     with open(HISTORY_FILE) as f:
         lines = f.readlines()
         if line_number >= len(lines): return None

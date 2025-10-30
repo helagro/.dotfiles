@@ -1,7 +1,7 @@
 # ============================== USER CONTANTS ============================== #
 
 # Busy - Easy
-busez="(#bdg|#zz)&!p3"
+busez="(!#then)&(#bdg|#zz|@ez)&!p3"
 print -s -- '$busez'
 
 i="(tod|od|p1)"
@@ -10,9 +10,12 @@ print -s -- '$i'
 in="#inbox"
 print -s -- '$in'
 
+u="#u&!#run"
+print -s -- '$u'
+
 # ================================= CONSTANTS ================================ #
 
-export FZF_DEFAULT_OPTS='-m --cycle --ansi --no-sort --layout=reverse-list'
+export FZF_DEFAULT_OPTS='-m --cycle --ansi --no-sort --layout=reverse-list --bind ctrl-a:select-all,ctrl-d:deselect-all,ctrl-t:toggle-all'
 
 local_online_tools="$HOME/Developer/server-app"
 
@@ -26,9 +29,15 @@ NORMAL='\033[0;39m'
 
 # ================================= VARIABLES ================================ #
 
-filter=""
-act_filter=""
+alt=false
 do_act=false
+new_task=""
+
+act_filter=""
+filter=""
+
+# User Facing
+calc=1
 
 # ================================= FUNCTIONS ================================ #
 
@@ -42,17 +51,37 @@ function run {
 
     while :; do
         if $do_act; then
-            selection=$(act "$act_filter" | fzf)
+            if $alt; then
+                selection=""
+                acts "$act_filter"
+            else
+                selection=$(acts "$act_filter" | fzf)
+            fi
         else
-            selection=$(tdl "$filter" -cp | colorize | fzf)
+            if [[ $calc == 1 ]]; then
+                carg="-c"
+            else
+                carg=""
+            fi
+
+
+            selection=$(tdl "$filter" $carg -p | colorize | fzf)
         fi
 
         echo "$selection" | colorize
-        menu
 
-        if [[ $? -ne 0 ]]; then
-            break
-        fi
+        while :; do
+            menu
+            local ret=$?
+
+            if [[ $ret -eq 1 ]]; then
+                return
+            elif [[ $ret -eq 2 ]]; then
+                continue
+            else
+                break
+            fi
+        done
         
         echo ''
     done
@@ -68,6 +97,9 @@ function menu {
 
     local await_completion=true
     [[ $action == *"W"* ]] && await_completion=false
+
+    alt=false
+    [[ $action == *"A"* ]] && alt=true
 
     if [[ "$action" == *"q"* ]]; then
         return 1
@@ -88,14 +120,13 @@ function menu {
         found_match=true
         do_act=false
     elif [[ $action == *"a"* ]]; then
+        vared -p "New task: " new_task </dev/tty
         (
-            local new_task=""
-            vared -p "New task: " new_task </dev/tty
-            a.sh "$new_task" &>/dev/null &
+            a.sh "$new_task" >/dev/null &
             $await_completion && wait
         )
         found_match=true
-    elif [[ $action == *"A"* ]]; then
+    elif [[ $action == *"F"* ]]; then
         vared -p "Act filter: " act_filter </dev/tty
 
         print -s -- "$act_filter"
@@ -108,53 +139,86 @@ function menu {
         if [[ $(wc -l <<<"$selection") -gt 1 ]]; then
             update=""
         else
-            update=$(echo "$selection" | tr -s '[:space:]' ' ' | sed 's/^[0-9]*\ //')
+            update=$(echo "$selection" | tr -s '[:space:]' ' ' | sed 's/^[0-9]*\ //' | sed 's/p4//')
 
             if [[ $action == *"u"* ]]; then
-                update=$(echo "$update" | sed 's/#\([A-Za-z0-9/]*\)//' | sed 's/p4//')
+                update=$(echo "$update" | sed 's/#\([A-Za-z0-9/]*\)//')
             fi
+            found_match=true
         fi
 
         vared -p "Update: " update </dev/tty
+    elif [[ $action == *"r"* ]]; then
+        local command=""
+        vared -p "Run: " command </dev/tty
+
+        if [[ -n "$command" ]]; then
+            eval "$command"
+        fi
+        found_match=true
+
+    elif [[ $action == *"i"* ]]; then
+        (
+            echo "$selection" | in.sh
+        )
+
+        found_match=true
     fi
 
 
-    if [[ $action == *"u"* || $action == *"m"* || $action == *"d"* ]]; then
-        echo "$selection" | while read -r select_item; do
-            if [[ "$action" == *"d"* ]]; then
-                local id=$(echo "$select_item" | grep -o '^[0-9]*')
-                (
-                    close "$id" &
-                    $await_completion && wait
-                )
-                
-            elif [[ "$action" == *"u"* ]]; then
-                # NOTE - Removes project and p4 priority
-                (
-                    do_update "$(echo "$select_item" | sed 's/#\([A-Za-z0-9/]*\)//' | sed 's/p4//')" &
-                    $await_completion && wait
-                )
+    if [[ $action == *"u"* || $action == *"m"* || $action == *"d"* || $action == *"e"* ]]; then
+        (
+            echo "$selection" | while read -r select_item; do
+                if [[ $action == *"e"* ]]; then
+                    local command=$(
+                        echo "$select_item" | 
+                        tr -s '[:space:]' ' ' | # Remove spaces
+                        sed 's/^[0-9]*\ //' | # Remove ID
+                        sed 's/#\([A-Za-z0-9/]*\)//' | # Remove project
+                        sed 's/p[0-9]//' | # Remove priority
+                        sed 's/@[A-Za-z0-9_/-]*//g' # Remove tags
+                    )
 
-            elif [[ "$action" == *"m"* ]]; then
-                (
-                    do_update "$select_item"
-                    $await_completion && wait
-                )
-            fi
-        done
+                    eval "$command"
+                fi
+                
+                if [[ "$action" == *"d"* ]]; then
+                    local id=$(echo "$select_item" | grep -o '^[0-9]*')
+                    close "$id" &
+                    
+                elif [[ "$action" == *"u"* ]]; then
+                    # NOTE - Removes project and p4 priority
+                    do_update "$(echo "$select_item" | sed 's/#\([A-Za-z0-9/]*\)//' | sed 's/p4//')" &
+
+                elif [[ "$action" == *"m"* ]]; then
+                    do_update "$select_item" &
+                fi
+            done
+
+            $await_completion && wait
+        )
         
         found_match=true
     fi
 
     if [[ $action == *"s"* ]]; then
         (
+            echo "Syncing..."
             todoist sync &
             $await_completion && wait
         )
+        found_match=true
     elif [[ $action == *"S"* ]]; then
         act_sync
+        found_match=true
+    fi
+
+    if [[ $action == *"M"* ]]; then
+        return 2
     elif ! $found_match; then
-        echo "(A)ctivities, (a)dd, (d)elete, (f)ilter, (m)modify, (n)ext, (S|s)ync, (u)pdate, (q)uit"
+        echo "functions - (a)dd, (d)elete, (e)xecute, (F|f)ilter, (i)nbox, (m)odify, (n)ext, (r)un, (S|s)ync, (u)pdate, (q)uit"
+        echo "modifiers - (A)lt, (M)enu, (W)ait"
+        echo "options - calc=$calc"
         menu # NOTE - recursion
     fi
 }
@@ -196,12 +260,9 @@ function do_update {
         # Very neccessary, some runaway otherwise
         local item_copy="$(echo "$item" | sed -E 's/(#[a-zA-Z]+)\/[a-zA-Z]+/\1/g')"
 
-        (
-            nohup a.sh "$item_copy" &>/dev/null &
-            close "$id" &
-        
-            wait
-        )
+        nohup a.sh "$item_copy" &>/dev/null
+        close "$id"
+
         item_copy=""
     else
         echo "WARN - empty item, ignoring"
@@ -219,7 +280,7 @@ function act_td_filter {
     fi
 }
 
-function act {
+function acts {
     local query=$(echo "$*" | tr ' ' '/')
 
     local output=$(
@@ -273,7 +334,7 @@ function act {
 
     # calendar filters ----------------------------------------------------------- #
 
-    local cal=$(short day tod)
+    local cal=$(short -m -N day tod)
 
     if echo $cal | grep -Fq " detach"; then
         output=$(echo "$output" | grep -v 'eve^')

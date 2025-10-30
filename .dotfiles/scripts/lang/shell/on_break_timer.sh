@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-(nohup $HOME/.dotfiles/scripts/path/windows.sh >/dev/null &)
+/opt/homebrew/bin/todoist sync &
 
 # =============================== DEPENDENCIES =============================== #
 
@@ -12,7 +12,7 @@ if ! command -v "shuf" &>/dev/null; then
 fi
 
 
-# display if late -------------------------------------------- #
+# ============================== DISPLAY ============================= #
 
 cal=$(echo tod | shortcuts run day --output-type public.plain-text)
 
@@ -23,7 +23,7 @@ if ! echo $cal | grep -Fq "full_detach"; then
     fi
 
     print -n "full_detach"
-    afplay $HOME/.dotfiles/assets/audio/brown_noise.mp3
+    alias beep="afplay /System/Library/Sounds/Submarine.aiff"
     exit 0
 fi
 

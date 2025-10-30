@@ -41,6 +41,12 @@ def main():
         groups = sys.argv[2] if args_len >= 3 else ''
         return sorted(get_attributes(groups=groups))
 
+    if attr in ['plainl', 'plainlist']:
+        groups = sys.argv[2] if args_len >= 3 else ''
+        attributes = sorted(get_attributes(groups=groups))
+        print('\n'.join(a for a in attributes))
+        return
+
     # Correlations command
     if sys.argv[-1] in ['correlations', 'corr']:
         return get_correlations(sys.argv[1:-1])
@@ -236,4 +242,6 @@ def is_valid_int(value: str | None | datetime) -> bool:
 
 if __name__ == "__main__":
     result = main()
-    print(json.dumps(result, indent=2), end="")
+
+    if result:
+        print(json.dumps(result, indent=2), end="")

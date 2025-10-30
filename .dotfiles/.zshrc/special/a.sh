@@ -1,60 +1,71 @@
 #!/bin/zsh
 
 exec 3>/dev/tty
+
 sign="-"
-pyg_res=""
+pgo=""
+
 _color=1
+_prev_audio=1
 
 # ================================= CONSTANTS ================================ #
 
 reminder_text=$(ob "p/auto/ash remind")
 init_cols=$(tput cols)
 
-max_pyg_preview=6
-whiper=$(printf '%*s' $((max_pyg_preview + 1)) '')
+max_pyg_preview=5
+whiper=$(printf '%*s' $((max_pyg_preview + 3)) '')
 
-p=">-1"
-pp=">-1p"
-pd=">-1d"
-ps=">-1s"
-pS=">-1S"
-
-tomp=" tom #run :p "
-tomb=" tom #run :b "
+rp="#run :p"
+rb="#run :b"
+rd="#run :day"
 yd="yesterday"
-tea="water 750 && mint 1 && #b prepp tea"
+db="#done ^b ;"
+
+tea="water 750 && mint 1 && #b prepp tea @mv @home"
+is="#zz @wifi is"
+sugar="sugar 1 && #b mouthwash"
+mv="@mv @home"
 
 # =============================== USER FEATURES ============================== #
 
 alias pyg="py get --"
-
-function py {
-    python3 "$MY_SCRIPTS/lang/python/a.py" "$@"
-}
+alias e="echo"
 
 
 function len {
     say $(py len)
 }
 
+function p {
+    say $(py get -- -1p)
+}
+
+function py {
+    python3 "$MY_SCRIPTS/lang/python/a.py" "$@"
+}
 
 function comp {
     if [[ $1 == '1' ]] || [[ -z $1 && -z $ZSH_AUTOSUGGEST_STRATEGY ]]; then
         ZSH_AUTOSUGGEST_STRATEGY=(history)
+        audio=$_prev_audio
     else
         unset ZSH_AUTOSUGGEST_STRATEGY
+
+        _prev_audio=$audio
+        audio=0
     fi
 }
 
-
 function hist {
-    comp $1
-
     if [[ $1 == '1' ]] || [[ -z $1 && $blank == 1 ]]; then
+        comp 1
         blank=0
+
         my_clear
         divide
     else
+        comp 0
         speak=0
         blank=1
     fi
@@ -69,7 +80,9 @@ function color {
             '#[a-z0-9]+[a-zA-Z0-9]*' fg=green,bold
             ';' fg=yellow,bold
             '&&' fg=yellow,bold
+
             '@\w+' fg=blue
+            '(?:(?<=^)|(?<=\s))(daily|weekly|monthly|yearly|tomorrow|today|yesterday|every week|every day|tod|tom)(?=$|\s)' fg=blue
 
             '(\s|^)p1(\s|$)' fg=red,bold
             '(\s|^)p2(\s|$)' fg=red,bold
@@ -79,12 +92,10 @@ function color {
             '(?<!\*)\*[^*]+\*(?!\*)' fg=magenta,underline
 
             '\$\([^\$]+\)' fg=cyan
-            '(?<=^|\s)>(-?\d|\w)+(?=$|\s)' fg=cyan,bold
-            '^RUN[[:space:]]' fg=cyan,bold
+            '(?<=^|\s)>(-?\d|\w)+(?=$|\s)' fg=cyan
+            '^R[[:space:]]' fg=cyan,bold
             '^(c|d|q)$' fg=cyan,bold
         )
-
-        command -v divide >/dev/null 2>&1 && divide
     else
         _color=0
         ZSH_HIGHLIGHT_REGEXP=()
@@ -97,6 +108,7 @@ function color {
 
 blank=0
 speak=0
+audio=$_prev_audio
 
 # ACCESSABLE
 
@@ -105,27 +117,30 @@ speak=0
 unset HISTFILE SAVEHIST
 
 cmds=(
-  "RUN blank="
-  "RUN comp"
-  'RUN echo $start_time'
-#   "RUN exec zsh" - breaks things
-  '$tea'
-  '$pS'
-  '$ps'
-  '$pp'
-  '$pd'
-  '$p'
-  "RUN pyg"
-  "RUN py"
-  "RUN len"
-  "null"
-  "RUN speak="
-  "RUN hist"
-  ">-1"
+    'R echo $start_time'
+    "R blank="
+    "R speak="
+    "R audio="
+    "R comp"
+    "R pyg"
+    "R len"
+    "R p"
+    "R hist"
+
+    '$tea'
+    '$is'
+    '$sugar'
+
+    '$rd'
+    '$rp'
+    '$rb'
+    '$yd'
+    '$db'
+    "null"
 )
 
 for cmd in "${cmds[@]}"; do
-  print -s -- "$cmd"
+    print -s -- "$cmd"
 done
 
 color 1
@@ -162,10 +177,9 @@ function a_ui {
         # Add to history & logs
         if [[ $line != ' '* && $line != *'@p'* ]]; then
             $MY_SCRIPTS/lang/shell/utils/log.sh -f a_raw "$line"
-            if [[ $line != *'#'* ]]; then 
-                print -s -- "$line"
-                print -s -- " "
-            fi
+            
+            print -s -- "$line"
+            print -s -- " "
         fi
 
         # commands ------------------------------------------------------------------- #
@@ -181,8 +195,8 @@ function a_ui {
             divide "$start_time"
             print_top_right
             continue
-        elif [[ $line == 'RUN'* ]]; then
-            command=$(echo "$line" | sed -E 's/RUN[[:space:]]+//g')
+        elif [[ $line == 'R '* ]]; then
+            command=$(echo "$line" | sed -E 's/R[[:space:]]+//g')
             tmpfile=$(mktemp)
             
             eval "$command" >"$tmpfile"
@@ -207,13 +221,13 @@ function a_ui {
             -e 's/"/\\"/g')
         local expanded_line=$(eval echo \"$escaped\" | tr -d '\\')
 
-        if [[ $expanded_line =~ '(?<=^|\s)>((-?\d|\w)+)(?=$|\s)' ]]; then
-            pyg_res=$(py get -- "$match[1]")
+        if [[ $expanded_line =~ '(?<=^|\s)>((-?\d|\w|\.)+)(?=$|\s)' ]]; then
+            pgo=$(py get -- "$match[1]")
             local part_to_replace=">${match[1]}"
             
-            expanded_line=$(py replace "$expanded_line" "$part_to_replace" "$pyg_res")
+            expanded_line=$(py replace "$expanded_line" "$part_to_replace" "$pgo")
         else
-            pyg_res=""
+            pgo=""
         fi
 
         if [[ "$expanded_line" != "$line" ]]; then
@@ -236,7 +250,7 @@ function a_ui {
             )
             
             [[ $speak == 1 ]] && say "$expanded_line"
-            print_if_reminder
+            print_if_reminder "$escaped"
         fi
     done
 }
@@ -246,7 +260,7 @@ function a_ui {
 
 
 function print_if_reminder {
-    if reminder=$(echo "- [ ] $reminder_text |" | grep -m1 -F -- "$expanded_line"); then
+    if reminder=$(echo "$reminder_text" | grep -m1 -F -- "- [ ] $1 |"); then
         reminder_parts=("${(@s:|:)reminder}")
         echo " 🔔 ${reminder_parts[2]## }"
     fi
@@ -281,7 +295,7 @@ function my_clear {
 function print_top_right {
     local row=1
     local cols=$(tput cols)
-    local whipe_col=$((cols - $max_pyg_preview))
+    local whipe_col=$((cols - $max_pyg_preview - 3))
 
     local old_offline_amt=$(py map get -k offline_amt -d 0)
     local offline_amt=$(cat "$HOME/.dotfiles/tmp/a.txt" | wc -l | tr -d '[:space:]')
@@ -309,23 +323,21 @@ function print_top_right {
         py map set -k offline_amt -v "$offline_amt"
     fi
 
-    if [[ -n $pyg_res ]]; then
+    if [[ -n $pgo ]]; then
         print -n "\e7\e[${row};${whipe_col}H\033[35m${whiper}\033[0m\e8" >&3
+        local truncated=" ${pgo[1,$max_pyg_preview]}"
 
-        local truncated=" ${pyg_res[1,$max_pyg_preview]}"
-
-        if (( ${#pyg_res} > max_pyg_preview )); then
-            truncated+="…"
+        if (( ${#pgo} > max_pyg_preview )); then
+            truncated+="…${pgo[-2,-1]}"
         fi
 
         local text=" $truncated"
         local col=$((cols - ${#text} + 1))
 
-        print -n "\e7\e[${row};${whipe_col}H\033[35m${whiper}\033[0m\e8" >&3
         sleep 0.1
         print -n "\e7\e[${row};${col}H\033[35m${text}\033[0m\e8" >&3
 
-        pyg_res=""
+        pgo=""
     fi
 }
 
@@ -335,6 +347,7 @@ function m_vared {
 
     line=""
     vared -p "%B%F{yellow}$padded_num $sign%f%b " line
+    [[ $audio == 1 ]] && beep 0.55
 
     line=$(echo "$line" | tr -d '\\')
     sign="-"

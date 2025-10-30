@@ -30,16 +30,11 @@ red_mode 0 0
 alias c="qalc"
 alias st="python3 $MY_SCRIPTS/lang/python/st.py"
 alias lines="grep -v '^$' | wc -l | tr -d '[:space:]' && echo"
+alias fun="functions"
+alias glo="tl.sh"
 
 # ------------------ UNCATEGORISED FUNCTIONS ----------------- #
 
-
-# Day Length
-function dale {
-    local num='0'
-    [[ -n $1 ]] && num="$1"
-    cat | grep -F $(day $num) | lines
-}
 
 function ect {
     pushd $DEV/config > /dev/null
@@ -108,32 +103,6 @@ function yadm_enc {
 
     echo -n "" | pbcopy
 }
-
-
-function obc {
-    local file="$1"
-    shift
-    local lang="markdown"
-
-    if [[ "$*" == *"-l"* ]]; then
-        lang="json"
-    fi
-
-    ob "$file" | python3 $MY_SCRIPTS/lang/python/ob_filter.py "$@" | rat.sh -Pl "$lang" --file-name "$file"
-}
-
-function ob {
-    set -- $($MY_SCRIPTS/lang/shell/expand_args.sh $*)
-
-    ob.sh $*
-}
-function _ob_completions {
-    _files -W $VAULT
-    _files -W $VAULT/i
-    _files -W $VAULT/p
-    _files -W $VAULT/tmp
-}
-compdef _ob_completions ob
 
 function talk {
     if [[ "$*" == *"-s"* ]]; then
@@ -257,9 +226,99 @@ function year_day {
 
 }
 
-# ------------------------- TRACKING ------------------------- #
+# ================================= ACTIVITY ================================= #
 
-alias sens="loc"
+function act {
+    local project=''
+    local max_duration="45:00"
+    local focus_flag="-f"
+    local activity_name=""
+    local important_flag="-i"
+
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+        -n | --name)
+            activity_name="$2"
+            shift 2
+            ;;
+        -d | --duration)
+            max_duration="$2:00"
+            shift 2
+            ;;
+        -D | --no-duration)
+            max_duration=""
+            shift 1
+            ;;
+        -F | --skip-focus)
+            focus_flag=""
+            shift 1
+            ;;
+        -S | --continue-after-duration)
+            important_flag=""
+            shift 1
+            ;;
+        *)
+            project="$1"
+            shift 1
+            ;;
+        esac
+    done
+
+    date +"%Y-%m-%d %H:%M:%S" | to_color.sh blue
+
+    if ping -c1 -t1 8.8.8.8 &>/dev/null; then
+        local online=true
+    else
+        local online=false
+        echo "[OFFLINE]" | to_color.sh red
+    fi
+
+    if [[ $project == "sys" ]]; then
+        do_sys
+        [[ -n $override_act_duration ]] && max_duration="$override_act_duration:00"
+    elif [[ $activity_name == "eat" ]]; then
+        eat
+        return
+    fi
+    
+    local prev_focus=$(short get_focus)
+    [[ -n $prev_focus ]] && focus_flag=""
+
+    $online && tgs "$project" "$activity_name"
+    sw $important_flag $focus_flag -a "$activity_name" $max_duration
+
+    if $online; then
+        toggl stop
+        (loc stop &) >/dev/null 2>&1
+    fi
+}
+
+function tgs {
+    local project_name=$1
+    (loc start &) >/dev/null 2>&1
+
+    if [[ -z $project_name ]]; then
+        toggl start "$*"
+        return
+    elif [[ $project_name == 'none' ]]; then
+        shift
+        toggl start "$*"
+        return
+    else
+        shift
+    fi
+
+    local project_id=$(echo "$toggl_projects" | grep -F " $project_name" | awk '{print $1}')
+
+    if [[ -n "$project_id" ]]; then
+        toggl start -P "$project_id" "$*"
+    else
+        echo "Project not found" 1>&2
+        return 1
+    fi
+}
+
+# ------------------------- TRACKING ------------------------- #
 
 function hm { python3 $MY_SCRIPTS/lang/python/hm.py "$@" | rat.sh -pPl 'json'; }
 function group { python3 $MY_SCRIPTS/lang/python/group.py "$@" | rat.sh -pPl 'json'; }
@@ -284,19 +343,42 @@ function to_days {
 
 function loc {
     local do_new_line=true
+    local do_silent=false
 
-    if [[ "$1" == '-n' ]]; then
-        do_new_line=false
-        shift
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+        -n | --no-new-line)
+            do_new_line=false
+            shift 1
+            ;;
+        -s | --do-silent)
+            do_silent=true
+            shift 1
+            ;;
+        *)
+            break
+            ;;
+        esac
+    done
+
+    local params="${(j:/:)@}"
+    local result=$(curl -sS --connect-timeout 2 "$LOCAL_SERVER_IP:8004/$params")
+
+    if $do_silent; then
+        return 0
     fi
-
-    local result=$(curl -sS --connect-timeout 2 "$LOCAL_SERVER_IP:8004/$1")
 
     if $do_new_line; then
         echo "$result" | rat.sh -pPl "json"
     else
         echo -n "$result" | rat.sh -pPl "json"
     fi
+}
+
+function isl {
+    is plainl $2 | grep $1 | while read attribute; do
+        printf "$attribute "
+    done
 }
 
 function is {
@@ -341,7 +423,7 @@ function do_now {
         case "$1" in
         -h | --help)
             echo "Usage: do_now [-w] <file_name>"
-            echo "  -w: Overwrite the contents following '---'"
+            echo "  -w: Overwrite the contents following '----'"
             return 0
             ;;
         -w | --write)
@@ -365,11 +447,12 @@ function do_now {
     fi
 
     local content=$(cat "$file_name")
-    local tasks=$(echo $content | awk '/----/ {found = NR; next} NR > found')
+    local tasks=$(echo "$content" | awk '/----/ {found = NR; next} NR > found')
 
     if [[ $? -eq 0 ]]; then
         if $do_add; then
             echo "$tasks" | a
+            echo "$tasks"
         fi
 
         if $do_write; then
@@ -381,6 +464,39 @@ function do_now {
         return 1
     fi
 }
+
+function obc {
+    local file="$1"
+    shift
+    local lang="markdown"
+
+    if [[ "$*" == *"-l"* ]]; then
+        lang="json"
+    fi
+
+    ob "$file" | python3 $MY_SCRIPTS/lang/python/ob_filter.py "$@" | rat.sh -Pl "$lang" --file-name "$file"
+}
+
+# Day Length
+function dale {
+    local num='0'
+    [[ -n $1 ]] && num="$1"
+    cat | grep -F $(day $num) | lines
+}
+
+function ob {
+    set -- $($MY_SCRIPTS/lang/shell/expand_args.sh $*)
+
+    ob.sh $*
+}
+function _ob_completions {
+    _files -W $VAULT
+    _files -W $VAULT/i
+    _files -W $VAULT/p
+    _files -W $VAULT/tmp
+}
+compdef _ob_completions ob
+
 
 # =================================== LATER ================================== #
 

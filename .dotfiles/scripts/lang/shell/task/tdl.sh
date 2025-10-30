@@ -94,11 +94,19 @@ function main {
         fi
 
         if "$HOME/.dotfiles/scripts/path/state/state.sh" -s headache || $is_busy; then
-            filter+="|(p3.*#bdg)"
+            filter+="|(p3.*#bdg)|@zt"
+        fi
+
+        if "$HOME/.dotfiles/scripts/path/state/state.sh" -s eye_strain; then
+            filter+="|@eye"
         fi
 
         if "$HOME/.dotfiles/scripts/lang/shell/has_detached.sh"; then
             filter+="|@wake"
+        fi
+    
+        if ! ping -c1 -W0.5 1.1.1.1 >/dev/null 2>&1; then
+            filter+="|@wifi"
         fi
     fi
 

@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-alias vsrc="source $HOME/Developer/env-tracker/.venv/bin/activate"
+alias do_loc="cd $HOME/Developer/local-app && source .venv/bin/activate"
 
 function shout {
     if [ -n "$1" ]; then

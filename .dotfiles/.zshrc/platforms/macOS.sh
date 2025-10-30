@@ -6,6 +6,8 @@ export PATH="/Users/h/Library/Python/3.9/bin:$PATH"
 export PATH="$HOME/.rbenv/bin:$PATH"
 export PATH=$PATH:$HOME/go/bin
 
+toggl_projects=$(toggl projects 2>/dev/null)
+
 if command -v rbenv &>/dev/null; then
     eval "$(rbenv init -)"
 fi
@@ -21,6 +23,13 @@ alias tg="toggl"
 alias tgc="toggl current | grep -vE 'Workspace|ID'"
 
 # ------------------------- OTHER FUNCTIONS ------------------------ #
+
+function beep {
+    local vol=0.7
+    [ -n "$1" ] && vol=$1
+
+    (sox -v $vol '/System/Library/Sounds/Purr.aiff' -d >/dev/null 2>&1 & )
+}
 
 function reinstall {
     cd "$MY_SCRIPTS/lang/shell" && ./list_app.sh
@@ -42,11 +51,6 @@ function test {
 
 function lect {
     short lect
-
-    ob lect
-    tdls @lect
-
-    tgs study
     a "social 1 s #u"
 }
 
@@ -106,29 +110,59 @@ compdef e_completion e
 
 # ---------------------- APPLE SHORTCUTS --------------------- #
 
-alias home="short -s home"
-
 function short {
     local do_silent=false
+    local skip_newline=false
+    local multiline_output=false
 
-    if [[ $* == *"-s"* ]]; then
-        do_silent=true
-        shift
-    fi
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+        -s | --silent)
+            do_silent=true
+            shift 1
+            ;;
+        -N | --no-newline)
+            skip_newline=true
+            shift 1
+            ;;
+        -m | --multiline-output)
+            multiline_output=true
+            shift 1
+            ;;
+        *)
+            break
+            ;;
+        esac
+    done
 
     output=$(
-        echo "$2" | shortcuts run "$1" --output-type public.plain-text | cat
-        echo
+        if $skip_newline; then
+            printf "$2" | shortcuts run "$1" --output-type public.plain-text
+        else
+            echo "$2" | shortcuts run "$1" --output-type public.plain-text
+        fi
     )
 
     if ! $do_silent; then
-        echo $output
+        if $multiline_output; then
+            echo "$output"
+        else
+            echo "$output" | tr -d '\n'
+            echo
+        fi
     fi
 
     if [[ $? -ne 0 ]]; then
         echo "Failure when running: $1 $2"
         return 1
     fi
+}
+
+function home {
+    while [[ $# -gt 0 ]]; do
+        (short -s home $1 &)
+        shift
+    done
 }
 
 function inv {
@@ -140,7 +174,7 @@ function inv {
 }
 
 function info {
-    short day "$1" | to_color.sh blue
+    short -m -N day "$1" | to_color.sh blue
     echo
 
     tdis
@@ -148,16 +182,17 @@ function info {
 
 # -------------------------- TIMING -------------------------- #
 
-alias timer="short timer"
+alias timer="short -s timer"
 
 function sw {
-    set -- $($MY_SCRIPTS/lang/shell/expand_args.sh $*)
-
     # Initialise variables
-    local time=-1
     local do_focus=false
-    local do_silent=false
-    local skip_tgs=false
+    local just_output=false
+    
+    local time=""
+    local trackable=false
+    local activity=""
+    local is_important=false
 
     # Parse options
     while [[ $# -gt 0 ]]; do
@@ -166,20 +201,17 @@ function sw {
             do_focus=true
             shift
             ;;
-        -s | --silent)
-            do_silent=true
+        -j | --just-output)
+            just_output=true
             shift
             ;;
-        -h | --help)
-            print 'Usage: sw [options...] <duration> <activity>'
-            printf " %-3s %-20s %s\n" "-f" "--focus" "Do set focus"
-            printf " %-3s %-20s %s\n" "-s" "--silent" "Silent mode"
-            printf " %-3s %-20s %s\n" "-h," "--help" "Show this help message"
-            return 0
-            ;;
-        -T | --skip-tgs)
-            skip_tgs=true
+        -i | --important)
+            is_important=true
             shift
+            ;;
+        -a | --activity)
+            activity=$2
+            shift 2
             ;;
         *)
             break
@@ -187,32 +219,35 @@ function sw {
         esac
     done
 
-    # Turn on focus?
+    [[ -n $1 ]] && time=$1
+    [[ $activity == "medd" || $activity == "yoga" || $activity == "mindwork" || $activity == "main" ]] && trackable=true
+
+
+    # handle pre-timer setup ----------------------------------------------------- #
+
     if $do_focus; then
-        short focus on
+        short -s focus on
     fi
 
-    # If provided time
-    if [ -n "$1" ]; then
-        time=$1
+    if $trackable; then
+        echo "[tracking]" | to_color.sh yellow   
     fi
 
-    ping -c1 -t1 8.8.8.8 &>/dev/null && local offline=false || local offline=true
-
-    # If exor type activity
-    if ! $offline && ! $skip_tgs && [[ $2 == "medd" || $2 == "yoga" || $2 == "mindwork" ]]; then
-        tgs exor "$2"
-    fi
+    # run stopwatch -------------------------------------------------------------- #
 
     local start_time=$(date +%s)
-
-    # Run stopwatch
-    if $do_silent; then
-        command -v 'caffeinate' >/dev/null && caffeinate -disu -i $DOC/stopwatch/main "$1" 1>&2
+    if $just_output; then
+        command -v 'caffeinate' >/dev/null && caffeinate -disu -i $DOC/stopwatch/main $time 1>&2
     else
-        command -v 'caffeinate' >/dev/null && caffeinate -disu -i $DOC/stopwatch/main "$1"
+        command -v 'caffeinate' >/dev/null && caffeinate -disu -i $DOC/stopwatch/main $time
+    fi
 
-        if [ $? -ne 2 ]; then
+    # handle timer ending --------------------------------------------------- #
+
+    if [ $? -ne 2 ]; then
+        if $is_important; then
+            timer 0
+        else
             asciiquarium
         fi
     fi
@@ -221,17 +256,19 @@ function sw {
     local end_time=$(date +%s)
     local min=$((($end_time - $start_time) / 60))
 
-    # Run execute output
-    if $do_silent; then
+    # handle result -------------------------------------------------------------- #
+
+    if $just_output; then
         echo -n "$min"
-    elif [ -n "$2" ]; then
+    elif $trackable; then
         if [ "$min" -eq 0 ]; then
             echo "(Not tracking because time was less than 1 minute)"
         else
-            if $offline; then
-                local track_cmd="$(day) $2 $min #u"
+            # Track time
+            if ping -c1 -t1 8.8.8.8 &>/dev/null; then
+                local track_cmd="$activity $min #u"
             else
-                local track_cmd="$2 $min #u"
+                local track_cmd="$(day) $activity $min #u"
             fi
 
             echo "$track_cmd" | to_color.sh yellow
@@ -239,12 +276,10 @@ function sw {
         fi
 
     fi
-    
-    if ! $offline && ! $skip_tgs; then
-        tg stop
-    fi
+
+    # reset state ---------------------------------------------------------------- #
 
     if $do_focus; then
-        short focus off
+        short -s focus off
     fi
 }

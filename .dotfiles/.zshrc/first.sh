@@ -37,27 +37,6 @@ function day {
     fi
 }
 
-function tgs {
-    local project=$1
-    shift
-
-    if [[ "$project" == "bodge" ]]; then
-        toggl start -P 201773261 "$*"
-    elif [[ "$project" == "study" ]]; then
-        toggl start -P 181245378 "$*"
-    elif [[ "$project" == "i" ]]; then
-        toggl start -P 202093636 "$*"
-    elif [[ "$project" == "p1" ]]; then
-        toggl start -P 205212384 "$*"
-    elif [[ "$project" == "exor" ]]; then
-        toggl start -P 203446800 "$*"
-    elif [[ "$project" == "none" ]]; then
-        toggl start "$*"
-    else
-        return 1
-    fi
-}
-
 function red_mode {
     if [[ $1 == '1' ]]; then
         print -n "\033]10;rgb:ff/ff/ff\007"

@@ -1,3 +1,23 @@
+function wake {
+    wifi on
+    red_mode 0
+    short -s night_shift 0
+    loc dev eve lvl 200 >/dev/null
+
+    echo "Start blink timer"
+
+    local cort_taken
+    vared -p 'Cort amt: ' -c cort_taken
+
+    if [[ -n $cort_taken && $cort_taken != 0 ]]; then
+        a "took cort $cort_taken #e"
+
+        if [[ $cort_taken -ge 10 ]]; then
+            echo 'Drink water - ( cort >= 10 )'
+        fi
+    fi
+}
+
 function dawn {
     wifi on
 
@@ -51,13 +71,13 @@ function dawn {
 
     # env -------------------------------------------------------- #
 
-    short -s focus "$focus_mode"
+    short -N -s focus "$focus_mode"
     short -s night_shift "$night_shift"
     red_mode 0
 
     # display ---------------------------------------------------- #
 
-    local cal=$(short day tod)
+    local cal=$(short -m -N day tod)
     echo "$cal" | to_color.sh blue
 
     ob dawn
@@ -79,52 +99,53 @@ function dawn {
     echo
 
     [[ $(ob rule | lines) -gt 1 ]] && ob rule
-    [[ $(ob p | lines) -gt 1 ]] && ob p
     [[ $(ob risk | lines) -gt 1 ]] && ob risk
-    [[ $(b.sh | lines) -le 4 ]] && a "#b train neck"
+    if [[ $(ob p | lines) -gt 1 ]]; then
+        ob p
+    else
+        a 'plan #b'
+    fi
 
     if state.sh -s 'headache'; then
         ob 'head period'
     fi
 
     tdi
-
-    # calendar conditionals ---------------------------------------------------------- #
-
-    if echo $cal | grep -Fq "badminton"; then
-        a "tod pack racket & shoes @rm"
-        echo "pack racket - badminton & shoes"
-    fi
-
-    if echo $cal | grep -Fq "climb"; then
-        a "climb 1 s #u"
-        ob fys
-    fi
+    echo $cal | $MY_SCRIPTS/secret/agenda_switch.sh
+    ob p | $MY_SCRIPTS/secret/agenda_switch.sh
 
     # lastly ----------------------------------------------------- #
 
     a "dawn #u"
 }
 
-function dinner {
-    local temp=$(sens -n temp)
-    if [[ $temp -gt $dinner_temp_threshold ]]; then
-        echo "Turn off radiator - ( $temp°C > $dinner_temp_threshold°C )"
+## @function eat 
+## @param {string[]}  Arguments to pass to `home` function
+function eat {
+    $MY_SCRIPTS/lang/shell/battery.sh 60
+    ( home "$@" & )
+
+    # If dinner
+    if in_window.sh 17:00 20:00; then
+        # Handle temperature
+        local temp=$(loc -n temp)
+        if [[ $temp -gt $dinner_temp_threshold ]]; then
+            echo "Turn off radiator - ( $temp°C > $dinner_temp_threshold°C )"
+        fi
+
+        # Handle creatine
+        local did_creatine=$(tl.sh habits | jq '.creatine')
+        if ! $did_creatine; then
+            echo "Creatine - ( not taken )"
+        fi
+
+        # Track time
+        local time_diff=$(bed_minus_dinner)
+        [ -n "$time_diff" ] && a "bed_minus_dinner $time_diff s #u" && echo "tracked bed_minus_dinner AS $time_diff"
     fi
-
-    local did_creatine=$(tl.sh habits | jq '.creatine')
-    if ! $did_creatine; then
-        echo "Creatine - ( not taken )"
-    fi
-
-    # Track time
-    local time_diff=$(bed_minus_dinner)
-    [ -n "$time_diff" ] && a "bed_minus_dinner $time_diff s #u" && echo "tracked bed_minus_dinner AS $time_diff"
-
-    $MY_SCRIPTS/lang/shell/battery.sh 50
 
     echo
-    ob dinner
+    ob meal
 }
 
 function eve {
@@ -178,7 +199,7 @@ function eve {
 
     tl.sh habits
 
-    local temp=$(sens temp)
+    local temp=$(loc temp)
     if [[ $temp -ge 21 ]]; then
         echo "Cool down - ( $temp >= 21°C )"
     fi
@@ -234,11 +255,12 @@ function bedtime {
     short -s focus sleep
     short -s home bedtime
     short -s bedtime_brightness
-    red_mode 1
+
+    a 'flush @rm'
 
     # display -------------------------------------------------------------------- #
 
-    if [[ $(sens temp) -lt 21 ]]; then
+    if [[ $(loc temp) -lt 21 ]]; then
         echo "Turn on radiator - ( $temp°C < 21°C )"
     fi
 
@@ -255,6 +277,10 @@ function bedtime {
     if [[ $(date +"%m") -le 2 || $(date +"%m") -ge 9 ]]; then
         echo "have warm clothes near"
     fi
+
+    local state_input
+    vared -p "State: " -c state_input
+    [[ -n "$state_input" ]] && a "$state_input #state"
 
     # shut down ------------------------------------------------------------------ #
 
@@ -278,6 +304,10 @@ function bedtime {
                 pkill -2 Arc
             fi
         fi
+    fi
+
+    if ask "Red mode?"; then
+        red_mode 1
     fi
 }
 

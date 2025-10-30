@@ -1,4 +1,6 @@
 now=$(date +%H:%M)
+
+
 if time_diff.sh -p "20:00" $now >/dev/null; then
     detach="$(tl.sh 'routines/detach/start?sep=%3A')"
     # NOTE - Defaults to has detached IF can't reach endpoint

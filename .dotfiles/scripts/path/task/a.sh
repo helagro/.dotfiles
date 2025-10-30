@@ -27,7 +27,7 @@ function process {
     # Do process
     (
         process_server "$1" ||
-            process_todoist_cli "$1 @cli"
+            process_todoist_cli "$1 @alt"
     ) && return 0
 
     echo "$1" >>"$file_path"
