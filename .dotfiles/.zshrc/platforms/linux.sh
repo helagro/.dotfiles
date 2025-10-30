@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-alias do_loc="cd $HOME/Developer/local-app && source .venv/bin/activate"
+alias do_loc="cd $HOME/Developer/local-app && source .venv/bin/activate && python src"
 
 function shout {
     if [ -n "$1" ]; then
