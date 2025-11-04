@@ -1,3 +1,5 @@
+#!/bin/zsh
+
 do_newline=true
 if [[ $1 == "-N" ]]; then
     do_newline=false

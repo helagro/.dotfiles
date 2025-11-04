@@ -282,8 +282,8 @@ function my_clear {
     printf "\033]1337;ClearScrollback\a" >&3
     
     local cols=$(tput cols)
-    local whipe_col=$((cols - $max_pyg_preview))
-    print -n "\e7\e[1;${whipe_col}H\033[35m${wiper}\033[0m\e8" >&3 
+    local wipe_col=$((cols - $max_pyg_preview))
+    print -n "\e7\e[1;${wipe_col}H\033[35m${wiper}\033[0m\e8" >&3 
 
     print_top_right
 }
@@ -292,7 +292,7 @@ function my_clear {
 function print_top_right {
     local row=1
     local cols=$(tput cols)
-    local whipe_col=$((cols - $max_pyg_preview - 3))
+    local wipe_col=$((cols - $max_pyg_preview - 3))
 
     local old_offline_amt=$(py map get -k offline_amt -d 0)
     local offline_amt=$(cat "$HOME/.dotfiles/tmp/a.txt" | wc -l | tr -d '[:space:]')
@@ -313,7 +313,7 @@ function print_top_right {
         local text=" ($offline_start|$offline_amt)"
         local col=$((cols - $((${#text})) + 1))
 
-        print -n "\e7\e[${row};${whipe_col}H\033[35m${wiper}\033[0m\e8" >&3
+        print -n "\e7\e[${row};${wipe_col}H\033[35m${wiper}\033[0m\e8" >&3
         print -n "\e7\e[1;${col}H\033[33m${text}\033[0m\e8" >&3
 
         row=$((row + 1))
@@ -321,7 +321,7 @@ function print_top_right {
     fi
 
     if [[ -n $pgo ]]; then
-        print -n "\e7\e[${row};${whipe_col}H\033[35m${wiper}\033[0m\e8" >&3
+        print -n "\e7\e[${row};${wipe_col}H\033[35m${wiper}\033[0m\e8" >&3
         local truncated=" ${pgo[1,$max_pyg_preview]}"
 
         if (( ${#pgo} > max_pyg_preview )); then
