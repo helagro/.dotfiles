@@ -14,21 +14,7 @@ reminder_text=$(ob "p/auto/ash remind")
 init_cols=$(tput cols)
 
 max_pyg_preview=5
-whiper=$(printf '%*s' $((max_pyg_preview + 3)) '')
-
-rp="#run :p"
-rb="#run :b"
-rd="#run :day"
-h="h #run"
-
-yd="yesterday"
-db="#done ^b ;"
-tea='water 750 && mint 1 && #b $(state.sh -s stress && echo "t theanine %% ") prepp tea %% @mv @home'
-test='$(echo "john doe")'
-sugar="sugar 1 && #b mouthwash"
-mv="@mv @home"
-is="#zz @wifi is"
-
+wiper=$(printf '%*s' $((max_pyg_preview + 3)) '')
 
 # =============================== USER FEATURES ============================== #
 
@@ -297,7 +283,7 @@ function my_clear {
     
     local cols=$(tput cols)
     local whipe_col=$((cols - $max_pyg_preview))
-    print -n "\e7\e[1;${whipe_col}H\033[35m${whiper}\033[0m\e8" >&3 
+    print -n "\e7\e[1;${whipe_col}H\033[35m${wiper}\033[0m\e8" >&3 
 
     print_top_right
 }
@@ -327,7 +313,7 @@ function print_top_right {
         local text=" ($offline_start|$offline_amt)"
         local col=$((cols - $((${#text})) + 1))
 
-        print -n "\e7\e[${row};${whipe_col}H\033[35m${whiper}\033[0m\e8" >&3
+        print -n "\e7\e[${row};${whipe_col}H\033[35m${wiper}\033[0m\e8" >&3
         print -n "\e7\e[1;${col}H\033[33m${text}\033[0m\e8" >&3
 
         row=$((row + 1))
@@ -335,7 +321,7 @@ function print_top_right {
     fi
 
     if [[ -n $pgo ]]; then
-        print -n "\e7\e[${row};${whipe_col}H\033[35m${whiper}\033[0m\e8" >&3
+        print -n "\e7\e[${row};${whipe_col}H\033[35m${wiper}\033[0m\e8" >&3
         local truncated=" ${pgo[1,$max_pyg_preview]}"
 
         if (( ${#pgo} > max_pyg_preview )); then

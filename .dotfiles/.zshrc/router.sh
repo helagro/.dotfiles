@@ -13,6 +13,7 @@ fi
 # ========================== SPECIAL WINDOWS ========================== #
 
 if [[ "$PWD" == "$HOME/.dotfiles/config/tabs/ai"* ]]; then
+    source "$HOME/.dotfiles/.zshrc/secret/a.sh"
     source "$HOME/.dotfiles/.zshrc/special/ai.sh"
     return 0
 fi
