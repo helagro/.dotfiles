@@ -19,13 +19,16 @@ whiper=$(printf '%*s' $((max_pyg_preview + 3)) '')
 rp="#run :p"
 rb="#run :b"
 rd="#run :day"
+h="h #run"
+
 yd="yesterday"
 db="#done ^b ;"
-
-tea="water 750 && mint 1 && #b prepp tea @mv @home"
-is="#zz @wifi is"
+tea='water 750 && mint 1 && #b $(state.sh -s stress && echo "t theanine %% ") prepp tea %% @mv @home'
+test='$(echo "john doe")'
 sugar="sugar 1 && #b mouthwash"
 mv="@mv @home"
+is="#zz @wifi is"
+
 
 # =============================== USER FEATURES ============================== #
 
@@ -94,7 +97,7 @@ function color {
             '\$\([^\$]+\)' fg=cyan
             '(?<=^|\s)>(-?\d|\w)+(?=$|\s)' fg=cyan
             '^R[[:space:]]' fg=cyan,bold
-            '^(c|d|q)$' fg=cyan,bold
+            '^(c|C|d|D|q)$' fg=cyan,bold
         )
     else
         _color=0
@@ -195,17 +198,24 @@ function a_ui {
             divide "$start_time"
             print_top_right
             continue
+        elif [[ $line == 'C' ]]; then
+            clear
+            continue
         elif [[ $line == 'R '* ]]; then
             command=$(echo "$line" | sed -E 's/R[[:space:]]+//g')
             tmpfile=$(mktemp)
             
             eval "$command" >"$tmpfile"
             local output=$(<"$tmpfile")
-
+            
             [[ -n $output ]] && echo " 🖨️ $output"
             rm "$tmpfile"
             continue
         elif [[ $line == 'd' ]]; then
+            divide
+            continue
+        elif [[ $line == 'D' ]]; then
+            clear
             divide
             continue
         elif [[ $line == 'q' ]]; then
@@ -219,7 +229,8 @@ function a_ui {
             -e "s/'/\\'/g" \
             -e 's/`/\\`/g' \
             -e 's/"/\\"/g')
-        local expanded_line=$(eval echo \"$escaped\" | tr -d '\\')
+        local once_expanded_line=$(eval echo \"$escaped\")
+        local expanded_line=$(eval echo \"$once_expanded_line\" | tr -d '\\')
 
         if [[ $expanded_line =~ '(?<=^|\s)>((-?\d|\w|\.)+)(?=$|\s)' ]]; then
             pgo=$(py get -- "$match[1]")

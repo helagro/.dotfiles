@@ -12,5 +12,5 @@ if [ "$return_code" -ne 0 ]; then
     exit "$return_code"
 fi
 
-printf "$content" | rat.sh -pPl "json"
+printf '%s' "$content" | rat.sh -pPl "json"
 $do_newline && echo || :

@@ -158,6 +158,7 @@ function menu {
         found_match=true
 
     elif [[ $action == *"i"* ]]; then
+        echo
         (
             echo "$selection" | in.sh
         )
@@ -327,7 +328,7 @@ function acts {
     output=$(act_td_filter 'do' 5 "$output")
     output=$(act_td_filter 'eval' 4 "$output")
     output=$(act_td_filter 'inbox' 15 "$output")
-    output=$(act_td_filter 'p1' 0 "$output")
+    output=$(act_td_filter 'p1' 1 "$output")
     output=$(act_td_filter 'res' 7 "$output")
     output=$(act_td_filter 'u' 10 "$output")
     output=$(act_td_filter 'zz' 2 "$output")

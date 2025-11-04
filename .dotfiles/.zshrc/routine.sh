@@ -2,7 +2,7 @@ function wake {
     wifi on
     red_mode 0
     short -s night_shift 0
-    loc dev eve lvl 200 >/dev/null
+    loc dev eve lvl 100 >/dev/null
 
     echo "Start blink timer"
 
@@ -16,6 +16,8 @@ function wake {
             echo 'Drink water - ( cort >= 10 )'
         fi
     fi
+
+    wake_state
 }
 
 function dawn {
@@ -107,7 +109,7 @@ function dawn {
     fi
 
     if state.sh -s 'headache'; then
-        ob 'head period'
+        obc 'head period'
     fi
 
     tdi
@@ -260,9 +262,9 @@ function bedtime {
 
     # display -------------------------------------------------------------------- #
 
-    if [[ $(loc temp) -lt 21 ]]; then
-        echo "Turn on radiator - ( $temp°C < 21°C )"
-    fi
+    # if [[ $(loc temp) -lt 21 ]]; then
+    #     echo "Turn on radiator - ( $temp°C < 21°C )"
+    # fi
 
     local month=$(date +%m)
     if [[ "$month" == "03" || "$month" == "04" || "$month" == "05" ]]; then
