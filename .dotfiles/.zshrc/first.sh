@@ -1,6 +1,7 @@
 #!/bin/zsh
 
 export MY_SCRIPTS="$HOME/.dotfiles/scripts"
+export LOCAL_SERVER_IP="192.168.3.46"
 
 # -------------------------- ALIASES ------------------------- #
 

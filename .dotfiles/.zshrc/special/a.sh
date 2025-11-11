@@ -7,10 +7,11 @@ pgo=""
 
 _color=1
 _prev_audio=1
+_silent=0
 
 # ================================= CONSTANTS ================================ #
 
-reminder_text=$(ob "p/auto/ash remind")
+reminder_text=$(ob "p/auto/ash remind" | awk NF)
 init_cols=$(tput cols)
 
 max_pyg_preview=5
@@ -23,11 +24,11 @@ alias e="echo"
 
 
 function len {
-    say $(py len)
+    my_speak $(py len)
 }
 
 function p {
-    say $(py get -- -1p)
+    my_speak $(py get -- -1p)
 }
 
 function py {
@@ -83,7 +84,7 @@ function color {
             '\$\([^\$]+\)' fg=cyan
             '(?<=^|\s)>(-?\d|\w)+(?=$|\s)' fg=cyan
             '^R[[:space:]]' fg=cyan,bold
-            '^(c|C|d|D|q)$' fg=cyan,bold
+            '^(c|C|d|D|q|s|S)$' fg=cyan,bold
         )
     else
         _color=0
@@ -159,7 +160,7 @@ function a_ui {
             my_clear
         fi
 
-        m_vared
+        take_input
 
         # log ------------------------------------------------------------------------ #
 
@@ -196,6 +197,16 @@ function a_ui {
             
             [[ -n $output ]] && echo " 🖨️ $output"
             rm "$tmpfile"
+            continue
+        elif [[ $line == 's' ]]; then
+            _silent=1
+            continue
+        elif [[ $line == 'S' ]]; then
+            if [[ $_silent == 2 ]]; then
+                _silent=0
+            else
+                _silent=2
+            fi
             continue
         elif [[ $line == 'd' ]]; then
             divide
@@ -246,7 +257,7 @@ function a_ui {
                 } &
             )
             
-            [[ $speak == 1 ]] && say "$expanded_line"
+            [[ $speak == 1 ]] && my_speak "$expanded_line"
             print_if_reminder "$escaped"
         fi
     done
@@ -255,6 +266,9 @@ function a_ui {
 
 # ============================= HELPER FUNCTIONS ============================= #
 
+function my_speak { 
+    say -v samantha -r 500 "$*"
+}
 
 function print_if_reminder {
     if reminder=$(echo "$reminder_text" | grep -m1 -F -- "- [ ] $1 |"); then
@@ -339,11 +353,20 @@ function print_top_right {
 }
 
 
-function m_vared {
+function take_input {
     local padded_num=$(printf "%02d" $next_idx)
 
     line=""
-    vared -p "%B%F{yellow}$padded_num $sign%f%b " line
+
+    if [[ $_silent == 0 ]]; then
+        vared -p "%B%F{yellow}$padded_num $sign%f%b " line
+    else
+        print -n -P "\e[3m%F{yellow}${padded_num} ${sign}%f\e[23m "
+        read -s "line?"
+        echo
+        [[ $_silent == 1 ]] && _silent=0
+    fi
+
     [[ $audio == 1 ]] && beep 0.55
 
     line=$(echo "$line" | tr -d '\\')

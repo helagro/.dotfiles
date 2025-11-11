@@ -1,5 +1,6 @@
 #!/bin/zsh
 
+alias re_loc="git pull --rebase && python src"
 alias do_loc="cd $HOME/Developer/local-app && source .venv/bin/activate && python src"
 
 function shout {

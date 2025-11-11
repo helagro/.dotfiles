@@ -20,6 +20,7 @@ function store_brew() {
     done
 }
 
-echo "" >$HOME/.dotfiles/setup/macOS/brewPkgs.sh
+echo "# Leaves" >$HOME/.dotfiles/setup/macOS/brewPkgs.sh
 brew leaves | store_brew
+echo "# Casks" >>$HOME/.dotfiles/setup/macOS/brewPkgs.sh
 brew list --cask | store_brew

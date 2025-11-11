@@ -8,7 +8,6 @@ export DOC="$HOME/Documents"
 export DEV="$HOME/Developer"
 export VAULT="$HOME/vault"
 
-export LOCAL_SERVER_IP="192.168.3.46"
 # NOTE - Items must end with a comma, even last one
 # NOTE - Used by server-app
 export DISABLED_TD_APP_ITEMS="---,ob,null,"
@@ -364,6 +363,11 @@ function loc {
     local params="${(j:/:)@}"
     local result=$(curl -sS --connect-timeout 2 "$LOCAL_SERVER_IP:8004/$params")
 
+    if [[ $? -ne 0 ]]; then
+        result='{"error": "Could not connect to local server"}'
+        return 1
+    fi
+
     if $do_silent; then
         return 0
     fi
@@ -521,11 +525,15 @@ function latero {
 alias td="todoist"
 alias tdl="$MY_SCRIPTS/lang/shell/task/tdl.sh"
 alias tdi="tdl '(tod|od|p1)'"
-alias tundo="tdls :inbox -p | tac | in.sh "
 
 alias tds='(td s &)'
 alias tdis='td s && tdi'
 alias tdls='td s && tdl'
+
+function tundo {
+    local N=$1
+    tdls -p | tac | tail -n +$((N+1)) | in.sh
+}
 
 function a {
     if [ -z "$*" ]; then  # If no arguments passed

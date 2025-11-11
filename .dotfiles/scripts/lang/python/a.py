@@ -25,6 +25,7 @@ class GetCommand:
     get_labels: bool = False
     first_split: bool = False
     last_splits: bool = False
+    is_help: bool = False
 
     @staticmethod
     def from_code(code: str):
@@ -36,6 +37,7 @@ class GetCommand:
         get_labels = 'l' in code
         first_split = 's' in code
         last_splits = 'S' in code
+        is_help = 'h' in code
 
         number_str = re.search(r'-?\d+', code)
         if not number_str:
@@ -51,9 +53,21 @@ class GetCommand:
                           get_date=get_date,
                           get_labels=get_labels,
                           first_split=first_split,
-                          last_splits=last_splits)
+                          last_splits=last_splits,
+                          is_help=is_help)
 
 
+codes = {
+    "d": "include project/destination",
+    "L": "exclude labels",
+    "t": "get time",
+    "T": "get date",
+    "D": "get destinations",
+    "l": "get labels",
+    "s": "first split",
+    "S": "last splits",
+    "h": "help"
+}
 HISTORY_FILE = "/tmp/a_history.txt"
 METADATA_FILE = "/tmp/a_meta.txt"
 
@@ -165,6 +179,10 @@ def get(code):
         command = GetCommand.from_code(code)
     except ValueError as e:
         print(e, file=sys.stderr)
+        return
+
+    if command.is_help:
+        print(codes)
         return
 
     line = get_line(command.index)

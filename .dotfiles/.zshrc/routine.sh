@@ -105,7 +105,7 @@ function dawn {
     if [[ $(ob p | lines) -gt 1 ]]; then
         ob p
     else
-        a 'plan #b'
+        a 'plan - big_break | exor | return #b'
     fi
 
     if state.sh -s 'headache'; then
@@ -130,7 +130,7 @@ function eat {
     # If dinner
     if in_window.sh 17:00 20:00; then
         # Handle temperature
-        local temp=$(loc -n temp)
+        local temp=$(loc -n sens/temp)
         if [[ $temp -gt $dinner_temp_threshold ]]; then
             echo "Turn off radiator - ( $temp°C > $dinner_temp_threshold°C )"
         fi
@@ -171,8 +171,6 @@ function eve {
         short -s night_shift 1
         theme 1
         pkill 'ChatGPT'
-
-        tg stop
     fi
 
     # reset ---------------------------------------------------------------------- #
@@ -201,7 +199,7 @@ function eve {
 
     tl.sh habits
 
-    local temp=$(loc temp)
+    local temp=$(loc sens/temp)
     if [[ $temp -ge 21 ]]; then
         echo "Cool down - ( $temp >= 21°C )"
     fi
@@ -262,7 +260,7 @@ function bedtime {
 
     # display -------------------------------------------------------------------- #
 
-    # if [[ $(loc temp) -lt 21 ]]; then
+    # if [[ $(loc sens/temp) -lt 21 ]]; then
     #     echo "Turn on radiator - ( $temp°C < 21°C )"
     # fi
 
