@@ -115,10 +115,6 @@ function dawn {
     tdi
     echo $cal | $MY_SCRIPTS/secret/agenda_switch.sh
     ob p | $MY_SCRIPTS/secret/agenda_switch.sh
-
-    # lastly ----------------------------------------------------- #
-
-    a "dawn #u"
 }
 
 ## @function eat 
@@ -222,7 +218,6 @@ function eve {
 
     (eve_track &)
 
-    a "eve #u"
     a "p_ett $(tdis | lines) s #u"
     (short track_away &)
 

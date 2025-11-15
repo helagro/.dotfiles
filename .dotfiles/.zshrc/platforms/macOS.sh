@@ -6,8 +6,6 @@ export PATH="/Users/h/Library/Python/3.9/bin:$PATH"
 export PATH="$HOME/.rbenv/bin:$PATH"
 export PATH=$PATH:$HOME/go/bin
 
-toggl_projects=$(toggl projects 2>/dev/null)
-
 if command -v rbenv &>/dev/null; then
     eval "$(rbenv init -)"
 fi
@@ -244,7 +242,7 @@ function sw {
 
     # handle timer ending --------------------------------------------------- #
 
-    if [ $? -ne 2 ]; then
+    if [[ $? -ne 2 ]] && ! $just_output; then
         if $is_important; then
             timer 0
         else

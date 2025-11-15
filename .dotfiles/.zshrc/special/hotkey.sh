@@ -12,7 +12,7 @@ function on_tab {
 function p {
     if [ "$*" = "podd" ]; then
 
-        if curl -s "$LOCAL_SERVER_IP:8004" >/dev/null; then
+        if curl --connect-timeout 1 -s "$LOCAL_SERVER_IP:8004" >/dev/null; then
             while [[ $? -eq 0 ]]; do
                 mpv "${opts[@]}" --volume=$background_vol "http://$LOCAL_SERVER_IP:8004/files/rand/podd" --screen-name=podd
             done

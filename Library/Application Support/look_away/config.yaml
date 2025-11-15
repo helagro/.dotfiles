@@ -2,6 +2,6 @@ timer:
     duration_minutes: 30
     break_seconds: 0
 notifications:
-    use_alert: false
-    show_notification: true
+    use_alert: 
+    show_notification: false
     text_command: '/Users/h/.dotfiles/scripts/lang/shell/on_break_timer.sh'

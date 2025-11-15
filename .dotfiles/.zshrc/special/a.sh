@@ -64,6 +64,7 @@ function hist {
 function color {
     if [[ $1 == '1' ]] || [[ -z $1 && $_color == 0 ]]; then
         _color=1
+        print -n "\033]111\007" >&3
         red_mode 0 >&3
 
         ZSH_HIGHLIGHT_REGEXP+=(
@@ -89,6 +90,8 @@ function color {
     else
         _color=0
         ZSH_HIGHLIGHT_REGEXP=()
+        print -n "\033]11;rgb:00/00/00\007" >&3
+        
         red_mode 1 >&3
     fi
 }
@@ -355,13 +358,20 @@ function print_top_right {
 
 function take_input {
     local padded_num=$(printf "%02d" $next_idx)
+    local prompt="$padded_num $sign"
+
+    if [[ $_color -eq 1 ]]; then
+        prompt="%F{yellow}$prompt%f"
+    else
+        prompt="%F{red}$prompt%f"
+    fi
 
     line=""
 
     if [[ $_silent == 0 ]]; then
-        vared -p "%B%F{yellow}$padded_num $sign%f%b " line
+        vared -p "%B$prompt%b " line
     else
-        print -n -P "\e[3m%F{yellow}${padded_num} ${sign}%f\e[23m "
+        print -n -P "$prompt "
         read -s "line?"
         echo
         [[ $_silent == 1 ]] && _silent=0

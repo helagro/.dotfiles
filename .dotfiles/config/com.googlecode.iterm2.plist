@@ -6831,8 +6831,6 @@
 												<key>Red Component</key>
 												<real>0.93343722820281982</real>
 											</dict>
-											<key>Background Image Location</key>
-											<string></string>
 											<key>Badge Color</key>
 											<dict>
 												<key>Alpha Component</key>
@@ -7090,9 +7088,9 @@
 												<real>0.094477064907550812</real>
 											</dict>
 											<key>Guid</key>
-											<string>58418092-CF50-48CD-88B6-6F1008187E6D</string>
+											<string>07133AC2-E2E9-4573-A5B6-11911C5605E3</string>
 											<key>Has Hotkey</key>
-											<true/>
+											<false/>
 											<key>Horizontal Spacing</key>
 											<real>1</real>
 											<key>HotKey Activated By Modifier</key>
@@ -7520,7 +7518,7 @@
 											<key>Title Components</key>
 											<integer>2624</integer>
 											<key>Transparency</key>
-											<real>0.052809175531914894</real>
+											<real>0.0</real>
 											<key>Unlimited Scrollback</key>
 											<false/>
 											<key>Use Bold Font</key>
@@ -7591,6 +7589,14 @@
 											<string>/Users/h/.dotfiles/config/tabs/a</string>
 											<string>/Users/h/.dotfiles/config/tabs/a</string>
 											<string>/Users/h/.dotfiles/config/tabs/a</string>
+											<string>/Users/h/.dotfiles/config/tabs/a</string>
+											<string>/Users/h/.dotfiles/config/tabs/a</string>
+											<string>/Users/h/.dotfiles/config/tabs/a</string>
+											<string>/Users/h/.dotfiles/config/tabs/a</string>
+											<string>/Users/h/.dotfiles/config/tabs/a</string>
+											<string>/Users/h/.dotfiles/config/tabs/a</string>
+											<string>/Users/h/.dotfiles/config/tabs/a</string>
+											<string>/Users/h/.dotfiles/config/tabs/a</string>
 										</array>
 										<key>Environment</key>
 										<dict>
@@ -7601,6 +7607,30 @@
 										<dict/>
 										<key>Hosts</key>
 										<array>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
 											<dict>
 												<key>Host name</key>
 												<string>Henriks-MacBook-Air.local</string>
@@ -8399,8 +8429,6 @@
 												<key>Red Component</key>
 												<real>0.98431372549019602</real>
 											</dict>
-											<key>Background Image Location</key>
-											<string></string>
 											<key>Badge Color</key>
 											<dict>
 												<key>Alpha Component</key>
@@ -8674,9 +8702,9 @@
 												<real>0.0</real>
 											</dict>
 											<key>Guid</key>
-											<string>2A7DC0A8-A715-482F-B568-1EA394537A2F</string>
+											<string>D79FC342-2F5A-4C53-A579-4C2BE1C885CD</string>
 											<key>Has Hotkey</key>
-											<false/>
+											<true/>
 											<key>Horizontal Spacing</key>
 											<real>1</real>
 											<key>HotKey Activated By Modifier</key>
@@ -8694,9 +8722,9 @@
 											<key>HotKey Modifier Flags</key>
 											<integer>1179648</integer>
 											<key>HotKey Window Animates</key>
-											<true/>
-											<key>HotKey Window AutoHides</key>
 											<false/>
+											<key>HotKey Window AutoHides</key>
+											<true/>
 											<key>HotKey Window Dock Click Action</key>
 											<integer>0</integer>
 											<key>HotKey Window Floats</key>
@@ -9138,7 +9166,7 @@
 											<key>Title Components</key>
 											<integer>2049</integer>
 											<key>Transparency</key>
-											<real>0.052809175531914894</real>
+											<real>0.0</real>
 											<key>Triggers</key>
 											<array/>
 											<key>Unlimited Scrollback</key>
@@ -9263,14 +9291,6 @@
 											<string>/Users/h</string>
 											<string>/Users/h</string>
 											<string>/Users/h</string>
-											<string>/Users/h</string>
-											<string>/Users/h</string>
-											<string>/Users/h</string>
-											<string>/Users/h</string>
-											<string>/Users/h</string>
-											<string>/Users/h</string>
-											<string>/Users/h</string>
-											<string>/Users/h</string>
 											<string>/Users/h/.dotfiles/config/tabs/act</string>
 											<string>/Users/h/.dotfiles/config/tabs/act</string>
 											<string>/Users/h/.dotfiles/config/tabs/act</string>
@@ -9293,6 +9313,14 @@
 											<string>/Users/h</string>
 											<string>/Users/h</string>
 											<string>/Users/h</string>
+											<string>/Users/h/.dotfiles/config/tabs/act</string>
+											<string>/Users/h/.dotfiles/config/tabs/act</string>
+											<string>/Users/h/.dotfiles/config/tabs/act</string>
+											<string>/Users/h/.dotfiles/config/tabs/act</string>
+											<string>/Users/h/.dotfiles/config/tabs/act</string>
+											<string>/Users/h/.dotfiles/config/tabs/act</string>
+											<string>/Users/h/.dotfiles/config/tabs/act</string>
+											<string>/Users/h/.dotfiles/config/tabs/act</string>
 											<string>/Users/h/.dotfiles/config/tabs/act</string>
 											<string>/Users/h/.dotfiles/config/tabs/act</string>
 											<string>/Users/h/.dotfiles/config/tabs/act</string>
@@ -9788,43 +9816,43 @@
 											</dict>
 											<dict>
 												<key>Host name</key>
-												<string>Macbook-Air-3.local</string>
+												<string>Henriks-MacBook-Air.local</string>
 												<key>User name</key>
 												<string></string>
 											</dict>
 											<dict>
 												<key>Host name</key>
-												<string>Macbook-Air-3.local</string>
+												<string>Henriks-MacBook-Air.local</string>
 												<key>User name</key>
 												<string></string>
 											</dict>
 											<dict>
 												<key>Host name</key>
-												<string>Macbook-Air-3.local</string>
+												<string>Henriks-MacBook-Air.local</string>
 												<key>User name</key>
 												<string></string>
 											</dict>
 											<dict>
 												<key>Host name</key>
-												<string>Macbook-Air-3.local</string>
+												<string>Henriks-MacBook-Air.local</string>
 												<key>User name</key>
 												<string></string>
 											</dict>
 											<dict>
 												<key>Host name</key>
-												<string>Macbook-Air-3.local</string>
+												<string>Henriks-MacBook-Air.local</string>
 												<key>User name</key>
 												<string></string>
 											</dict>
 											<dict>
 												<key>Host name</key>
-												<string>Macbook-Air-3.local</string>
+												<string>Henriks-MacBook-Air.local</string>
 												<key>User name</key>
 												<string></string>
 											</dict>
 											<dict>
 												<key>Host name</key>
-												<string>Macbook-Air-3.local</string>
+												<string>Henriks-MacBook-Air.local</string>
 												<key>User name</key>
 												<string></string>
 											</dict>
@@ -10634,8 +10662,6 @@
 												<key>Red Component</key>
 												<real>0.98431372549019602</real>
 											</dict>
-											<key>Background Image Location</key>
-											<string></string>
 											<key>Badge Color</key>
 											<dict>
 												<key>Alpha Component</key>
@@ -10909,9 +10935,9 @@
 												<real>0.0</real>
 											</dict>
 											<key>Guid</key>
-											<string>41F8ABE0-915F-4202-BF63-255C690AB3B4</string>
+											<string>57CCC1EC-C257-4099-B95E-D80E0F46083B</string>
 											<key>Has Hotkey</key>
-											<false/>
+											<true/>
 											<key>Horizontal Spacing</key>
 											<real>1</real>
 											<key>HotKey Activated By Modifier</key>
@@ -10929,9 +10955,9 @@
 											<key>HotKey Modifier Flags</key>
 											<integer>1179648</integer>
 											<key>HotKey Window Animates</key>
-											<true/>
-											<key>HotKey Window AutoHides</key>
 											<false/>
+											<key>HotKey Window AutoHides</key>
+											<true/>
 											<key>HotKey Window Dock Click Action</key>
 											<integer>0</integer>
 											<key>HotKey Window Floats</key>
@@ -11218,7 +11244,7 @@
 											<key>Mouse Reporting</key>
 											<true/>
 											<key>Name</key>
-											<string>Default</string>
+											<string>Primary</string>
 											<key>Non Ascii Font</key>
 											<string>Monaco 12</string>
 											<key>Non-ASCII Anti Aliased</key>
@@ -11373,7 +11399,7 @@
 											<key>Title Components</key>
 											<integer>2560</integer>
 											<key>Transparency</key>
-											<real>0.052809175531914894</real>
+											<real>0.0</real>
 											<key>Triggers</key>
 											<array/>
 											<key>Unlimited Scrollback</key>
@@ -11506,11 +11532,27 @@
 											<string>/Users/h</string>
 											<string>/Users/h</string>
 											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h/.dotfiles/config/tabs/work</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h/.dotfiles/config/tabs/work</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h/.dotfiles/config/tabs/work</string>
 										</array>
 										<key>Environment</key>
 										<dict>
 											<key>PWD</key>
-											<string>/Users/h</string>
+											<string>/Users/h/.dotfiles/config/tabs/work</string>
 										</dict>
 										<key>Hostname to Shell</key>
 										<dict/>
@@ -11882,6 +11924,90 @@
 												<key>User name</key>
 												<string></string>
 											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
 										</array>
 										<key>Is UTF-8</key>
 										<true/>
@@ -11912,7 +12038,7 @@
 										<key>Short Lived Single Use</key>
 										<false/>
 										<key>Should Expect Current Dir Updates</key>
-										<false/>
+										<true/>
 										<key>Should Expect Prompt Marks</key>
 										<true/>
 										<key>Substitutions</key>
@@ -11921,7 +12047,7 @@
 											<string>$$</string>
 										</dict>
 										<key>Working Directory</key>
-										<string>/Users/h</string>
+										<string>/Users/h/.dotfiles/config/tabs/work</string>
 										<key>Working Directory Poller Disabled</key>
 										<true/>
 									</dict>
@@ -12606,8 +12732,6 @@
 												<key>Red Component</key>
 												<real>0.98431372549019602</real>
 											</dict>
-											<key>Background Image Location</key>
-											<string></string>
 											<key>Badge Color</key>
 											<dict>
 												<key>Alpha Component</key>
@@ -12881,9 +13005,9 @@
 												<real>0.0</real>
 											</dict>
 											<key>Guid</key>
-											<string>AF94FD1E-6EE3-4ECC-84CE-F209239E1398</string>
+											<string>F911853D-4693-49C7-B5A8-B1BBD1C515B8</string>
 											<key>Has Hotkey</key>
-											<false/>
+											<true/>
 											<key>Horizontal Spacing</key>
 											<real>1</real>
 											<key>HotKey Activated By Modifier</key>
@@ -12901,9 +13025,9 @@
 											<key>HotKey Modifier Flags</key>
 											<integer>1179648</integer>
 											<key>HotKey Window Animates</key>
-											<true/>
-											<key>HotKey Window AutoHides</key>
 											<false/>
+											<key>HotKey Window AutoHides</key>
+											<true/>
 											<key>HotKey Window Dock Click Action</key>
 											<integer>0</integer>
 											<key>HotKey Window Floats</key>
@@ -13190,7 +13314,7 @@
 											<key>Mouse Reporting</key>
 											<true/>
 											<key>Name</key>
-											<string>Default</string>
+											<string>Primary</string>
 											<key>Non Ascii Font</key>
 											<string>Monaco 12</string>
 											<key>Non-ASCII Anti Aliased</key>
@@ -13345,7 +13469,7 @@
 											<key>Title Components</key>
 											<integer>2560</integer>
 											<key>Transparency</key>
-											<real>0.052809175531914894</real>
+											<real>0.0</real>
 											<key>Triggers</key>
 											<array/>
 											<key>Unlimited Scrollback</key>
@@ -13403,6 +13527,18 @@
 										<array/>
 										<key>Directories</key>
 										<array>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
 											<string>/Users/h</string>
 											<string>/Users/h</string>
 											<string>/Users/h</string>
@@ -13498,6 +13634,66 @@
 											<dict>
 												<key>Host name</key>
 												<string>Macbook-Air-3.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
 												<key>User name</key>
 												<string></string>
 											</dict>
@@ -14315,8 +14511,6 @@
 												<key>Red Component</key>
 												<real>0.98431372549019602</real>
 											</dict>
-											<key>Background Image Location</key>
-											<string></string>
 											<key>Badge Color</key>
 											<dict>
 												<key>Alpha Component</key>
@@ -14590,9 +14784,9 @@
 												<real>0.0</real>
 											</dict>
 											<key>Guid</key>
-											<string>EE833BFC-A5EC-4D97-94EB-581925AB30E8</string>
+											<string>69E75805-5231-450D-BB6C-D80218957DAC</string>
 											<key>Has Hotkey</key>
-											<false/>
+											<true/>
 											<key>Horizontal Spacing</key>
 											<real>1</real>
 											<key>HotKey Activated By Modifier</key>
@@ -14610,9 +14804,9 @@
 											<key>HotKey Modifier Flags</key>
 											<integer>1179648</integer>
 											<key>HotKey Window Animates</key>
-											<true/>
-											<key>HotKey Window AutoHides</key>
 											<false/>
+											<key>HotKey Window AutoHides</key>
+											<true/>
 											<key>HotKey Window Dock Click Action</key>
 											<integer>0</integer>
 											<key>HotKey Window Floats</key>
@@ -14899,7 +15093,7 @@
 											<key>Mouse Reporting</key>
 											<true/>
 											<key>Name</key>
-											<string>Default</string>
+											<string>Primary</string>
 											<key>Non Ascii Font</key>
 											<string>Monaco 12</string>
 											<key>Non-ASCII Anti Aliased</key>
@@ -15054,7 +15248,7 @@
 											<key>Title Components</key>
 											<integer>2560</integer>
 											<key>Transparency</key>
-											<real>0.052809175531914894</real>
+											<real>0.0</real>
 											<key>Triggers</key>
 											<array/>
 											<key>Unlimited Scrollback</key>
@@ -15124,6 +15318,19 @@
 											<string>/Users/h</string>
 											<string>/Users/h</string>
 											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h/.dotfiles/config/tabs/red</string>
 										</array>
 										<key>Environment</key>
 										<dict>
@@ -15134,6 +15341,66 @@
 										<dict/>
 										<key>Hosts</key>
 										<array>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
 											<dict>
 												<key>Host name</key>
 												<string>Henriks-MacBook-Air.local</string>
@@ -15230,7 +15497,7 @@
 										<key>Short Lived Single Use</key>
 										<false/>
 										<key>Should Expect Current Dir Updates</key>
-										<false/>
+										<true/>
 										<key>Should Expect Prompt Marks</key>
 										<true/>
 										<key>Substitutions</key>
@@ -15239,7 +15506,7 @@
 											<string>$$</string>
 										</dict>
 										<key>Working Directory</key>
-										<string>/Users/h</string>
+										<string>/Users/h/.dotfiles/config/tabs/red</string>
 										<key>Working Directory Poller Disabled</key>
 										<true/>
 									</dict>
@@ -15313,13 +15580,13 @@
 				<key>Has Toolbelt</key>
 				<false/>
 				<key>Height</key>
-				<real>175</real>
+				<real>745</real>
 				<key>Hide After Opening</key>
 				<false/>
 				<key>Hiding Toolbelt Should Resize Window</key>
 				<true/>
 				<key>Hotkey Profile GUID</key>
-				<string>A8184BCE-0341-438A-BF0E-2FB117BCA502</string>
+				<string>52088287-753A-41BD-98CE-F946EED8CDE8</string>
 				<key>Initial Profile</key>
 				<dict/>
 				<key>Is Hotkey Window</key>
@@ -15338,7 +15605,7 @@
 						<key>Root</key>
 						<dict>
 							<key>Splitter ID</key>
-							<string>43C5E9D1-8E1E-45CD-99AC-82016FDDFC99</string>
+							<string>958A818E-9784-4E07-A652-B9D44225E15D</string>
 							<key>Subviews</key>
 							<array>
 								<dict>
@@ -15981,8 +16248,6 @@
 												<key>Red Component</key>
 												<real>0.98431372549019602</real>
 											</dict>
-											<key>Background Image Location</key>
-											<string></string>
 											<key>Badge Color</key>
 											<dict>
 												<key>Alpha Component</key>
@@ -16256,9 +16521,9 @@
 												<real>0.0</real>
 											</dict>
 											<key>Guid</key>
-											<string>36343D79-62A8-481B-81F9-CA00C0000C2E</string>
+											<string>A6111EB0-AD06-491B-A854-D1AA4F987309</string>
 											<key>Has Hotkey</key>
-											<false/>
+											<true/>
 											<key>Horizontal Spacing</key>
 											<real>1</real>
 											<key>HotKey Activated By Modifier</key>
@@ -16276,9 +16541,9 @@
 											<key>HotKey Modifier Flags</key>
 											<integer>1179648</integer>
 											<key>HotKey Window Animates</key>
-											<true/>
-											<key>HotKey Window AutoHides</key>
 											<false/>
+											<key>HotKey Window AutoHides</key>
+											<true/>
 											<key>HotKey Window Dock Click Action</key>
 											<integer>0</integer>
 											<key>HotKey Window Floats</key>
@@ -16565,7 +16830,7 @@
 											<key>Mouse Reporting</key>
 											<true/>
 											<key>Name</key>
-											<string>Default</string>
+											<string>Primary</string>
 											<key>Non Ascii Font</key>
 											<string>Monaco 12</string>
 											<key>Non-ASCII Anti Aliased</key>
@@ -16720,7 +16985,7 @@
 											<key>Title Components</key>
 											<integer>2560</integer>
 											<key>Transparency</key>
-											<real>0.052809175531914894</real>
+											<real>0.0</real>
 											<key>Triggers</key>
 											<array/>
 											<key>Unlimited Scrollback</key>
@@ -16773,11 +17038,14 @@
 											<string>/Users/h</string>
 										</dict>
 										<key>Columns</key>
-										<integer>58</integer>
+										<integer>140</integer>
 										<key>Commands</key>
 										<array/>
 										<key>Directories</key>
 										<array>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
 											<string>/Users/h</string>
 											<string>/Users/h</string>
 											<string>/Users/h</string>
@@ -16791,6 +17059,18 @@
 										<dict/>
 										<key>Hosts</key>
 										<array>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
 											<dict>
 												<key>Host name</key>
 												<string>Henriks-MacBook-Air.local</string>
@@ -16829,19 +17109,17 @@
 										</array>
 										<key>Program</key>
 										<dict>
-											<key>Command</key>
-											<string>login -fp "h"</string>
 											<key>Type</key>
-											<string>Command</string>
+											<string>Shell Launcher</string>
 										</dict>
 										<key>Rows</key>
-										<integer>7</integer>
+										<integer>37</integer>
 										<key>Session GUID</key>
-										<string>5EF2D2A9-5561-42C1-A3DA-F5B7FEE81A14</string>
+										<string>A7E5BDF0-D52E-45C5-9D7F-F6E4D31B969C</string>
 										<key>Short Lived Single Use</key>
 										<false/>
 										<key>Should Expect Current Dir Updates</key>
-										<true/>
+										<false/>
 										<key>Should Expect Prompt Marks</key>
 										<true/>
 										<key>Substitutions</key>
@@ -16852,16 +17130,16 @@
 										<key>Working Directory</key>
 										<string>/Users/h</string>
 										<key>Working Directory Poller Disabled</key>
-										<true/>
+										<false/>
 									</dict>
 									<key>View Type</key>
 									<string>SessionView</string>
 									<key>frame</key>
 									<dict>
 										<key>height</key>
-										<real>137</real>
+										<real>707</real>
 										<key>width</key>
-										<real>474</real>
+										<real>1130</real>
 										<key>x</key>
 										<real>0.0</real>
 										<key>y</key>
@@ -16874,9 +17152,9 @@
 							<key>frame</key>
 							<dict>
 								<key>height</key>
-								<real>137</real>
+								<real>707</real>
 								<key>width</key>
-								<real>474</real>
+								<real>1130</real>
 								<key>x</key>
 								<real>0.0</real>
 								<key>y</key>
@@ -16886,11 +17164,11 @@
 							<false/>
 						</dict>
 						<key>Tab GUID</key>
-						<string>7D145DC0-4458-4DC7-AE77-50741742B302</string>
+						<string>B2B0568F-1807-47D0-899B-EA6BE7003DBF</string>
 					</dict>
 				</array>
 				<key>TerminalGuid</key>
-				<string>pty-5C8CD733-5D40-42AA-BEC3-1AF72ADFC937</string>
+				<string>pty-06FFF0FE-4F25-49DA-BD03-AF04358F1FA4</string>
 				<key>Toolbelt</key>
 				<dict/>
 				<key>Toolbelt Proportions</key>
@@ -16906,15 +17184,15 @@
 					</array>
 				</dict>
 				<key>Use Transparency</key>
-				<false/>
+				<true/>
 				<key>Width</key>
-				<real>474</real>
+				<real>1130</real>
 				<key>Window Type</key>
 				<integer>13</integer>
 				<key>X Origin</key>
-				<real>55</real>
+				<real>184</real>
 				<key>Y Origin</key>
-				<real>627</real>
+				<real>0.0</real>
 			</dict>
 		</array>
 	</dict>

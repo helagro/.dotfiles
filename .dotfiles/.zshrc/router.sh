@@ -1,5 +1,8 @@
 #!/bin/zsh
 
+[[ "$PWD" == "$HOME/.dotfiles/config/tabs/work" ]] && is_work_tab=true || is_work_tab=false
+[[ "$PWD" == "$HOME/.dotfiles/config/tabs/red" ]] && export is_red_tab=true || export is_red_tab=false
+
 source "$HOME/.dotfiles/.zshrc/first.sh"
 
 # ========================== SECRETS ========================= #
@@ -37,11 +40,26 @@ export PATH="$HOME/.dotfiles/scripts/path:$(printf "%s:" "$HOME/.dotfiles/script
 
 source "$HOME/.dotfiles/.zshrc/main.sh"
 
+# ================================ SIMPLE TABS ================================ #
+
+if $is_red_tab; then
+    print -n "\033]10;rgb:ff/df/df\007"
+    cd "$HOME"
+else
+    red_mode 0 0
+fi
+
+if $is_work_tab; then
+    cd "$HOME"
+else
+    source "$HOME/.dotfiles/.zshrc/sys.sh"
+fi
+
 # ===================== PLATFORM SPECIFIC ==================== #
 
 if [ "$(uname)" = "Darwin" ]; then
 
-    if [[ -f "$(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; then
+    if ! $is_red_tab && [[ -f "$(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; then
         source "$(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
     fi
     if [[ -f "$(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ]]; then
@@ -52,7 +70,7 @@ if [ "$(uname)" = "Darwin" ]; then
 
     if [[ "$PWD" == "$HOME/.dotfiles/config/tabs/a" ]]; then
         source "$HOME/.dotfiles/.zshrc/special/a.sh"
-    else
+    elif ! $is_work_tab; then
         source "$HOME/.dotfiles/.zshrc/routine.sh"
     fi
 

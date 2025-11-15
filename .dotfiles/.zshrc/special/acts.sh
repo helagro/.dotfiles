@@ -126,6 +126,10 @@ function menu {
             $await_completion && wait
         )
         found_match=true
+
+    elif [[ $action == *"c"* ]]; then
+        echo -n "" | pbcopy
+        
     elif [[ $action == *"F"* ]]; then
         vared -p "Act filter: " act_filter </dev/tty
 
@@ -167,20 +171,26 @@ function menu {
     fi
 
 
-    if [[ $action == *"u"* || $action == *"m"* || $action == *"d"* || $action == *"e"* ]]; then
+    if [[ $action =~ [umdec] ]]; then
         (
             echo "$selection" | while read -r select_item; do
-                if [[ $action == *"e"* ]]; then
-                    local command=$(
-                        echo "$select_item" | 
-                        tr -s '[:space:]' ' ' | # Remove spaces
+                local select_item_content=$(
+                        print "$select_item" | 
                         sed 's/^[0-9]*\ //' | # Remove ID
                         sed 's/#\([A-Za-z0-9/]*\)//' | # Remove project
                         sed 's/p[0-9]//' | # Remove priority
-                        sed 's/@[A-Za-z0-9_/-]*//g' # Remove tags
+                        sed 's/@[A-Za-z0-9_/-]*//g' | # Remove tags
+                        sed 's/^ *//' | # Leading spaces
+                        tr -s '[:space:]' ' ' | # Remove bad spaces
+                        tr -s '  ' ' ' # Remove bad spaces
                     )
 
-                    eval "$command"
+                if [[ $action == *"e"* ]]; then
+                    eval "$select_item_content"
+                elif [[ $action == *"c"* ]]; then
+                    local prev_clipboard=$(pbpaste)
+                    [[ -n $prev_clipboard ]] && prev_clipboard+="\n"
+                    print -n "$prev_clipboard$(print -n $select_item_content)" | pbcopy
                 fi
                 
                 if [[ "$action" == *"d"* ]]; then
@@ -217,7 +227,7 @@ function menu {
     if [[ $action == *"M"* ]]; then
         return 2
     elif ! $found_match; then
-        echo "functions - (a)dd, (d)elete, (e)xecute, (F|f)ilter, (i)nbox, (m)odify, (n)ext, (r)un, (S|s)ync, (u)pdate, (q)uit"
+        echo "functions - (a)dd, (c)opy, (d)elete, (e)xecute, (F|f)ilter, (i)nbox, (m)odify, (n)ext, (r)un, (S|s)ync, (u)pdate, (q)uit"
         echo "modifiers - (A)lt, (M)enu, (W)ait"
         echo "options - calc=$calc"
         menu # NOTE - recursion
