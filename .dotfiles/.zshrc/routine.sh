@@ -88,7 +88,7 @@ function dawn {
     tl.sh habits/streaks
     for state in "${state_list[@]}"; do
         $(eval echo \$$state) && echo $state
-    done
+    done | to_color.sh magenta
     state.sh | jq -r 'to_entries[] | select(.value == true) | .key' | to_color.sh magenta
 
     local forecast=$(weather -l 1)
@@ -209,7 +209,7 @@ function eve {
     # manual track ------------------------------------------------- #
 
     vared -p "Main: " -c main
-    [[ -n "$main" ]] && a "main $(hm $main) s #u"
+    [[ -n "$main" ]] && a "main $(hm $main) #u"
 
     vared -p "Screen: " -c screen
     [[ -n "$screen" ]] && a "screen $(hm $screen) s #u"
@@ -299,10 +299,6 @@ function bedtime {
                 pkill -2 Arc
             fi
         fi
-    fi
-
-    if ask "Red mode?"; then
-        red_mode 1
     fi
 }
 

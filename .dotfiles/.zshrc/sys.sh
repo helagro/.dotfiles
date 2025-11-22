@@ -25,7 +25,7 @@ function ect {
 
 function act {
     local project=''
-    local max_duration="45:00"
+    local max_duration="50:00"
     local focus_flag="-f"
     local activity_name=""
     local important_flag="-i"
@@ -69,8 +69,8 @@ function act {
     fi
 
     if [[ $project == "sys" ]]; then
-        do_sys
-        [[ -n $override_act_duration ]] && max_duration="$override_act_duration:00"
+        # do_sys
+        # [[ -n $override_act_duration ]] && max_duration="$override_act_duration:00"
     elif [[ $activity_name == "eat" ]]; then
         eat
         return
@@ -80,18 +80,20 @@ function act {
     [[ -n $prev_focus ]] && focus_flag=""
 
     $online && tgs "$project" "$activity_name"
+
+    [[ $(short is_home) == *"false"* ]] && focus_flag=""
     sw $important_flag $focus_flag -a "$activity_name" $max_duration
 
     if $online; then
         toggl stop
-        (loc actions/stop &) >/dev/null 2>&1
+        (loc stop &) >/dev/null 2>&1
     fi
 }
 
 function pmr {
     local messages=("Feet" "Calves" "Thighs" "Torso" "Back" "Hands" "Biceps" "Triceps" "Shoulders & Neck" "Face")
 
-    a 'mindwork 4 #u'
+    a 'mindwork 2 #u'
     trap 'print -n "\e[?25h"; return ; return' INT
     print -n "\e[?25l"
 
@@ -108,7 +110,7 @@ function pmr {
 
 function tgs {
     local project_name=$1
-    (loc actions start &) >/dev/null 2>&1
+    (loc start &) >/dev/null 2>&1
 
     if [[ -z $project_name ]]; then
         toggl start "$*"
@@ -137,6 +139,7 @@ function tgs {
 function hm { python3 $MY_SCRIPTS/lang/python/hm.py "$@" | rat.sh -pPl 'json'; }
 function group { python3 $MY_SCRIPTS/lang/python/group.py "$@" | rat.sh -pPl 'json'; }
 function csv { conda run -n main python3 "$MY_SCRIPTS/lang/python/jsons_to_csv.py" $@ | rat.sh -pPl 'tsv'; }
+alias is="is.sh"
 
 function plot {
     if [[ -p /dev/stdin ]]; then
@@ -200,35 +203,6 @@ function isl {
     done
 }
 
-function is {
-    local value_only=false
-
-    if [[ "$1" == "-v" ]]; then
-        value_only=true
-        shift
-    fi
-
-    if [ $# -gt 0 ]; then
-        # if conda installed
-        if command -v conda &>/dev/null; then
-            is_output=$(conda run -n main python3 "$HOME/.dotfiles/scripts/lang/python/exist.py" $@)
-            local code=$?
-        else
-            is_output=$(python3 "$HOME/.dotfiles/scripts/lang/python/exist.py" $@)
-            local code=$?
-        fi
-    fi
-
-    if $value_only; then
-        echo $is_output | jq '.[]' | rat.sh -pl 'json'
-    else
-        echo $is_output | rat.sh -pl 'json'
-    fi
-
-    if [ -n "$code" ]; then
-        return $code
-    fi
-}
 
 # obsidian ------------------------------------------------------------------- #
 
@@ -320,7 +294,7 @@ compdef _ob_completions ob
 # todoist -------------------------------------------------------------------- #
 
 alias td="todoist"
-alias tdl="$MY_SCRIPTS/lang/shell/task/tdl.sh"
+alias tdl="tdl.sh"
 alias tdi="tdl '(tod|od|p1)'"
 
 alias tds='(td s &)'

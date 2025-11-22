@@ -7,8 +7,8 @@ source "$HOME/.dotfiles/.zshrc/first.sh"
 
 # ========================== SECRETS ========================= #
 
-if ls "$HOME/.dotfiles/.zshrc/secret/" | grep ".sh" >/dev/null; then
-    for file in "$HOME/.dotfiles/.zshrc/secret/"*.sh; do
+if ls "$HOME/.dotfiles/.zshrc/secret" | grep ".sh" >/dev/null; then
+    for file in "$HOME/.dotfiles/.zshrc/secret/always_sourced/"*.sh; do
         [ -f "$file" ] && source "$file"
     done
 fi
@@ -52,6 +52,7 @@ fi
 if $is_work_tab; then
     cd "$HOME"
 else
+    source "$HOME/.dotfiles/.zshrc/secret/state.sh"
     source "$HOME/.dotfiles/.zshrc/sys.sh"
 fi
 
@@ -76,6 +77,7 @@ if [ "$(uname)" = "Darwin" ]; then
 
 elif [ "$(uname)" = "Linux" ]; then
     source "$HOME/.dotfiles/.zshrc/platforms/linux.sh"
+    source "$HOME/.dotfiles/.zshrc/secret/linux.sh"
 fi
 
 # ========================== SPECIAL ACT ========================= #

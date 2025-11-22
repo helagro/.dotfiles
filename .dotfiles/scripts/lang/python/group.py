@@ -13,7 +13,7 @@ class Grouping(Enum):
 
 
 class Operation(Enum):
-    AVG = "avg"
+    AVG = ["avg", "mean"]
     SUM = "sum"
 
 
@@ -60,7 +60,7 @@ def process_dict(data, operation: str, grouping: str):
         else:
             res[code] = [value]
 
-    if operation == Operation.AVG.value:
+    if operation in Operation.AVG.value:
         res = {week: round(sum(values) / len(values), 2) for week, values in res.items()}
     elif operation == Operation.SUM.value:
         res = {week: sum(values) for week, values in res.items()}
@@ -91,7 +91,7 @@ def year_code(date_str):
 
 if __name__ == "__main__":
     grouping = Grouping.WEEK.value
-    operation = Operation.AVG.value
+    operation = Operation.AVG.value[1]
 
     if len(sys.argv) >= 2:
         grouping = sys.argv[1][0].lower()

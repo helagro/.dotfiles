@@ -91,6 +91,7 @@ function talk {
         echo "$text" |
             sed -E 's/\[([0-9]| e|,)+\]//g' |
             sed -E 's/\([0-9]+\)//g' |
+            sed -E 's/\([0-9]+\)//g; s/[`_]//g' |
             tr -s '[:space:]' |
             sed -E 's/\(s\)/s/g' |
             sed 's/[^[:alnum:][:punct:][:space:]]//g'
@@ -153,6 +154,8 @@ function yadm_enc {
     fi
 
     yadm encrypt
+
+    pbpaste
 
     echo -n "" | pbcopy
 }

@@ -202,7 +202,7 @@ function menu {
                     do_update "$(echo "$select_item" | sed 's/#\([A-Za-z0-9/]*\)//' | sed 's/p4//')" &
 
                 elif [[ "$action" == *"m"* ]]; then
-                    do_update "$select_item" &
+                    do_update "$(echo "$select_item" | sed 's/p4//')" &
                 fi
             done
 
@@ -224,11 +224,14 @@ function menu {
         found_match=true
     fi
 
-    if [[ $action == *"M"* ]]; then
+    if [[ $action == *"C"* ]]; then
+        clear
+        return 2
+    elif [[ $action == *"M"* ]]; then
         return 2
     elif ! $found_match; then
         echo "functions - (a)dd, (c)opy, (d)elete, (e)xecute, (F|f)ilter, (i)nbox, (m)odify, (n)ext, (r)un, (S|s)ync, (u)pdate, (q)uit"
-        echo "modifiers - (A)lt, (M)enu, (W)ait"
+        echo "modifiers - (A)lt, (C)lear (M)enu, (W)ait"
         echo "options - calc=$calc"
         menu # NOTE - recursion
     fi
