@@ -4,6 +4,7 @@ exec 3>/dev/tty
 
 sign="-"
 pgo=""
+_num_len=2
 
 _color=1
 _prev_audio=1
@@ -198,7 +199,8 @@ function a_ui {
             eval "$command" >"$tmpfile"
             local output=$(<"$tmpfile")
             
-            [[ -n $output ]] && echo " 🖨️ $output"
+            printf "%*s" $_num_len ""
+            [[ -n $output ]] && echo -e " \e[35m${reminder_parts[2]## }\e[0m"       
             rm "$tmpfile"
             continue
         elif [[ $line == 's' ]]; then
@@ -276,7 +278,8 @@ function my_speak {
 function print_if_reminder {
     if reminder=$(echo "$reminder_text" | grep -m1 -F -- "- [ ] $1 |"); then
         reminder_parts=("${(@s:|:)reminder}")
-        echo " 🔔 ${reminder_parts[2]## }"
+        printf "%*s" $_num_len ""
+        echo -e " \e[35m${reminder_parts[2]## }\e[0m"
     fi
 }
 
@@ -358,6 +361,7 @@ function print_top_right {
 
 function take_input {
     local padded_num=$(printf "%02d" $next_idx)
+    _num_len=${#padded_num}
     local prompt="$padded_num $sign"
 
     if [[ $_color -eq 1 ]]; then
