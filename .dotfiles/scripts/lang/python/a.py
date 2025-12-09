@@ -6,6 +6,7 @@ import json
 import os
 from datetime import datetime
 import re
+import fcntl
 
 
 @dataclass
@@ -258,17 +259,25 @@ def get_line(line_number) -> list[str] | None:
 
 
 def get_meta() -> Meta:
-    if not os.path.exists(METADATA_FILE):
-        return Meta(map={})
+    with open(METADATA_FILE, "a+") as f:
+        fcntl.flock(f, fcntl.LOCK_EX)
+        f.seek(0)
 
-    with open(METADATA_FILE) as f:
-        data = json.load(f)
+        try:
+            data = json.load(f)
+        except json.JSONDecodeError:
+            return Meta(map={})
+        finally:
+            fcntl.flock(f, fcntl.LOCK_UN)
+
         return Meta(**data)
 
 
 def save_meta(meta: Meta):
     with open(METADATA_FILE, "w") as f:
+        fcntl.flock(f, fcntl.LOCK_EX)
         json.dump(meta.__dict__, f)
+        fcntl.flock(f, fcntl.LOCK_UN)
 
 
 def update_meta(updater):

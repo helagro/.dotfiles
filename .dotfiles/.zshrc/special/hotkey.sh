@@ -21,7 +21,7 @@ function p {
                 mpv "${opts[@]}" \
                     --volume=$background_vol "http://$LOCAL_SERVER_IP:8004/files/rand/podd" \
                     "$@"
-                "$HOME/.dotfiles/scripts/path/task/a.sh" "$(day) podd 60"
+                # "$HOME/.dotfiles/scripts/path/task/a.sh" "$(day) podd 60"
             done
         else
             if rand 2 >/dev/null; then

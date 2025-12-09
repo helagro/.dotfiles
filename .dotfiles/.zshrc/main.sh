@@ -170,8 +170,14 @@ alias gsw="git switch "    # Git Switch
 function gclone { git clone "git@github.com:helagro/$1.git" $DEV/$1; }      # Git Clone
 function gi { curl -s https://www.toptal.com/developers/gitignore/api/$@; } # Git Ignore
 function yq { yadm add -u && yadm commit -m "$*" && yadm push; }            # Yadm Quick
-function gq { gql "$*" && git push; }                                       # Git Quick
 function gqa { gaa && git commit --amend && git push -f; }                  # Git Quick Amend
+
+# Git Quick
+function gq { 
+    gql "$*" 
+    read -q "?Press enter to push..."
+    git push
+}
 
 # Git Quick Local
 function gql {

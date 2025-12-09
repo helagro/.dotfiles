@@ -10,9 +10,11 @@ function main {
 
     # tasks -------------------------------------------------------------------- #
 
+    todoist --csv l > "$HOME/Desktop/tdl.csv"
+
     # archiver
     echo "--- archiver"
-    $HOME/Documents/archiver-go/build/macOS 2>&1
+    "$HOME/Documents/archiver-go/build/macOS" 2>&1
 
     # list apps
     echo "--- list_app"

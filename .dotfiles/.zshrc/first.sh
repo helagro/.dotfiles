@@ -40,8 +40,8 @@ function day {
 
 function red_mode {
     if [[ $1 == '1' ]]; then
-        print -n "\033]10;rgb:ff/df/df\007"
-        short -s filter 1
+        printf "\033]10;rgb:ff/30/30\007"
+        [[ -z $2 || $2 != 0 ]] && short -s filter 1
 
         ZSH_HIGHLIGHT_REGEXP=()
     else

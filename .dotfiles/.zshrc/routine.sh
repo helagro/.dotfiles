@@ -2,9 +2,7 @@ function wake {
     wifi on
     red_mode 0
     short -s night_shift 0
-    loc dev eve lvl 100 >/dev/null
-
-    echo "Start blink timer"
+    loc -S dev eve lvl 100 >/dev/null
 
     local cort_taken
     vared -p 'Cort amt: ' -c cort_taken
@@ -36,10 +34,6 @@ function dawn {
         -n | --night)
             night_shift=1
             shift
-            ;;
-        -h | --help)
-            echo "Usage: dawn [-f <focus_mode>] -n (night shift)"
-            return 0
             ;;
         *)
             echo "Unknown option: $1"
@@ -85,11 +79,10 @@ function dawn {
     ob dawn
 
     # Display secondary stuff
-    tl.sh habits/streaks
+    glo habits streak
     for state in "${state_list[@]}"; do
         $(eval echo \$$state) && echo $state
     done | to_color.sh magenta
-    state.sh | jq -r 'to_entries[] | select(.value == true) | .key' | to_color.sh magenta
 
     local forecast=$(weather -l 1)
     if echo $forecast | grep -q "rain"; then
@@ -126,7 +119,7 @@ function eat {
     # If dinner
     if in_window.sh 17:00 20:00; then
         # Handle temperature
-        local temp=$(loc -n sens/temp)
+        local temp=$(loc -S -n sens/temp)
         if [[ $temp -gt $dinner_temp_threshold ]]; then
             echo "Turn off radiator - ( $temp°C > $dinner_temp_threshold°C )"
         fi
@@ -195,7 +188,7 @@ function eve {
 
     tl.sh habits
 
-    local temp=$(loc sens/temp)
+    local temp=$(loc -S sens/temp)
     if [[ $temp -ge 21 ]]; then
         echo "Cool down - ( $temp >= 21°C )"
     fi
@@ -255,7 +248,7 @@ function bedtime {
 
     # display -------------------------------------------------------------------- #
 
-    # if [[ $(loc sens/temp) -lt 21 ]]; then
+    # if [[ $(loc -S sens/temp) -lt 21 ]]; then
     #     echo "Turn on radiator - ( $temp°C < 21°C )"
     # fi
 

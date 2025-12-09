@@ -43,6 +43,20 @@ function breake {
     nvim "$config_path"
 }
 
+function is_home {
+    if ping -c1 -t1 8.8.8.8 &>/dev/null; then
+        ping -c1 -t1 "$LOCAL_SERVER_IP" &>/dev/null
+        if [ $? -eq 0 ]; then
+            loc sens temp &>/dev/null
+            return $?
+        else
+            return 1
+        fi
+    else
+        return 1
+    fi
+}
+
 function test {
     local output=$(act b)
 }
@@ -67,6 +81,10 @@ function theme {
             end tell
         end tell
     "
+
+    if $is_red_tab; then
+        printf "\033]10;rgb:ff/30/30\007"
+    fi
 }
 
 function on_tab {

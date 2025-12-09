@@ -29,6 +29,7 @@ function act {
     local focus_flag="-f"
     local activity_name=""
     local important_flag="-i"
+    local do_local=true
 
     while [[ $# -gt 0 ]]; do
         case "$1" in
@@ -50,6 +51,10 @@ function act {
             ;;
         -S | --continue-after-duration)
             important_flag=""
+            shift 1
+            ;;
+        -L | --skip-local)
+            do_local=false
             shift 1
             ;;
         *)
@@ -79,9 +84,12 @@ function act {
     local prev_focus=$(short get_focus)
     [[ -n $prev_focus ]] && focus_flag=""
 
-    $online && tgs "$project" "$activity_name"
+    if $online; then
+        tgs "$project" "$activity_name"
+        $do_local && (loc start &) >/dev/null 2>&1
+    fi
 
-    [[ $(short is_home) == *"false"* ]] && focus_flag=""
+    is_home && focus_flag=""
     sw $important_flag $focus_flag -a "$activity_name" $max_duration
 
     if $online; then
@@ -110,7 +118,6 @@ function pmr {
 
 function tgs {
     local project_name=$1
-    (loc start &) >/dev/null 2>&1
 
     if [[ -z $project_name ]]; then
         toggl start "$*"
@@ -160,7 +167,7 @@ function to_days {
 
 function loc {
     local do_new_line=true
-    local do_silent=false
+    local do_silent=true
 
     while [[ $# -gt 0 ]]; do
         case "$1" in
@@ -168,8 +175,8 @@ function loc {
             do_new_line=false
             shift 1
             ;;
-        -s | --do-silent)
-            do_silent=true
+        -S | --not-silent)
+            do_silent=false
             shift 1
             ;;
         *)

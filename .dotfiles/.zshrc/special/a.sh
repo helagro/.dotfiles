@@ -1,6 +1,7 @@
 #!/bin/zsh
 
 exec 3>/dev/tty
+export LC_ALL=C
 
 sign="-"
 pgo=""
@@ -10,9 +11,9 @@ _color=1
 _prev_audio=1
 _silent=0
 
+
 # ================================= CONSTANTS ================================ #
 
-reminder_text=$(ob "p/auto/ash remind" | awk NF)
 init_cols=$(tput cols)
 
 max_pyg_preview=5
@@ -36,30 +37,21 @@ function py {
     python3 "$MY_SCRIPTS/lang/python/a.py" "$@"
 }
 
-function comp {
+function extra {
+    [[ $1 == $_extra ]] && return
+
     if [[ $1 == '1' ]] || [[ -z $1 && -z $ZSH_AUTOSUGGEST_STRATEGY ]]; then
+        [[ $_hist == 0 ]] && return
+        _extra=1
+        
         ZSH_AUTOSUGGEST_STRATEGY=(history)
-        audio=$_prev_audio
     else
+        _extra=0
+        ( py map set -k extra_features_delay -v "$EXTRA_FEATURES_DELAY_VALUE" & )
+
         unset ZSH_AUTOSUGGEST_STRATEGY
-
-        _prev_audio=$audio
-        audio=0
     fi
-}
 
-function hist {
-    if [[ $1 == '1' ]] || [[ -z $1 && $blank == 1 ]]; then
-        comp 1
-        blank=0
-
-        my_clear
-        divide
-    else
-        comp 0
-        speak=0
-        blank=1
-    fi
 }
 
 function color {
@@ -85,8 +77,8 @@ function color {
 
             '\$\([^\$]+\)' fg=cyan
             '(?<=^|\s)>(-?\d|\w)+(?=$|\s)' fg=cyan
-            '^R[[:space:]]' fg=cyan,bold
-            '^(c|C|d|D|q|s|S)$' fg=cyan,bold
+            '^(R|B)[[:space:]]' fg=cyan,bold
+            '^(c|C|d|D|h|q|s|S)$' fg=cyan,bold
         )
     else
         _color=0
@@ -94,13 +86,14 @@ function color {
         print -n "\033]11;rgb:00/00/00\007" >&3
         
         red_mode 1 >&3
+        print -n "\033]10;rgb:ff/df/df\007" >&3
     fi
 }
 
 
 # OPTIONS
 
-blank=0
+_hist=1
 speak=0
 audio=$_prev_audio
 
@@ -108,18 +101,19 @@ audio=$_prev_audio
 
 # =========================== SETUP ========================== #
 
+extra 0
+reminder_file="/tmp/reminders_sorted.txt"
+printf '%s\n' "$(ob "p/auto/ash remind" | awk NF)" | sort > "$reminder_file"
+
 unset HISTFILE SAVEHIST
 
 cmds=(
     'R echo $start_time'
-    "R blank="
     "R speak="
     "R audio="
-    "R comp"
     "R pyg"
     "R len"
     "R p"
-    "R hist"
 
     '$tea'
     '$is'
@@ -148,11 +142,12 @@ function on_tab {
     a
 }
 
-# ======================== A FUNCTIONS ======================= #
+# ======================== MAIN FUNCTION ======================= #
 
 function a_ui {
     next_idx=$(py len)
     print_top_right
+    echo "" > "$var_file_path"
 
     if ! command -v a.sh &>/dev/null; then
         echo "a.sh not found!"
@@ -160,11 +155,16 @@ function a_ui {
     fi
 
     while :; do
-        if [[ $blank == 1 ]]; then
+        if [[ $_hist == 0 ]]; then
             my_clear
         fi
 
+        local extra_features=$(py map get -k extra_features -d "0")
+        [[ $extra_features -eq 1 ]] && extra 1 || extra 0
+
         take_input
+
+        ( update_settings & )
 
         # log ------------------------------------------------------------------------ #
 
@@ -178,9 +178,16 @@ function a_ui {
 
         # commands ------------------------------------------------------------------- #
 
-        if [[ $line == 'c' ]]; then
+        # Bin
+        if [[ $line == 'B '* ]]; then
+            sign="×"
+            continue
+        # Clear with reset
+        elif [[ $line == 'c' ]]; then
             py clear
             my_clear
+            extra 0
+            echo "" > "$var_file_path"
             
             py map set -k offline_start -v "0" 
             next_idx=0
@@ -189,9 +196,29 @@ function a_ui {
             divide "$start_time"
             print_top_right
             continue
+        # Clear
         elif [[ $line == 'C' ]]; then
+            extra 0
             clear
             continue
+        # Divide
+        elif [[ $line == 'd' ]]; then
+            divide
+            continue
+        # Divide and clear
+        elif [[ $line == 'D' ]]; then
+            clear
+            divide
+            continue
+        # History toggle
+        elif [[ $line == 'h' ]]; then
+            hist
+            continue
+        # Quit
+        elif [[ $line == 'q' ]]; then
+            echo "quit"
+            return 0
+        # Run
         elif [[ $line == 'R '* ]]; then
             command=$(echo "$line" | sed -E 's/R[[:space:]]+//g')
             tmpfile=$(mktemp)
@@ -200,29 +227,23 @@ function a_ui {
             local output=$(<"$tmpfile")
             
             printf "%*s" $_num_len ""
-            [[ -n $output ]] && echo -e " \e[35m${reminder_parts[2]## }\e[0m"       
+            [[ -n $output ]] && echo -e " \e[35m${output## }\e[0m"       
             rm "$tmpfile"
             continue
+        # Silent for one command
         elif [[ $line == 's' ]]; then
+            extra 0
             _silent=1
             continue
+        # Toggle silent mode
         elif [[ $line == 'S' ]]; then
+            extra 0
             if [[ $_silent == 2 ]]; then
                 _silent=0
             else
                 _silent=2
             fi
             continue
-        elif [[ $line == 'd' ]]; then
-            divide
-            continue
-        elif [[ $line == 'D' ]]; then
-            clear
-            divide
-            continue
-        elif [[ $line == 'q' ]]; then
-            echo "quit"
-            return 0
         fi
 
         # expansions ------------------------------------------ #
@@ -262,8 +283,10 @@ function a_ui {
                 } &
             )
             
-            [[ $speak == 1 ]] && my_speak "$expanded_line"
-            print_if_reminder "$escaped"
+            if [[ $_silent == 0 ]]; then
+                [[ $speak == 1 ]] && my_speak "$expanded_line"
+                [[ $extra_features == 1 ]] && handle_if_reminder "$escaped"
+            fi
         fi
     done
 }
@@ -271,32 +294,30 @@ function a_ui {
 
 # ============================= HELPER FUNCTIONS ============================= #
 
+function add_item {
+    
+}
+
 function my_speak { 
     say -v samantha -r 500 "$*"
 }
 
-function print_if_reminder {
-    if reminder=$(echo "$reminder_text" | grep -m1 -F -- "- [ ] $1 |"); then
-        reminder_parts=("${(@s:|:)reminder}")
-        printf "%*s" $_num_len ""
-        echo -e " \e[35m${reminder_parts[2]## }\e[0m"
+function handle_if_reminder {
+    local input=${1//'#'/''}
+    local reminder=$(look -- "- [ ] $input |" "$reminder_file" | head -n1)
+
+    if [[ -n $reminder ]]; then
+        local reminder_parts=("${(@s:|:)reminder}")
+        local reminder_text="${reminder_parts[2]## }"
+
+        if [[ $reminder_text == "*"* ]]; then
+            printf "%*s" $_num_len ""
+            echo -e " \e[35m${reminder_text//'*'/''}\e[0m"
+        else
+            ( nohup a.sh "$reminder_text" &>/dev/null & )
+        fi
     fi
 }
-
-
-function divide {
-    local time="$1"
-    [[ -z $time ]] && time="$(date +"%Y-%m-%d %H:%M:%S")"
-    local text=" $time "
-    
-    {
-        echo -n '\033[33m'
-        printf '%*s' $(( init_cols / 2 - ${#text} / 2)) '' | tr ' ' '-'
-        printf '%s' "$text"
-        echo '\033[0m'
-    } >&3
-}
-
 
 function my_clear {
     printf "\033]1337;ClearScrollback\a" >&3
@@ -307,7 +328,6 @@ function my_clear {
 
     print_top_right
 }
-
 
 function print_top_right {
     local row=1
@@ -358,7 +378,6 @@ function print_top_right {
     fi
 }
 
-
 function take_input {
     local padded_num=$(printf "%02d" $next_idx)
     _num_len=${#padded_num}
@@ -385,4 +404,37 @@ function take_input {
 
     line=$(echo "$line" | tr -d '\\')
     sign="-"
+}
+
+# triggered by commands ------------------------------------------------------ #
+
+function divide {
+    local time="$1"
+    [[ -z $time ]] && time="$(date +"%Y-%m-%d %H:%M:%S")"
+    local text=" $time "
+    
+    {
+        echo -n '\033[33m'
+        printf '%*s' $(( init_cols / 2 - ${#text} / 2)) '' | tr ' ' '-'
+        printf '%s' "$text"
+        echo '\033[0m'
+    } >&3
+}
+
+function hist {
+    if [[ $1 == '1' ]] || [[ -z $1 && $_hist == 0 ]]; then
+        _hist=1
+
+        my_clear
+        divide
+        audio=$_prev_audio
+    else
+        extra 0
+
+        speak=0
+        _hist=0
+        
+        _prev_audio=$audio
+        audio=0
+    fi
 }

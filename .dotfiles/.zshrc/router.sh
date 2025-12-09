@@ -23,6 +23,7 @@ if $is_special_tab; then
     fi
 
     if [[ "$PWD" == "$HOME/.dotfiles/config/tabs/hotkey"* ]]; then
+        source "$HOME/.dotfiles/.zshrc/secret/sys.sh"
         source "$HOME/.dotfiles/.zshrc/special/hotkey.sh"
 
         if [[ "$PWD" == "$HOME/.dotfiles/config/tabs/hotkey/note" ]]; then
@@ -42,7 +43,7 @@ source "$HOME/.dotfiles/.zshrc/main.sh"
 # ================================ ALTERED TABS ================================ #
 
 if $is_red_tab; then
-    print -n "\033]10;rgb:ff/df/df\007"
+    printf "\033]10;rgb:ff/30/30\007"
     cd "$HOME"
 else
     red_mode 0 0
