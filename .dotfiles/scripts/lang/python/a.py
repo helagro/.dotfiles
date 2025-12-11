@@ -138,11 +138,11 @@ def add(content, method=None, offline=False):
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     row = [content, timestamp, method if method else "", "1" if offline else "0"]
 
+    update_meta(lambda m: setattr(m, 'count', m.count + 1))
+
     with open(HISTORY_FILE, "a", newline="") as f:
         writer = csv.writer(f, quoting=csv.QUOTE_MINIMAL)
         writer.writerow(row)
-
-    update_meta(lambda m: setattr(m, 'count', m.count + 1))
 
 
 def clear():
@@ -163,8 +163,10 @@ def map_set(key: str, value: str):
     update_meta(lambda m: set_map(m.map, key, value))
 
 
-def map_get(key: str, default: str):
+def map_get(key: str | None, default: str):
     meta = get_meta()
+    if not key:
+        return meta.map
 
     if key in meta.map:
         return meta.map[key]

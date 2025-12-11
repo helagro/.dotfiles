@@ -54,6 +54,8 @@ function cnt {
     echo -n $((cnt + 1)) >"$HOME/.dotfiles/tmp/cnt.txt"
 }
 
+
+
 function pass {
     local do_copy=false
 

@@ -24,6 +24,7 @@ function ect {
 # activity ------------------------------------------------------------------- #
 
 function act {
+    local full_input="$*"
     local project=''
     local max_duration="50:00"
     local focus_flag="-f"
@@ -73,7 +74,9 @@ function act {
         echo "[OFFLINE]" | to_color.sh red
     fi
 
-    if [[ $project == "sys" ]]; then
+    if [[ $project == "sys" && "$full_input" != *'-d '* ]]; then
+        echo "Custom duration required"
+        return 1
         # do_sys
         # [[ -n $override_act_duration ]] && max_duration="$override_act_duration:00"
     elif [[ $activity_name == "eat" ]]; then

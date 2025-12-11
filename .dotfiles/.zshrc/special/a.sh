@@ -1,7 +1,6 @@
 #!/bin/zsh
 
 exec 3>/dev/tty
-export LC_ALL=C
 
 sign="-"
 pgo=""
@@ -71,6 +70,7 @@ function color {
             '(\s|^)p1(\s|$)' fg=red,bold
             '(\s|^)p2(\s|$)' fg=red,bold
             '\*\*.+\*\*' fg=red,bold
+            '%%.+%%' fg=black
 
             '(?<=\s|^)p3(?=\s|$)' fg=magenta,underline
             '(?<!\*)\*[^*]+\*(?!\*)' fg=magenta,underline
@@ -103,7 +103,7 @@ audio=$_prev_audio
 
 extra 0
 reminder_file="/tmp/reminders_sorted.txt"
-printf '%s\n' "$(ob "p/auto/ash remind" | awk NF)" | sort > "$reminder_file"
+LC_ALL=C printf '%s\n' "$(ob "p/auto/ash remind" | awk NF)" | sort > "$reminder_file"
 
 unset HISTFILE SAVEHIST
 
@@ -122,6 +122,7 @@ cmds=(
     '$rd'
     '$rp'
     '$rb'
+    '$rem' # reminder output
     '$yd'
     '$db'
     "null"
@@ -246,29 +247,9 @@ function a_ui {
             continue
         fi
 
-        # expansions ------------------------------------------ #
-
-        local escaped=$(echo "$line" | sed -E \
-            -e "s/'/\\'/g" \
-            -e 's/`/\\`/g' \
-            -e 's/"/\\"/g')
-        local once_expanded_line=$(eval echo \"$escaped\")
-        local expanded_line=$(eval echo \"$once_expanded_line\" | tr -d '\\')
-
-        if [[ $expanded_line =~ '(?<=^|\s)>((-?\d|\w|\.)+)(?=$|\s)' ]]; then
-            pgo=$(py get -- "$match[1]")
-            local part_to_replace=">${match[1]}"
-            
-            expanded_line=$(py replace "$expanded_line" "$part_to_replace" "$pgo")
-        else
-            pgo=""
-        fi
-
-        if [[ "$expanded_line" != "$line" ]]; then
-            sign="!"
-        fi
-
         # run -------------------------------------------------------- #
+
+        local expanded_line=$(expand_item "$line")
 
         if [[ $expanded_line == [[:space:]]# ]]; then
             sign="×"
@@ -285,7 +266,7 @@ function a_ui {
             
             if [[ $_silent == 0 ]]; then
                 [[ $speak == 1 ]] && my_speak "$expanded_line"
-                [[ $extra_features == 1 ]] && handle_if_reminder "$escaped"
+                [[ $extra_features == 1 ]] && handle_if_reminder "$line"
             fi
         fi
     done
@@ -294,8 +275,25 @@ function a_ui {
 
 # ============================= HELPER FUNCTIONS ============================= #
 
-function add_item {
-    
+function expand_item {
+    local escaped=$(echo "$1" | sed -E \
+        -e "s/'/\\'/g" \
+        -e 's/`/\\`/g' \
+        -e 's/"/\\"/g')
+    local once_expanded_line=$(eval echo \"$escaped\")
+    local expanded_line=$(eval echo \"$once_expanded_line\" | tr -d '\\')
+
+    if [[ $expanded_line =~ '(?<=^|\s)>((-?\d|\w|\.)+)(?=$|\s)' ]]; then
+        pgo=$(py get -- "$match[1]")
+        local part_to_replace=">${match[1]}"
+        
+        expanded_line=$(py replace "$expanded_line" "$part_to_replace" "$pgo")
+    else
+        pgo=""
+    fi
+
+    echo "$expanded_line"
+
 }
 
 function my_speak { 
@@ -304,19 +302,23 @@ function my_speak {
 
 function handle_if_reminder {
     local input=${1//'#'/''}
-    local reminder=$(look -- "- [ ] $input |" "$reminder_file" | head -n1)
+    local reminders=$(look -- "- [ ] $input |" "$reminder_file")
 
-    if [[ -n $reminder ]]; then
-        local reminder_parts=("${(@s:|:)reminder}")
-        local reminder_text="${reminder_parts[2]## }"
+    while read -r reminder; do
+        if [[ -n $reminder ]]; then
+            local reminder_parts=("${(@s:|:)reminder}")
+            local reminder_text="${reminder_parts[2]## }"
 
-        if [[ $reminder_text == "*"* ]]; then
-            printf "%*s" $_num_len ""
-            echo -e " \e[35m${reminder_text//'*'/''}\e[0m"
-        else
-            ( nohup a.sh "$reminder_text" &>/dev/null & )
+            if [[ $reminder_text == "*"* ]]; then
+                printf "%*s" $_num_len ""
+                rem=${reminder_text//'*'/}
+                echo -e " \e[35m$rem\e[0m"
+            else
+                local expanded=$(expand_item "$reminder_text")
+                ( nohup a.sh "$expanded" &>/dev/null & )
+            fi
         fi
-    fi
+    done <<< "$reminders"
 }
 
 function my_clear {

@@ -62,8 +62,13 @@ function test {
 }
 
 function lect {
-    short lect
-    a "social 1 s #u"
+    [[ $* != *'-T'* ]] && theme 0
+    [[ $* != *'-M'* ]] && osascript -e 'set volume with output muted'
+    ( python3 "$MY_SCRIPTS/lang/python/a.py" map set -k extra_features_delay -v "7" & )
+
+    # Misc
+    a 'plan return #b'
+    open 'obsidian://open?file=p%2Flect'
 }
 
 
