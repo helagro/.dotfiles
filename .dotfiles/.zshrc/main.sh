@@ -54,7 +54,9 @@ function cnt {
     echo -n $((cnt + 1)) >"$HOME/.dotfiles/tmp/cnt.txt"
 }
 
-
+function hm { 
+    python3 $MY_SCRIPTS/lang/python/hm.py "$@" | rat.sh -pPl 'json';
+}
 
 function pass {
     local do_copy=false

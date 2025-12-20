@@ -1,15 +1,14 @@
 #!/bin/zsh
 
+# =================================== SETUP ================================== #
+
 exec 3>/dev/tty
 
-sign="-"
-pgo=""
-_num_len=2
-
+_sign="-"
 _color=1
 _prev_audio=1
 _silent=0
-
+_hist=1
 
 # ================================= CONSTANTS ================================ #
 
@@ -19,6 +18,10 @@ max_pyg_preview=5
 wiper=$(printf '%*s' $((max_pyg_preview + 3)) '')
 
 # =============================== USER FEATURES ============================== #
+
+pgo=""
+speak=0
+audio=$_prev_audio
 
 alias pyg="py get --"
 alias e="echo"
@@ -70,7 +73,7 @@ function color {
             '(\s|^)p1(\s|$)' fg=red,bold
             '(\s|^)p2(\s|$)' fg=red,bold
             '\*\*.+\*\*' fg=red,bold
-            '%%.+%%' fg=black
+            # '%%.+%%' fg=black
 
             '(?<=\s|^)p3(?=\s|$)' fg=magenta,underline
             '(?<!\*)\*[^*]+\*(?!\*)' fg=magenta,underline
@@ -91,13 +94,7 @@ function color {
 }
 
 
-# OPTIONS
 
-_hist=1
-speak=0
-audio=$_prev_audio
-
-# ACCESSABLE
 
 # =========================== SETUP ========================== #
 
@@ -181,13 +178,14 @@ function a_ui {
 
         # Bin
         if [[ $line == 'B '* ]]; then
-            sign="×"
+            _sign="×"
             continue
         # Clear with reset
         elif [[ $line == 'c' ]]; then
             py clear
             my_clear
             extra 0
+            fc -p
             echo "" > "$var_file_path"
             
             py map set -k offline_start -v "0" 
@@ -227,8 +225,7 @@ function a_ui {
             eval "$command" >"$tmpfile"
             local output=$(<"$tmpfile")
             
-            printf "%*s" $_num_len ""
-            [[ -n $output ]] && echo -e " \e[35m${output## }\e[0m"       
+            [[ -n $output ]] && echo -e "    \e[30m${output## }\e[0m"       
             rm "$tmpfile"
             continue
         # Silent for one command
@@ -252,7 +249,7 @@ function a_ui {
         local expanded_line=$(expand_item "$line")
 
         if [[ $expanded_line == [[:space:]]# ]]; then
-            sign="×"
+            _sign="×"
         else
             next_idx=$(($(py len) + 1))
             (
@@ -266,7 +263,7 @@ function a_ui {
             
             if [[ $_silent == 0 ]]; then
                 [[ $speak == 1 ]] && my_speak "$expanded_line"
-                [[ $extra_features == 1 ]] && handle_if_reminder "$line"
+                handle_if_reminder "$line"
             fi
         fi
     done
@@ -284,6 +281,7 @@ function expand_item {
     local expanded_line=$(eval echo \"$once_expanded_line\" | tr -d '\\')
 
     if [[ $expanded_line =~ '(?<=^|\s)>((-?\d|\w|\.)+)(?=$|\s)' ]]; then
+        # NOTE - Doesn't work as it is in a subshell
         pgo=$(py get -- "$match[1]")
         local part_to_replace=">${match[1]}"
         
@@ -310,9 +308,10 @@ function handle_if_reminder {
             local reminder_text="${reminder_parts[2]## }"
 
             if [[ $reminder_text == "*"* ]]; then
-                printf "%*s" $_num_len ""
+                [[ $extra_features != 1 ]] && continue
+
                 rem=${reminder_text//'*'/}
-                echo -e " \e[35m$rem\e[0m"
+                echo -e "    \e[30m$rem\e[0m"
             else
                 local expanded=$(expand_item "$reminder_text")
                 ( nohup a.sh "$expanded" &>/dev/null & )
@@ -381,9 +380,9 @@ function print_top_right {
 }
 
 function take_input {
-    local padded_num=$(printf "%02d" $next_idx)
-    _num_len=${#padded_num}
-    local prompt="$padded_num $sign"
+    local zero_padded_num=$(printf "%02d" $next_idx)
+    (( ${#zero_padded_num} < 3)) && local padded_num=" $zero_padded_num" || local padded_num="$zero_padded_num" 
+    local prompt="$padded_num $_sign"
 
     if [[ $_color -eq 1 ]]; then
         prompt="%F{yellow}$prompt%f"
@@ -405,7 +404,7 @@ function take_input {
     [[ $audio == 1 ]] && beep 0.55
 
     line=$(echo "$line" | tr -d '\\')
-    sign="-"
+    _sign="-"
 }
 
 # triggered by commands ------------------------------------------------------ #
@@ -416,8 +415,8 @@ function divide {
     local text=" $time "
     
     {
-        echo -n '\033[33m'
-        printf '%*s' $(( init_cols / 2 - ${#text} / 2)) '' | tr ' ' '-'
+        echo -n '\033[33m  '
+        printf '%*s' $(( init_cols / 2 - ${#text} / 2 - 4)) '' | tr ' ' '-'
         printf '%s' "$text"
         echo '\033[0m'
     } >&3

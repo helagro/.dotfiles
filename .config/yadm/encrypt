@@ -1,3 +1,4 @@
 .dotfiles/.zshrc/secret/*sh
 .dotfiles/scripts/secret/*.sh
+.dotfiles/scripts/secret/*.env
 /Users/h/.config/todoist/config.json

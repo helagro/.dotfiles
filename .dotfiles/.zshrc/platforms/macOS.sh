@@ -67,7 +67,7 @@ function lect {
     ( python3 "$MY_SCRIPTS/lang/python/a.py" map set -k extra_features_delay -v "7" & )
 
     # Misc
-    a 'plan return #b'
+    ( a.sh 'plan return #b' & )
     open 'obsidian://open?file=p%2Flect'
 }
 

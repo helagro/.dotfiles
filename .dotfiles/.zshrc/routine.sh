@@ -79,7 +79,7 @@ function dawn {
     ob dawn
 
     # Display secondary stuff
-    glo habits streak
+    # glo habits streak
     for state in "${state_list[@]}"; do
         $(eval echo \$$state) && echo $state
     done | to_color.sh magenta
@@ -108,6 +108,7 @@ function dawn {
     tdi
     echo $cal | $MY_SCRIPTS/secret/agenda_switch.sh
     ob p | $MY_SCRIPTS/secret/agenda_switch.sh
+    ob b | $MY_SCRIPTS/secret/agenda_switch.sh
 }
 
 ## @function eat 
@@ -174,7 +175,6 @@ function eve {
 
     # other info ------------------------------------------------- #
 
-    later
     info tom | grep -vE 'detach|full_detach|full_detach|bed_time'
     echo
 
@@ -237,6 +237,11 @@ function eve {
         read
         short phondo "flight mode"
     fi
+
+    # other ------------------------------------------------------------ #
+
+    later
+    ask "Do wind-down activity later instead?" && a "#b [[detach]]"
 }
 
 function bedtime {
