@@ -6,10 +6,9 @@ exec 3>/dev/tty
 
 _python_version=$(python3 --version 2>&1 | awk '{print $2}')
 if (( ${_python_version%%.*} < 3 || ( ${_python_version%%.*} == 3 && ${_python_version#*.} < 10 ) )); then
-    _invalid_python=true
-    _len=-1
+    _disable_python=true
 else
-    _invalid_python=false
+    _disable_python=false
 fi
 
 _sign="-"
@@ -44,10 +43,9 @@ function p {
 }
 
 function py {
-    if $_invalid_python; then
+    if $_disable_python; then
         if [[ $1 == "len" ]]; then
-            _len=$((_len + 1))
-            echo "$_len"
+            echo "0"
         fi
 
         return 0
