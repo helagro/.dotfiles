@@ -4,6 +4,14 @@
 
 exec 3>/dev/tty
 
+_python_version=$(python3 --version 2>&1 | awk '{print $2}')
+if (( ${_python_version%%.*} < 3 || ( ${_python_version%%.*} == 3 && ${_python_version#*.} < 10 ) )); then
+    _invalid_python=true
+    _len=-1
+else
+    _invalid_python=false
+fi
+
 _sign="-"
 _color=1
 _prev_audio=1
@@ -36,6 +44,15 @@ function p {
 }
 
 function py {
+    if $_invalid_python; then
+        if [[ $1 == "len" ]]; then
+            _len=$((_len + 1))
+            echo "$_len"
+        fi
+
+        return 0
+    fi
+
     python3 "$MY_SCRIPTS/lang/python/a.py" "$@"
 }
 
