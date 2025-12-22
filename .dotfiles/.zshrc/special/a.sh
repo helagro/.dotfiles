@@ -77,7 +77,7 @@ function color {
     if [[ $1 == '1' ]] || [[ -z $1 && $_color == 0 ]]; then
         _color=1
         print -n "\033]111\007" >&3
-        red_mode 0 >&3
+        [[ -z $2 ]] && red_mode 0 >&3
 
         ZSH_HIGHLIGHT_REGEXP+=(
             '#[a-z0-9]+[a-zA-Z0-9]*' fg=green,bold
@@ -105,7 +105,7 @@ function color {
         ZSH_HIGHLIGHT_REGEXP=()
         print -n "\033]11;rgb:00/00/00\007" >&3
         
-        red_mode 1 >&3
+        [[ -z $2 ]] && red_mode 1 >&3
         print -n "\033]10;rgb:ff/df/df\007" >&3
     fi
 }
@@ -146,7 +146,7 @@ for cmd in "${cmds[@]}"; do
     print -s -- "$cmd"
 done
 
-color 1
+color 1 no_shortcuts
 
 
 # ========================= GENERAL FUNCTIONS ======================== #
