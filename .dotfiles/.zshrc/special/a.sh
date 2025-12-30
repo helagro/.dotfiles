@@ -261,7 +261,7 @@ function a_ui {
 
         # run -------------------------------------------------------- #
 
-        local expanded_line=$(expand_item "$line")
+        expand_item "$line" expanded_line
 
         if [[ $expanded_line == [[:space:]]# ]]; then
             _sign="×"
@@ -293,20 +293,18 @@ function expand_item {
         -e 's/`/\\`/g' \
         -e 's/"/\\"/g')
     local once_expanded_line=$(eval echo \"$escaped\")
-    local expanded_line=$(eval echo \"$once_expanded_line\" | tr -d '\\')
+    local expanded_line_loc=$(eval echo \"$once_expanded_line\" | tr -d '\\')
 
-    if [[ $expanded_line =~ '(?<=^|\s)>((-?\d|\w|\.)+)(?=$|\s)' ]]; then
-        # NOTE - Doesn't work as it is in a subshell
+    if [[ $expanded_line_loc =~ '(?<=^|\s)>((-?\d|\w|\.)+)(?=$|\s)' ]]; then
         pgo=$(py get -- "$match[1]")
         local part_to_replace=">${match[1]}"
         
-        expanded_line=$(py replace "$expanded_line" "$part_to_replace" "$pgo")
+        expanded_line_loc=$(py replace "$expanded_line_loc" "$part_to_replace" "$pgo")
     else
         pgo=""
     fi
 
-    echo "$expanded_line"
-
+    printf -v "$2" "%s" "$expanded_line_loc"
 }
 
 function my_speak { 
@@ -323,12 +321,14 @@ function handle_if_reminder {
             local reminder_text="${reminder_parts[2]## }"
 
             if [[ $reminder_text == "*"* ]]; then
+                local extra_features=$(py map get -k extra_features -d "0")
                 [[ $extra_features != 1 ]] && continue
 
                 rem=${reminder_text//'*'/}
                 echo -e "    \e[30m$rem\e[0m"
             else
-                local expanded=$(expand_item "$reminder_text")
+                expanded=""
+                expand_item "$reminder_text" expanded
                 ( nohup a.sh "$expanded" &>/dev/null & )
             fi
         fi
@@ -376,7 +376,9 @@ function print_top_right {
         py map set -k offline_amt -v "$offline_amt"
     fi
 
-    if [[ -n $pgo ]]; then
+    local extra_features=$(py map get -k extra_features -d "0")
+    if [[ -n $pgo && $extra_features -eq 1 ]]; then
+
         print -n "\e7\e[${row};${wipe_col}H\033[35m${wiper}\033[0m\e8" >&3
         local truncated=" ${pgo[1,$max_pyg_preview]}"
 

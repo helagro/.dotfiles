@@ -3,4 +3,3 @@
 .dotfiles/scripts/secret/*.env
 .dotfiles/.zshrc/secret/always_sourced/*.sh
 /Users/h/.config/todoist/config.json
-/etc/samba/smb.conf

@@ -208,6 +208,8 @@ function repo {
 
 # later ---------------------------------------------------------------------- #
 
+alias latery="latero 'youtube.com/results?search_query='"
+
 function later { python3 $HOME/.dotfiles/scripts/lang/python/later.py "$@"; }
 function _later_completions {
     _arguments '*:command:_command_names'
@@ -215,6 +217,7 @@ function _later_completions {
 compdef _later_completions later
 
 function latera { later "a \"$*\""; }
+
 function latero {
     local url="$*"
     if [[ $url != http* ]]; then
@@ -223,7 +226,6 @@ function latero {
 
     later "open \"$url\""
 }
-
 # --------------------------- DATES -------------------------- #
 
 function year_day {

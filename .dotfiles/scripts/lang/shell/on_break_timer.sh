@@ -1,5 +1,12 @@
 #!/bin/zsh
 
+source "$HOME/.dotfiles/.zshrc/first.sh"
+
+ping -c1 -t1 "$LOCAL_SERVER_IP" &>/dev/null
+if [ $? -eq 0 ]; then
+    exit 1
+fi
+
 /opt/homebrew/bin/todoist sync &
 
 # =============================== DEPENDENCIES =============================== #

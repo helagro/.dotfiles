@@ -44,14 +44,10 @@ function breake {
 }
 
 function is_home {
-    if ping -c1 -t1 8.8.8.8 &>/dev/null; then
-        ping -c1 -t1 "$LOCAL_SERVER_IP" &>/dev/null
-        if [ $? -eq 0 ]; then
-            loc sens temp &>/dev/null
-            return $?
-        else
-            return 1
-        fi
+    ping -c1 -t1 "$LOCAL_SERVER_IP" &>/dev/null
+    if [ $? -eq 0 ]; then
+        loc sens temp &>/dev/null
+        return $?
     else
         return 1
     fi

@@ -29,7 +29,9 @@ function weekly {
     echo "Running weekly tasks..."
 
     local cleaned_done=$(obc done -F b | grep -v '^$')
-    echo "$cleaned_done" > "$VAULT/_/log/done.md"
+    if [[ -n "$cleaned_done" ]]; then
+        echo "$cleaned_done" > "$VAULT/_/log/done.md"
+    fi
 }
 
 # ================================== HELPERS ================================= #

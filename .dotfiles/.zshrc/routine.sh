@@ -188,6 +188,11 @@ function eve {
 
     tl.sh habits
 
+    local xLen=$(ob x | dale)
+    if [[ $xLen -eq 0 ]]; then
+        echo "Do excuse practice"
+    fi
+
     local temp=$(loc -S sens/temp)
     if [[ $temp -ge 21 ]]; then
         echo "Cool down - ( $temp >= 21°C )"
