@@ -46,7 +46,7 @@ function breake {
 function is_home {
     ping -c1 -t1 "$LOCAL_SERVER_IP" &>/dev/null
     if [ $? -eq 0 ]; then
-        loc sens temp &>/dev/null
+        loc health &>/dev/null
         return $?
     else
         return 1
@@ -247,7 +247,7 @@ function sw {
     fi
 
     if $trackable; then
-        echo "[tracking]" | to_color.sh yellow   
+        echo "[TRACKING]" | to_color.sh yellow   
     fi
 
     # run stopwatch -------------------------------------------------------------- #

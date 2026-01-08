@@ -18,6 +18,8 @@ plain=false
 computed=false
 json=false
 
+MY_SCRIPTS="$HOME/.dotfiles/scripts"
+
 # ------------------------- PARSE ARGUMENTS ------------------------ #
 
 set -- $($MY_SCRIPTS/lang/shell/expand_args.sh "$@")
@@ -30,6 +32,10 @@ while [[ $# -gt 0 ]]; do
         ;;
     -c | --computed)
         computed=true
+        shift 1
+        ;;
+    -C | --no-computed)
+        computed=false
         shift 1
         ;;
     -F | --filter)
@@ -93,15 +99,19 @@ function main {
             filter="^a\Z" # Matches nothing
         fi
 
-        if "$HOME/.dotfiles/scripts/path/state/state.sh" -s headache || $is_busy; then
+        if "$MY_SCRIPTS/path/state/state.sh" -s headache || $is_busy; then
             filter+="|(p3.*#bdg)|@zt"
         fi
 
-        if "$HOME/.dotfiles/scripts/path/state/state.sh" -s eye_strain; then
-            filter+="|@eye"
+        if "$MY_SCRIPTS/path/state/state.sh" -s eye_strain; then
+            filter+="|@eye|(p3.*#bdg)|(p4.*#bdg&!@short)"
         fi
 
-        if "$HOME/.dotfiles/scripts/lang/shell/has_detached.sh"; then
+        if "$MY_SCRIPTS/path/state/state.sh" -s diss && "$MY_SCRIPTS/path/utils/in_window.sh" 5:00 14:00; then
+            filter+="|#by"
+        fi
+
+        if "$MY_SCRIPTS/lang/shell/has_detached.sh"; then
             filter+="|@wake"
         fi
     
@@ -125,7 +135,7 @@ function main {
     else
         tasks=$(echo "$tasks" | add_line_nr)
         echo "$tasks" >"$HOME/.dotfiles/tmp/tdl.txt"
-        echo "\n$tasks" | $HOME/.dotfiles/scripts/lang/shell/utils/log.sh -sf tdl
+        echo "\n$tasks" | $MY_SCRIPTS/lang/shell/utils/log.sh -sf tdl
         echo "$tasks" | colorize
     fi
 }

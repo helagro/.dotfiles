@@ -6,7 +6,8 @@ if [[ $1 == "-N" ]]; then
     shift
 fi
 
-url="$TOOLS_URL/$1"
+params="${(j:/:)@}"
+url="$TOOLS_URL/$params"
 content=$(curl -H "Authorization: Bearer $A75H" -s "$url" -b "id=u3o8hiefo")
 return_code=$?
 

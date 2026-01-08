@@ -4,6 +4,7 @@
 # NOTE - Used by server-app
 export DISABLED_TD_APP_ITEMS="---,ob,null,"
 
+alias is_m="is main 1 | hm"
 alias glo="tl.sh"
 
 # ================================= FUNCTIONS ================================ #
@@ -24,6 +25,9 @@ function ect {
 # activity ------------------------------------------------------------------- #
 
 function act {
+
+    # initializations ------------------------------------------------------------ #
+
     local full_input="$*"
     local project=''
     local max_duration="50:00"
@@ -31,6 +35,8 @@ function act {
     local activity_name=""
     local important_flag="-i"
     local do_local=true
+
+    # process arguments ---------------------------------------------------------- #
 
     while [[ $# -gt 0 ]]; do
         case "$1" in
@@ -65,6 +71,8 @@ function act {
         esac
     done
 
+    # print secondary info ------------------------------------------------------- #
+
     date +"%Y-%m-%d %H:%M:%S" | to_color.sh blue
 
     if ping -c1 -t1 8.8.8.8 &>/dev/null; then
@@ -74,25 +82,41 @@ function act {
         echo "[OFFLINE]" | to_color.sh red
     fi
 
-    if [[ $project == "sys" && "$full_input" != *'-d '* ]]; then
-        echo "Custom duration required"
-        return 1
-        # do_sys
-        # [[ -n $override_act_duration ]] && max_duration="$override_act_duration:00"
+    # handle specific activities ------------------------------------------------- #
+
+    if [[ $project == "study" || $project == "p1" ]]; then
+        activity_name="main"
+    elif [[ $project == "sys" ]]; then
+        if [[ "$full_input" != *'-d '* ]]; then
+            echo "Custom duration required"
+            return 1
+        fi
+        do_sys
     elif [[ $activity_name == "eat" ]]; then
         eat
         return
     fi
     
-    local prev_focus=$(short get_focus)
-    [[ -n $prev_focus ]] && focus_flag=""
+    # handle connectivity -------------------------------------------------------- #
 
     if $online; then
         tgs "$project" "$activity_name"
-        $do_local && (loc start &) >/dev/null 2>&1
+        if $do_local && in_window.sh 7:00 22:00; then
+            (loc start &) >/dev/null 2>&1
+        fi
     fi
 
-    is_home && focus_flag=""
+    # handle focus -------------------------------------------------------------- #
+
+    if ! is_home; then
+        focus_flag=""
+    else
+        local prev_focus=$(short get_focus)
+        [[ -n $prev_focus ]] && focus_flag=""
+    fi
+
+    # run activity --------------------------------------------------------------- #
+
     sw $important_flag $focus_flag -a "$activity_name" $max_duration
 
     if $online; then
@@ -165,45 +189,6 @@ function to_days {
         weekday=$(date -j -f "%Y-%m-%d" $the_date +"%a")
         echo "{\"$weekday\": $value}"
     done | jq -s 'add' | rat.sh -pl json
-}
-
-function loc {
-    local do_new_line=true
-    local do_silent=true
-
-    while [[ $# -gt 0 ]]; do
-        case "$1" in
-        -n | --no-new-line)
-            do_new_line=false
-            shift 1
-            ;;
-        -S | --not-silent)
-            do_silent=false
-            shift 1
-            ;;
-        *)
-            break
-            ;;
-        esac
-    done
-
-    local params="${(j:/:)@}"
-    local result=$(curl -sS --connect-timeout 2 "$LOCAL_SERVER_IP:8004/$params")
-
-    if [[ $? -ne 0 ]]; then
-        result='{"error": "Could not connect to local server"}'
-        return 1
-    fi
-
-    if $do_silent; then
-        return 0
-    fi
-
-    if $do_new_line; then
-        echo "$result" | rat.sh -pPl "json"
-    else
-        echo -n "$result" | rat.sh -pPl "json"
-    fi
 }
 
 function isl {

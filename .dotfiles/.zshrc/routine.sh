@@ -1,20 +1,22 @@
 function wake {
-    wifi on
-    red_mode 0
-    short -s night_shift 0
-    loc -S dev eve lvl 100 >/dev/null
+    ({
+        wifi on
+        red_mode 0
+        short -s night_shift 0
+    }&)
 
     local cort_taken
     vared -p 'Cort amt: ' -c cort_taken
 
     if [[ -n $cort_taken && $cort_taken != 0 ]]; then
-        a "took cort $cort_taken #e"
+        a "took cort $cort_taken #tmp"
 
         if [[ $cort_taken -ge 10 ]]; then
             echo 'Drink water - ( cort >= 10 )'
         fi
     fi
 
+    ob wake
     wake_state
 }
 
@@ -79,7 +81,7 @@ function dawn {
     ob dawn
 
     # Display secondary stuff
-    # glo habits streak
+    glo habits streak
     for state in "${state_list[@]}"; do
         $(eval echo \$$state) && echo $state
     done | to_color.sh magenta
@@ -112,10 +114,10 @@ function dawn {
 }
 
 ## @function eat 
-## @param {string[]}  Arguments to pass to `home` function
+## @param {string[]}  Arguments to pass to `loc` function
 function eat {
     $MY_SCRIPTS/lang/shell/battery.sh 60
-    ( home "$@" & )
+    ( loc "$@" & )
 
     # If dinner
     if in_window.sh 17:00 20:00; then
@@ -136,6 +138,10 @@ function eat {
         [ -n "$time_diff" ] && a "bed_minus_dinner $time_diff s #u" && echo "tracked bed_minus_dinner AS $time_diff"
     fi
 
+    if ! (ob b | grep -q cook) && ask "Add cook?"; then
+        a "cook #b @home"
+    fi
+
     echo
     ob meal
 }
@@ -151,8 +157,6 @@ function eve {
         printf " %-3s %-20s %s\n" "-h," "--help" "Show this help message"
         return 0
     fi
-
-    ob x | grep -qF $(day) && a "x"
 
     # environment ------------------------------------------------ #
 
@@ -182,6 +186,12 @@ function eve {
     local forecast=$(weather)
     if echo $forecast | grep -q "snow"; then
         echo "$forecast"
+        echo "Ear plugs - snow expected"
+    fi
+
+    if weather /moon T | grep -q "Full Moon"; then
+        echo "Full Moon"
+        a "t full_moon #u"
     fi
 
     $MY_SCRIPTS/lang/shell/battery.sh 40
@@ -206,9 +216,6 @@ function eve {
 
     # manual track ------------------------------------------------- #
 
-    vared -p "Main: " -c main
-    [[ -n "$main" ]] && a "main $(hm $main) #u"
-
     vared -p "Screen: " -c screen
     [[ -n "$screen" ]] && a "screen $(hm $screen) s #u"
 
@@ -216,6 +223,7 @@ function eve {
 
     (eve_track &)
 
+    a '#tmp done ; detach'
     a "p_ett $(tdis | lines) s #u"
     (short track_away &)
 
@@ -251,8 +259,8 @@ function eve {
 
 function bedtime {
     short -s focus sleep
-    short -s home bedtime
     short -s bedtime_brightness
+    loc p 'night?m=keep'
 
     a 'flush @rm'
 
@@ -267,6 +275,8 @@ function bedtime {
         echo "earbuds"
     fi
 
+    loc led "green?a=off" 2>/dev/null
+    loc led "red?a=off" 2>/dev/null
     ob "p/auto/state bedtime" | state_switch.sh
 
     ob bedtime
@@ -274,6 +284,7 @@ function bedtime {
 
     if [[ $(date +"%m") -le 2 || $(date +"%m") -ge 9 ]]; then
         echo "have warm clothes near"
+        echo "scarf?"
     fi
 
     local state_input
@@ -295,11 +306,11 @@ function bedtime {
 
     if ask "Turn off wifi?"; then
         wifi off
-        pkill -2 Arc
+        pkill -2 $BROWSER
     else
-        if pgrep -x Arc; then
+        if pgrep -x $BROWSER; then
             if ask "Close browser?"; then
-                pkill -2 Arc
+                pkill -2 $BROWSER
             fi
         fi
     fi

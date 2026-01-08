@@ -20,9 +20,11 @@ function main {
     echo "--- list_app"
     cd "$MY_SCRIPTS/lang/shell" && ./list_app.sh 2>&1
 
-    # add day tasks
+    # add tasks
     echo "--- add_day_tasks"
     do_now -w p/day 2>&1
+    
+    is_home && do_now -w p/return 2>&1
 }
 
 function weekly {
@@ -32,6 +34,8 @@ function weekly {
     if [[ -n "$cleaned_done" ]]; then
         echo "$cleaned_done" > "$VAULT/_/log/done.md"
     fi
+
+    printf "" > "$VAULT/_/log/tmp.md"
 }
 
 # ================================== HELPERS ================================= #

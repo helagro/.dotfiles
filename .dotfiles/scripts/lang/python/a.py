@@ -84,6 +84,7 @@ def main():
 
     # misc commands
     clear_parser = subparsers.add_parser("clear", help="Clear history")
+    inc_len_parser = subparsers.add_parser("incLen", help="Increment length of history")
     len_parser = subparsers.add_parser("len", help="Get length of history")
 
     # add command
@@ -118,12 +119,13 @@ def main():
 
     if args.command == "add":
         add(args.content, method=args.method, offline=args.offline)
-    elif args.command == "get":
-        get(args.code)
-    elif args.command == "replace":
-        print(args.original.replace(args.to_replace, args.replacement))
     elif args.command == "clear":
         clear()
+    elif args.command == "get":
+        get(args.code)
+    elif args.command == "incLen":
+        current_length = length()
+        update_meta(lambda m: setattr(m, 'count', current_length + 1))
     elif args.command == "len":
         print(length())
     elif args.command == "map":
@@ -132,10 +134,14 @@ def main():
         elif (args.operation == "get"):
             res = map_get(args.key, args.default)
             print(res)
+    elif args.command == "replace":
+        print(args.original.replace(args.to_replace, args.replacement))
 
 
 def add(content, method=None, offline=False):
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    content = content.replace('\n', ' ').strip()
+
     row = [content, timestamp, method if method else "", "1" if offline else "0"]
 
     update_meta(lambda m: setattr(m, 'count', m.count + 1))
@@ -154,6 +160,7 @@ def clear():
 
 def length() -> int:
     if not os.path.exists(HISTORY_FILE):
+        update_meta(lambda m: setattr(m, 'count', 0))
         return 0
 
     return get_meta().count

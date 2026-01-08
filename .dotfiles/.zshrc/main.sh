@@ -58,6 +58,49 @@ function hm {
     python3 $MY_SCRIPTS/lang/python/hm.py "$@" | rat.sh -pPl 'json';
 }
 
+function loc {
+    local do_new_line=true
+    local do_silent=false
+
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+        -n | --no-new-line)
+            do_new_line=false
+            shift 1
+            ;;
+        -S | --not-silent)
+            do_silent=false
+            shift 1
+            ;;
+        -s | --silent)
+            do_silent=true
+            shift 1
+            ;;
+        *)
+            break
+            ;;
+        esac
+    done
+
+    local params="${(j:/:)@}"
+    local result=$(curl -sS --connect-timeout 2 "$LOCAL_SERVER_IP:8004/$params")
+
+    if [[ $? -ne 0 ]]; then
+        result='{"error": "Could not connect to local server"}'
+        return 1
+    fi
+
+    if $do_silent || [[ $result == "ok" ]]; then
+        return 0
+    fi
+
+    if $do_new_line; then
+        echo "$result" | rat.sh -pPl "json"
+    else
+        echo -n "$result" | rat.sh -pPl "json"
+    fi
+}
+
 function pass {
     local do_copy=false
 
@@ -142,7 +185,7 @@ function weather {
         shift 2
     fi
 
-    curl -s --max-time 4 "wttr.in?${layout}AMnQ"
+    curl -s --max-time 4 "wttr.in$1?${layout}AMnQ$2"
 }
 
 function yadm_enc {

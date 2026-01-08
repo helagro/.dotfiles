@@ -14,9 +14,9 @@ for line in sys.stdin:
 
     if text != searchTxt:
         if searchTxt in lookup:
-            lookup[searchTxt].append(text)
+            lookup[searchTxt].append(line)
         else:
-            lookup[searchTxt] = [text]
+            lookup[searchTxt] = [line]
 
     if searchTxt in map:
         map[searchTxt] += 1
@@ -29,6 +29,6 @@ for key in map:
 
     if key in lookup:
         for variant in lookup[key]:
-            print(variant)
+            print(f"{variant}\n")
     else:
-        print(f"{key} - {map[key]}")
+        print(f"{key} - {map[key]}\n")

@@ -28,11 +28,26 @@ wiper=$(printf '%*s' $((max_pyg_preview + 3)) '')
 
 pgo=""
 speak=0
+extra=1
 audio=$_prev_audio
 
 alias pyg="py get --"
 alias e="echo"
 
+function in {
+    print -n "  > $1" >&3
+    local input=$(head -n 1 </dev/tty | tr -d '\n' )
+
+    if [[ -n $1 ]]; then
+        printf '%s' "$1 $input" 
+    else
+        printf '%s' "$input"    
+    fi
+}
+
+function out {
+    echo -e "    \e[30m$1\e[0m" >&3
+}
 
 function len {
     my_speak $(py len)
@@ -54,7 +69,7 @@ function py {
     python3 "$MY_SCRIPTS/lang/python/a.py" "$@"
 }
 
-function extra {
+function use_extra {
     [[ $1 == $_extra ]] && return
 
     if [[ $1 == '1' ]] || [[ -z $1 && -z $ZSH_AUTOSUGGEST_STRATEGY ]]; then
@@ -64,11 +79,8 @@ function extra {
         ZSH_AUTOSUGGEST_STRATEGY=(history)
     else
         _extra=0
-        ( py map set -k extra_features_delay -v "$EXTRA_FEATURES_DELAY_VALUE" & )
-
         unset ZSH_AUTOSUGGEST_STRATEGY
     fi
-
 }
 
 function color {
@@ -93,10 +105,11 @@ function color {
             '(?<=\s|^)p3(?=\s|$)' fg=magenta,underline
             '(?<!\*)\*[^*]+\*(?!\*)' fg=magenta,underline
 
+            '`.+`' fg=cyan
             '\$\([^\$]+\)' fg=cyan
             '(?<=^|\s)>(-?\d|\w)+(?=$|\s)' fg=cyan
             '^(R|B)[[:space:]]' fg=cyan,bold
-            '^(c|C|d|D|h|q|s|S)$' fg=cyan,bold
+            '^(c|d|D|h|q|s|S)$' fg=cyan,bold
         )
     else
         _color=0
@@ -109,13 +122,11 @@ function color {
 }
 
 
-
-
 # =========================== SETUP ========================== #
 
-extra 0
+use_extra 0
 reminder_file="/tmp/reminders_sorted.txt"
-LC_ALL=C printf '%s\n' "$(ob "p/auto/ash remind" | awk NF)" | sort > "$reminder_file"
+LC_ALL=C printf '%s\n' "$(ob "p/auto/ash remind" | awk NF)" | grep -vF "**" | sort > "$reminder_file"
 
 unset HISTFILE SAVEHIST
 
@@ -123,6 +134,7 @@ cmds=(
     'R echo $start_time'
     "R speak="
     "R audio="
+    "R extra="
     "R pyg"
     "R len"
     "R p"
@@ -168,26 +180,11 @@ function a_ui {
     fi
 
     while :; do
-        if [[ $_hist == 0 ]]; then
-            my_clear
-        fi
-
-        local extra_features=$(py map get -k extra_features -d "0")
-        [[ $extra_features -eq 1 ]] && extra 1 || extra 0
+        [[ $_hist == 0 ]] && my_clear
+        should_extra -c && use_extra 1 || use_extra 0
 
         take_input
-
-        ( update_settings & )
-
-        # log ------------------------------------------------------------------------ #
-
-        # Add to history & logs
-        if [[ $line != ' '* && $line != *'@p'* ]]; then
-            $MY_SCRIPTS/lang/shell/utils/log.sh -f a_raw "$line"
-            
-            print -s -- "$line"
-            print -s -- " "
-        fi
+        log_line "$line"
 
         # commands ------------------------------------------------------------------- #
 
@@ -199,7 +196,6 @@ function a_ui {
         elif [[ $line == 'c' ]]; then
             py clear
             my_clear
-            extra 0
             fc -p
             echo "" > "$var_file_path"
             
@@ -208,12 +204,6 @@ function a_ui {
 
             start_time="$(date +"%Y-%m-%d %H:%M:%S")"
             divide "$start_time"
-            print_top_right
-            continue
-        # Clear
-        elif [[ $line == 'C' ]]; then
-            extra 0
-            clear
             continue
         # Divide
         elif [[ $line == 'd' ]]; then
@@ -245,12 +235,10 @@ function a_ui {
             continue
         # Silent for one command
         elif [[ $line == 's' ]]; then
-            extra 0
             _silent=1
             continue
         # Toggle silent mode
         elif [[ $line == 'S' ]]; then
-            extra 0
             if [[ $_silent == 2 ]]; then
                 _silent=0
             else
@@ -279,6 +267,8 @@ function a_ui {
             if [[ $_silent == 0 ]]; then
                 [[ $speak == 1 ]] && my_speak "$expanded_line"
                 handle_if_reminder "$line"
+            elif [[ $_silent == 1 ]]; then
+                _silent=0
             fi
         fi
     done
@@ -292,6 +282,7 @@ function expand_item {
         -e "s/'/\\'/g" \
         -e 's/`/\\`/g' \
         -e 's/"/\\"/g')
+
     local once_expanded_line=$(eval echo \"$escaped\")
     local expanded_line_loc=$(eval echo \"$once_expanded_line\" | tr -d '\\')
 
@@ -312,20 +303,33 @@ function my_speak {
 }
 
 function handle_if_reminder {
-    local input=${1//'#'/''}
-    local reminders=$(look -- "- [ ] $input |" "$reminder_file")
+    local input=$(echo ${1//[0-9.]##/*} | sed 's/#/TO /g' | sed 's/TO b t/t/g' | tr -d '\n')
 
+    local dest=$(echo "$input" | grep -o 'TO [A-Za-z0-9_]\+' | tr -d '\n')
+    if [[ -n $dest ]]; then
+        _handle_if_reminder "$dest"
+    fi
+
+    _handle_if_reminder "$input"
+}
+
+function _handle_if_reminder {
+    local reminders=$(look -f -- "- [ ] $1 |" "$reminder_file")
     while read -r reminder; do
         if [[ -n $reminder ]]; then
             local reminder_parts=("${(@s:|:)reminder}")
-            local reminder_text="${reminder_parts[2]## }"
+            local reminder_text="${reminder_parts[2, -1]## }"
 
             if [[ $reminder_text == "*"* ]]; then
-                local extra_features=$(py map get -k extra_features -d "0")
-                [[ $extra_features != 1 ]] && continue
+                should_extra -C || continue
 
                 rem=${reminder_text//'*'/}
-                echo -e "    \e[30m$rem\e[0m"
+                out "$rem"
+            elif [[ $reminder_text == "\`"* ]]; then
+                should_extra -c || continue
+
+                cmd=${reminder_text//\`/}
+                ttab -d '' -w $cmd
             else
                 expanded=""
                 expand_item "$reminder_text" expanded
@@ -342,7 +346,7 @@ function my_clear {
     local wipe_col=$((cols - $max_pyg_preview))
     print -n "\e7\e[1;${wipe_col}H\033[35m${wiper}\033[0m\e8" >&3 
 
-    print_top_right
+    ( print_top_right & )
 }
 
 function print_top_right {
@@ -352,6 +356,8 @@ function print_top_right {
 
     local old_offline_amt=$(py map get -k offline_amt -d 0)
     local offline_amt=$(cat "$HOME/.dotfiles/tmp/a.txt" | wc -l | tr -d '[:space:]')
+
+    # offline info --------------------------------------------------------------- #
 
     if [[ $old_offline_amt -ne 0 || $offline_amt -ne 0 ]]; then
         if [[ $offline_amt -eq 0 ]]; then
@@ -376,23 +382,28 @@ function print_top_right {
         py map set -k offline_amt -v "$offline_amt"
     fi
 
-    local extra_features=$(py map get -k extra_features -d "0")
-    if [[ -n $pgo && $extra_features -eq 1 ]]; then
+    # expansion info ------------------------------------------------------------- #
 
-        print -n "\e7\e[${row};${wipe_col}H\033[35m${wiper}\033[0m\e8" >&3
-        local truncated=" ${pgo[1,$max_pyg_preview]}"
+    if should_extra -C; then
+        if [[ -n $pgo ]]; then
+            print -n "\e7\e[${row};${wipe_col}H\033[35m${wiper}\033[0m\e8" >&3
+            local truncated=" ${pgo[1,$max_pyg_preview]}"
 
-        if (( ${#pgo} > max_pyg_preview )); then
-            truncated+="…${pgo[-2,-1]}"
+            if (( ${#pgo} > max_pyg_preview )); then
+                truncated+="…${pgo[-2,-1]}"
+            fi
+
+            local text=" $truncated"
+            local col=$((cols - ${#text} + 1))
+
+            sleep 0.1
+            print -n "\e7\e[${row};${col}H\033[35m${text}\033[0m\e8" >&3
+
+            pgo=""
         fi
-
-        local text=" $truncated"
-        local col=$((cols - ${#text} + 1))
-
-        sleep 0.1
-        print -n "\e7\e[${row};${col}H\033[35m${text}\033[0m\e8" >&3
-
-        pgo=""
+    else
+        print -n "\e7\e[${row};${wipe_col}H\033[35m${wiper}\033[0m\e8" >&3
+        print -n "\e7\e[${row};${cols}H\033[35m?\033[0m\e8" >&3 
     fi
 }
 
@@ -415,7 +426,6 @@ function take_input {
         print -n -P "$prompt "
         read -s "line?"
         echo
-        [[ $_silent == 1 ]] && _silent=0
     fi
 
     [[ $audio == 1 ]] && beep 0.55
@@ -447,8 +457,6 @@ function hist {
         divide
         audio=$_prev_audio
     else
-        extra 0
-
         speak=0
         _hist=0
         
