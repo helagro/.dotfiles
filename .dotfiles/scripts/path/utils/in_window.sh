@@ -1,7 +1,15 @@
 function in_window {
+    local start=$1
+    local end=$2
     local now=$(date +"%H:%M")
 
-    before $1 $now && before $now $2
+    if before "$start" "$end"; then
+        # Same-day window
+        before "$start" "$now" && before "$now" "$end"
+    else
+        # Overnight window (crosses midnight)
+        before "$start" "$now" || before "$now" "$end"
+    fi
 }
 
 function before {

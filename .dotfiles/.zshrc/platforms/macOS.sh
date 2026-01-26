@@ -16,6 +16,7 @@ alias vi="nvim"
 alias archive="$HOME/Documents/archiver-go/build/macOS"
 alias wifi="networksetup -setairportpower en0" # ARG - on/off
 alias oblank="open 'obsidian://vault/vault/_/blank.md'"
+alias is_sprint="loc is-running | jq '.is_running'"
 
 alias tg="toggl"
 alias tgc="toggl current | grep -vE 'Workspace|ID'"
@@ -41,16 +42,6 @@ function breake {
     fi
 
     nvim "$config_path"
-}
-
-function is_home {
-    ping -c1 -t1 "$LOCAL_SERVER_IP" &>/dev/null
-    if [ $? -eq 0 ]; then
-        loc health &>/dev/null
-        return $?
-    else
-        return 1
-    fi
 }
 
 function test {
@@ -93,6 +84,15 @@ function on_tab {
 }
 
 function e {
+    if [[ ${system_projects[(r)$1]} == $1 ]] && is_home; then
+        if in_window.sh 05:00 "$earliest_coding"; then
+            local input
+            vared -p "Code line: " -c input
+            a "#tode $input"
+            return
+        fi
+    fi
+
     if [ -d "$DEV/$1" ]; then
         code "$DEV/$1"
     elif [ -d "$DOC/$1" ]; then
@@ -101,6 +101,14 @@ function e {
         code "$1"
     elif [ -e "$*" ]; then
         nvim "$*"
+        return 0
+    elif [[ -e "$VAULT/$1.md" ]]; then
+        if $is_work_tab; then
+            echo "Err: work tab"
+            return 1
+        fi        
+
+        nvim "$VAULT/$1.md"
         return 0
     else
         gclone $1
@@ -191,7 +199,7 @@ function inv {
 }
 
 function info {
-    short -m -N day "$1" | to_color.sh blue
+    short -m -N day "$1" | grep -Ev 'full_detach|stable_on_or_off|latest_dinner' | to_color.sh blue
     echo
 
     tdis
@@ -236,8 +244,19 @@ function sw {
         esac
     done
 
+    local trackActivity=$activity
+
     [[ -n $1 ]] && time=$1
-    [[ $activity == "medd" || $activity == "yoga" || $activity == "mindwork" || $activity == "main" ]] && trackable=true
+    [[ 
+        $activity == "medd" || 
+        $activity == "mindwork" || 
+        $activity == "main"
+    ]] && trackable=true
+
+    if [[ $activity == *"decomp"* ]]; then
+        trackActivity="decomp"
+        trackable=true
+    fi
 
 
     # handle pre-timer setup ----------------------------------------------------- #
@@ -247,7 +266,7 @@ function sw {
     fi
 
     if $trackable; then
-        echo "[TRACKING]" | to_color.sh yellow   
+        echo "[TRACKING $trackActivity]" | to_color.sh yellow   
     fi
 
     # run stopwatch -------------------------------------------------------------- #
@@ -271,7 +290,16 @@ function sw {
 
     # Calculate time
     local end_time=$(date +%s)
-    local min=$((($end_time - $start_time) / 60))
+
+    local delta=$(( end_time - start_time ))
+    local min=$(( delta / 60 ))
+    local sec=$(( delta % 60 ))
+
+    # add one extra minute with probability sec/60
+    if (( RANDOM < sec * 32768 / 60 )); then
+        (( min++ ))
+    fi
+
 
     # handle result -------------------------------------------------------------- #
 
@@ -283,10 +311,13 @@ function sw {
         else
             # Track time
             if ping -c1 -t1 8.8.8.8 &>/dev/null; then
-                local track_cmd="$activity $min #u"
+                local track_cmd="$trackActivity $min #u"
             else
-                local track_cmd="$(day) $activity $min #u"
+                local track_cmd="$(day) $trackActivity $min #u"
             fi
+
+            local old_main=$(state.sh main)
+            state.sh set main $((old_main + $min))
 
             echo "$track_cmd" | to_color.sh yellow
             a "$track_cmd"

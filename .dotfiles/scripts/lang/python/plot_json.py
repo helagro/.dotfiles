@@ -15,6 +15,11 @@ TIME_REGEX = r"^\d{2}:\d{2}$"
 def main(arg, plot_name):
     # Load the JSON data
     json_data = json.loads(arg)
+    json_data = {
+        k: v
+        for k, v in json_data.items() if isinstance(v, (int, float)) or (isinstance(v, str) and is_time(v))
+    }
+
     df = pd.DataFrame(list(json_data.items()), columns=['Date', 'Value'])
     df['Date'] = pd.to_datetime(df['Date'])
 

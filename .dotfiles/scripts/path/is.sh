@@ -19,7 +19,7 @@ if [ $# -gt 0 ]; then
 fi
 
 if $value_only; then
-    echo $is_output | jq '.[]' | rat.sh -pl 'json'
+    echo $is_output | jq '.[]' | rat.sh -pl 'json' | tail -n +2
 else
     echo $is_output | rat.sh -pl 'json'
 fi

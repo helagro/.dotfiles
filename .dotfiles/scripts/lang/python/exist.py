@@ -15,7 +15,7 @@ import requests
 import os
 import sys
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, time, timedelta
 from typing import Any
 
 # ------------------------- VARIABLES ------------------------ #
@@ -58,7 +58,7 @@ def main():
             return get_count(attr)
 
     date_max_input = sys.argv[3] if args_len >= 4 else None
-    result = get_values(attr, days, date_max_input)
+    result = {"timestamp": datetime.now().isoformat(timespec='minutes'), **get_values(attr, days, date_max_input)}
 
     # Filter results
     if sys.argv[-1] in ['pos', '+', 'nonull']:

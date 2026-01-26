@@ -39,6 +39,8 @@ filter=""
 # User Facing
 calc=1
 
+print -s -- "calc="
+
 # ================================= FUNCTIONS ================================ #
 
 function on_tab {

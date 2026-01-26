@@ -8,7 +8,7 @@ function my_cat {
         -p | -P |--)
             shift 
             ;;
-        -l)
+        -l | --file-name)
             shift 2 
             ;;
         *)

@@ -21,7 +21,6 @@ typeset -A ZSH_HIGHLIGHT_REGEXP
 
 # ------------------------- UNCATEGORISED ALIASES ------------------------ #
 
-alias c="qalc"
 alias st="python3 $MY_SCRIPTS/lang/python/st.py"
 alias lines="grep -v '^$' | wc -l | tr -d '[:space:]' && echo"
 alias fun="functions"
@@ -32,6 +31,14 @@ function ask {
     echo -n "$1 (y/n) "
     read response
     [[ "$response" =~ ^[Yy]$ ]]
+}
+
+function c {
+    if [[ -n $* ]]; then
+        qalc -t "$*"
+    else
+        qalc
+    fi
 }
 
 function clr {
@@ -54,8 +61,15 @@ function cnt {
     echo -n $((cnt + 1)) >"$HOME/.dotfiles/tmp/cnt.txt"
 }
 
+function date_if_offline {
+    if ! ping -c 1 -t 1 8.8.8.8 &>/dev/null; then
+        date +"%Y-%m-%d"
+    fi
+}
+
 function hm { 
-    python3 $MY_SCRIPTS/lang/python/hm.py "$@" | rat.sh -pPl 'json';
+    is_output=$(python3 $MY_SCRIPTS/lang/python/hm.py "$@")
+    echo "$is_output" | rat.sh -pPl "json"
 }
 
 function loc {

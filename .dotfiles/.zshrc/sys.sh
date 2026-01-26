@@ -4,7 +4,6 @@
 # NOTE - Used by server-app
 export DISABLED_TD_APP_ITEMS="---,ob,null,"
 
-alias is_m="is main 1 | hm"
 alias glo="tl.sh"
 
 # ================================= FUNCTIONS ================================ #
@@ -30,11 +29,31 @@ function act {
 
     local full_input="$*"
     local project=''
-    local max_duration="50:00"
-    local focus_flag="-f"
     local activity_name=""
     local important_flag="-i"
     local do_local=true
+
+    local focus_flag="-f"
+    local max_duration="50:00"
+
+    # calc connectivity ---------------------------------------------------------- #
+    
+    if ping -c1 -t1 8.8.8.8 &>/dev/null; then
+        local online=true
+    else
+        local online=false
+        echo "[OFFLINE]" | to_color.sh red
+    fi
+
+    if ! $online || ! is_home; then
+        local was_home=false
+
+        max_duration=""
+        focus_flag=""
+    else
+        local was_home=true
+    fi
+
 
     # process arguments ---------------------------------------------------------- #
 
@@ -75,13 +94,6 @@ function act {
 
     date +"%Y-%m-%d %H:%M:%S" | to_color.sh blue
 
-    if ping -c1 -t1 8.8.8.8 &>/dev/null; then
-        local online=true
-    else
-        local online=false
-        echo "[OFFLINE]" | to_color.sh red
-    fi
-
     # handle specific activities ------------------------------------------------- #
 
     if [[ $project == "study" || $project == "p1" ]]; then
@@ -101,16 +113,21 @@ function act {
 
     if $online; then
         tgs "$project" "$activity_name"
-        if $do_local && in_window.sh 7:00 22:00; then
-            (loc start &) >/dev/null 2>&1
+
+        if $do_local; then
+            if [[ -z $full_detach_time ]]; then
+                full_detach_time=$(glo routines full_detach 'start?sep=:&sec=false')
+            fi
+
+            if in_window.sh 7:00 $full_detach_time; then
+                (loc start &) >/dev/null 2>&1
+            fi
         fi
     fi
 
     # handle focus -------------------------------------------------------------- #
 
-    if ! is_home; then
-        focus_flag=""
-    else
+    if $was_home; then
         local prev_focus=$(short get_focus)
         [[ -n $prev_focus ]] && focus_flag=""
     fi
@@ -118,11 +135,131 @@ function act {
     # run activity --------------------------------------------------------------- #
 
     sw $important_flag $focus_flag -a "$activity_name" $max_duration
+    date +"%Y-%m-%d %H:%M:%S" | to_color.sh blue
 
     if $online; then
         toggl stop
         (loc stop &) >/dev/null 2>&1
     fi
+
+    # break reminder ------------------------------------------------------------- #
+
+    if [[ "$activity_name" == "main" ]]; then
+        if ! state.sh -s headache && $was_home; then
+            local break_len
+            vared -p "Break Length (minutes): " -c break_len
+            if [[ -n "$break_len" && "$break_len" != "0" ]]; then
+                short -s timer "$break_len:00"
+            fi
+        fi
+    fi
+}
+
+
+function exit_if_empty {
+    local input=$(tee /dev/tty)
+
+    if [[ -n "$input" ]]; then
+        echo "$input"
+    else
+        exit 0
+    fi
+}
+
+function gym {
+    local workout_time=$(date +"%Y-%m-%d %H:%M")
+
+    # Track old workouts
+    local is_recent_workout=true
+    if [[ $1 == "-o" ]]; then
+        is_recent_workout=false
+        shift
+
+        # Workout time
+        workout_time=""
+        vared -p "Workout time (freeform): " -c workout_time
+        [[ -z $workout_time ]] && return 1
+    fi
+
+    # Handle workout types
+    local cardio_types=("cardio" "floorball" "run" "badminton" "tennis" "bike")
+    local type="$1"
+    if [[ -z $type ]]; then
+        vared -p "Workout type: " -c type
+        [[ -z $type ]] && return 1
+    fi
+
+    # Track evening workouts
+    if $is_recent_workout && in_window.sh 18:00 23:50; then
+        a "t gym_eve #u"
+    fi
+
+    # Track cardio
+    if [[ -n ${(M)cardio_types:#$type} ]]; then
+        if $is_recent_workout; then
+            a "t cardio #u"
+        else
+            a "$workout_time t cardio #u"
+        fi
+
+        echo "tracked cardio"
+    fi
+
+    local duration
+    vared -p "Duration minutes (empty for start): " -c duration
+    if $is_recent_workout && [[ -z $duration ]]; then
+
+        # Show relevant note
+        local types_with_notes=("floorball" "tennis" "bike")
+        if [[ -n ${(M)types_with_notes:#$type} ]]; then
+            obc "$type"
+        elif [[ $type == "run" ]]; then
+            obc "running"
+        elif [[ -z ${(M)cardio_types:#$type} && $type != "exorita" ]]; then
+            local is_probably_gym=true
+            obc "gym"
+        fi
+
+        # Track and time
+        local start_time=$(date +%s)
+        act exor -n "$type" -D
+        local end_time=$(date +%s)
+
+        # Set duration
+        duration=$(( (end_time - start_time) / 60 ))
+        vared -p "Duration minutes: " -c duration
+
+        if [[ -n $is_probably_gym ]]; then
+            local decomp
+            vared -p "Decompress minutes: " -c decomp
+            if [[ -n $decomp && $decomp -gt 0 ]]; then
+                a "decomp $decomp #u"
+            fi
+
+            local main
+            vared -p "Main minutes: " -c main
+            if [[ -n $main && $main -gt 0 ]]; then
+                a "main $main #u"
+            fi
+        fi
+
+        is_home && echo "Wash hands"
+        echo "Upper pmr"
+    fi
+
+    if [[ -z $duration || $duration -lt 5 ]]; then
+        echo "Invalid duration"
+        return 1
+    fi
+
+    if $is_recent_workout; then
+        a "#xord $type ; $duration"
+        a "workouts_min $duration ; workouts 1 #u"
+    else
+        a "$workout_time #u #xord $type ; $duration"
+        a "$workout_time workouts_min $duration ; workouts 1 #u"
+    fi
+
 }
 
 function pmr {
@@ -172,7 +309,75 @@ function tgs {
 
 function group { python3 $MY_SCRIPTS/lang/python/group.py "$@" | rat.sh -pPl 'json'; }
 function csv { conda run -n main python3 "$MY_SCRIPTS/lang/python/jsons_to_csv.py" $@ | rat.sh -pPl 'tsv'; }
-alias is="is.sh"
+
+function is {
+    if [[ -z $* ]]; then
+        echo "$is_output"
+        return
+    fi
+
+    is_output=$(is.sh "$@")
+    echo "$is_output" | rat.sh -pPl "json"
+}
+
+function is_m {
+    local value=$(is main 1)
+
+    state.sh set main $(printf '%s' $value | jq -r 'to_entries[1].value')
+    echo $value | hm
+}
+
+function is_d {
+    local value=$(is decomp 1)
+
+    state.sh set decomp $(printf '%s' $value | jq -r 'to_entries[1].value')
+    echo $value | hm
+}
+
+function plan {
+    local item
+    local b=$(ob b)
+    is_home --guess-yes && local was_home=true || local was_home=false
+    # load 
+
+    if in_window.sh 20:00 15:00 && [[ $(date +"%m") -le 2 ]]; then # Is Jan or Feb
+        later 'vared -c s && a "$s - sunlight #p"'
+    fi
+
+    if in_window.sh 20:00 13:00 && ! (echo "$b" | grep -q @bigb); then
+        vared -p "big break: " -c item
+        [[ -n $item ]] && a "@bigb $item #p"
+        item=""
+    fi
+
+    if in_window.sh 18:00 7:00 && ! (echo "$b" | grep -q @start); then
+        vared -p "start: " -c item
+        [[ -n $item ]] && a "@start $item #p"
+        item=""
+    fi
+
+    if ! $was_home && ! (echo "$b" | grep -q @return); then
+        vared -p "return: " -c item
+        [[ -n $item ]] && a "@return $item #p #b"
+        item=""
+    fi 
+
+    if $was_home || ask "Do full planning?"; then
+        vared -p "risk: " -c item
+        while [[ -n $item && $item != "q" ]]; do
+            [[ -n $item ]] && a "$item #risk"
+            item=""
+            vared -p "risk: " -c item
+        done 
+    fi
+
+    vared -p "plan: " -c item
+    while [[ -n $item && $item != "q" ]]; do
+        [[ -n $item ]] && a "$item #p"
+        item=""
+        vared -p "plan: " -c item
+    done
+}
 
 function plot {
     if [[ -p /dev/stdin ]]; then
@@ -296,8 +501,12 @@ alias tdis='td s && tdi'
 alias tdls='td s && tdl'
 
 function tundo {
-    local N=$1
-    tdls -p | tac | tail -n +$((N+1)) | in.sh
+    if ping -c 1 -t 1 8.8.8.8 &>/dev/null; then
+        local N=$1
+        tdls -p | tac | tail -n +$((N+1)) | in.sh
+    else
+        vim "$HOME/.dotfiles/tmp/a.txt"
+    fi
 }
 
 function a {

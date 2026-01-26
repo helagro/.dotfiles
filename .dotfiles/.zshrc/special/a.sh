@@ -250,6 +250,12 @@ function a_ui {
         # run -------------------------------------------------------- #
 
         expand_item "$line" expanded_line
+        if [[ $_silent != 0 ]]; then
+            expanded_line="$expanded_line @p"
+        fi
+        if [[ $line != $expanded_line ]]; then
+            _sign="!"
+        fi
 
         if [[ $expanded_line == [[:space:]]# ]]; then
             _sign="×"
@@ -428,7 +434,7 @@ function take_input {
         echo
     fi
 
-    [[ $audio == 1 ]] && beep 0.55
+    [[ $audio == 1 && $_extra == 1 ]] && beep 0.55
 
     line=$(echo "$line" | tr -d '\\')
     _sign="-"

@@ -36,7 +36,7 @@ def set_value(key, value):
 # helpers -------------------------------------------------------------------- #
 
 
-def calc_bool(value: str) -> bool:
+def calc_value(value: str) -> int | bool | None:
     true_values = {"1", "true", "yes", "on"}
     false_values = {"0", "false", "no", "off"}
 
@@ -45,8 +45,12 @@ def calc_bool(value: str) -> bool:
         return True
     elif value_lower in false_values:
         return False
+    elif value_lower == "null":
+        return None
+    elif value.isdigit():
+        return int(value)
     else:
-        raise ValueError(f"Cannot convert '{value}' to boolean.")
+        raise ValueError(f"Invalid value: {value}")
 
 
 # main ----------------------------------------------------------------------- #
@@ -66,7 +70,7 @@ def main():
             sys.exit(1)
 
         key = args[1]
-        value = calc_bool(args[2])
+        value = calc_value(args[2])
 
         set_value(key, value)
         sys.exit(0)

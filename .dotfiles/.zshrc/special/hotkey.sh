@@ -15,6 +15,24 @@ function p {
 
     _play_opts=(--shuffle --no-video --demuxer-max-bytes=50MiB --screen-name="$media")
 
+    # productive ----------------------------------------------------------------- #
+
+    if [ "$media" = "breath" ]; then
+        mpv "${_play_opts[@]}" --volume=$foreground_vol "https://youtu.be/Za4gLn2KoHM" --screen-name=breath
+
+    elif [ "$media" = "ram" ]; then
+        mpv "${_play_opts[@]}" "$ram_url" --screen-name=ram
+
+    elif [ "$media" = "work" ]; then
+        mpv "${_play_opts[@]}" \
+            --loop \
+            --volume=$background_vol \
+            "$work_url" 
+    elif (! state.sh -s 'drown') && is_home; then
+        echo "Missing tag"
+        return 1
+    fi
+
     # local media files ---------------------------------------------------------- #
 
     local media_folder="$HOME/Library/Mobile Documents/com~apple~CloudDocs/media/tools"
@@ -30,9 +48,7 @@ function p {
 
     if [ "$media" = "podd" ]; then
         if curl --connect-timeout 1 -s "$LOCAL_SERVER_IP:8004" >/dev/null; then
-            local lvg
-            vared -p "Leverage: " -c lvg
-            "$HOME/.dotfiles/scripts/path/task/a.sh" "#lvg $lvg" >/dev/null
+            leverage
 
             while [[ $? -eq 0 ]]; do
                 local podd_path=$(curl -sS "$loc_files_url/rand-path/podd")
@@ -49,11 +65,6 @@ function p {
             fi
         fi
 
-    # youtube clips -------------------------------------------------------------- #
-
-    elif [ "$media" = "breath" ]; then
-        mpv "${_play_opts[@]}" --volume=$foreground_vol "https://youtu.be/Za4gLn2KoHM" --screen-name=breath
-
     # youtube playlists ---------------------------------------------------------- #
 
     elif [ "$media" = "good" ]; then
@@ -64,16 +75,9 @@ function p {
         fi
 
     elif [ "$media" = "interest" ]; then
+        leverage
         mpv "${_play_opts[@]}" --volume=$background_vol "$interesting" "$@"
 
-    elif [ "$media" = "ram" ]; then
-        mpv "${_play_opts[@]}" "$ram_url" --screen-name=ram
-
-    elif [ "$media" = "work" ]; then
-        mpv "${_play_opts[@]}" \
-            --loop \
-            --volume=$background_vol \
-            'https://youtube.com/playlist?list=PLAy7-c9usC7SusYkjodaoIyC24Yp8YjJ6&si=lYZsiknp00HECD2W'
 
     # youtube search ------------------------------------------------------------- #
 

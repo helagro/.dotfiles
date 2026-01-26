@@ -6,8 +6,17 @@ FILE_PATH = f'{os.getenv("HOME")}/.dotfiles/tmp/later.txt'
 
 
 def add_to_later(command):
-    with open(FILE_PATH, "a") as file:
-        file.write(f'{command}\n')
+    command = command.rstrip("\n")
+
+    try:
+        with open(FILE_PATH, "r") as file:
+            existing = {line.rstrip("\n") for line in file}
+    except FileNotFoundError:
+        existing = set()
+
+    if command not in existing:
+        with open(FILE_PATH, "a") as file:
+            file.write(f"{command}\n")
 
 
 def run_later():

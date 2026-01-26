@@ -103,8 +103,16 @@ function main {
             filter+="|(p3.*#bdg)|@zt"
         fi
 
+        if in_window.sh 5:00 "$earliest_coding" && $is_busy; then
+            filter+="|#bdg"
+        fi
+
+        if ! ping -c1 -t1 "$LOCAL_SERVER_IP" &>/dev/null; then
+            filter+="|@p"
+        fi
+
         if "$MY_SCRIPTS/path/state/state.sh" -s eye_strain; then
-            filter+="|@eye|(p3.*#bdg)|(p4.*#bdg&!@short)"
+            filter+="|@eye|(p3.*#bdg)|(p4.*#bdg)"
         fi
 
         if "$MY_SCRIPTS/path/state/state.sh" -s diss && "$MY_SCRIPTS/path/utils/in_window.sh" 5:00 14:00; then

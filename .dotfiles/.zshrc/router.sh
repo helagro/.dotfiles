@@ -5,6 +5,7 @@ $is_special_tab && [[ "$PWD" == "$HOME/.dotfiles/config/tabs/work" ]] && is_work
 $is_special_tab && [[ "$PWD" == "$HOME/.dotfiles/config/tabs/red" ]] && export is_red_tab=true || export is_red_tab=false
 
 source "$HOME/.dotfiles/.zshrc/first.sh"
+export PATH="$HOME/.dotfiles/scripts/path:$(printf "%s:" "$HOME/.dotfiles/scripts/path"/*/):$PATH"
 
 # ========================== SECRETS ========================= #
 
@@ -35,8 +36,6 @@ if $is_special_tab; then
 fi
 
 # =================================== GENERAL ================================== #
-
-export PATH="$HOME/.dotfiles/scripts/path:$(printf "%s:" "$HOME/.dotfiles/scripts/path"/*/):$PATH"
 
 source "$HOME/.dotfiles/.zshrc/main.sh"
 

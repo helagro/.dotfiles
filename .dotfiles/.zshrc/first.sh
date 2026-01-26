@@ -38,6 +38,20 @@ function day {
     fi
 }
 
+function is_home {
+    ping -c1 -t1 "$LOCAL_SERVER_IP" &>/dev/null
+    if [ $? -eq 0 ]; then
+        loc health &>/dev/null
+        return $?
+    else
+        if [[ $1 == '--guess-yes' ]]; then
+            return 0
+        else
+            return 1
+        fi
+    fi
+}
+
 function red_mode {
     if [[ $1 == '1' ]]; then
         printf "\033]10;rgb:ff/30/30\007"
@@ -45,7 +59,7 @@ function red_mode {
 
         ZSH_HIGHLIGHT_REGEXP=()
     else
-        print -n "\033]110\007"
+        $is_red_tab || print -n "\033]110\007"
         [[ -z $2 || $2 != 0 ]] && short -s filter 0
 
         ZSH_HIGHLIGHT_REGEXP=(

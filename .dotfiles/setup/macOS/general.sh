@@ -44,6 +44,8 @@ duti -s com.microsoft.VSCode .md all
 
 # =================================== OTHER ================================== #
 
+defaults write com.openai.chat NSRequiresAquaSystemAppearance -bool YES
+
 if ask "Install go"; then
     brew install go
 fi

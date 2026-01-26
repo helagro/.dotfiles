@@ -16,8 +16,10 @@ def process_dict(data):
     for date, minutes in data.items():
         if minutes is None:
             res[date] = None
-        else:
+        elif isinstance(minutes, (int, float)):
             res[date] = hm(minutes)
+        else:
+            res[date] = minutes
 
     print(json.dumps(res, indent=2))
 

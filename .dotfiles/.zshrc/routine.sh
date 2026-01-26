@@ -1,23 +1,55 @@
 function wake {
-    ({
-        wifi on
-        red_mode 0
-        short -s night_shift 0
-    }&)
+    a 'c wake'
 
-    local cort_taken
-    vared -p 'Cort amt: ' -c cort_taken
+    # Woke acedentally
+    if ask 'Involontary?'; then
+        a 't woke_early'
+        ask 't melatonin?' && a 't melatonin'
+        obc woke
 
-    if [[ -n $cort_taken && $cort_taken != 0 ]]; then
-        a "took cort $cort_taken #tmp"
+    # Woke deliberatelly
+    else
+        ({
+            red_mode 0
+            short -s night_shift 0
+        }&)
 
-        if [[ $cort_taken -ge 10 ]]; then
-            echo 'Drink water - ( cort >= 10 )'
+
+        # Handle cortisone
+        local cort_taken
+        vared -p 'Cort amt: ' -c cort_taken
+        if [[ -n $cort_taken && $cort_taken != 0 ]]; then
+            a "cort ; $cort_taken #tmp"
+
+            if [[ $cort_taken -ge 10 ]]; then
+                echo 'Drink water - ( cort >= 10 )'
+            fi
         fi
+
+        ob wake
+
+        if ! is_home --guess-yes; then
+            obc stayover
+
+            if ask "obc social?"; then
+                a 't social away'
+                obc social
+            fi
+        fi
+
+        wake_state
     fi
 
-    ob wake
-    wake_state
+    if [[ -n $1 ]]; then
+        wifi on
+        ({
+            while ! ping -c 1 -t 1 8.8.8.8 &>/dev/null; do
+                sleep 0.5
+            done
+
+            loc p "$1"
+        }&)
+    fi
 }
 
 function dawn {
@@ -100,7 +132,7 @@ function dawn {
     if [[ $(ob p | lines) -gt 1 ]]; then
         ob p
     else
-        a 'plan - big_break | exor | return #b'
+        a '> plan && echo #b'
     fi
 
     if state.sh -s 'headache'; then
@@ -117,10 +149,18 @@ function dawn {
 ## @param {string[]}  Arguments to pass to `loc` function
 function eat {
     $MY_SCRIPTS/lang/shell/battery.sh 60
-    ( loc "$@" & )
+    [[ -n "$1" ]] && ( loc -S "$@" & )
+
+    in_window.sh 11:30 14:30 && local is_lunch=true || local is_lunch=false
+    in_window.sh 17:00 20:00 && local is_dinner=true || local is_dinner=false
+
+    # If lunch
+    if $is_lunch; then
+        echo "Do florinef?"
+    fi
 
     # If dinner
-    if in_window.sh 17:00 20:00; then
+    if $is_dinner; then
         # Handle temperature
         local temp=$(loc -S -n sens/temp)
         if [[ $temp -gt $dinner_temp_threshold ]]; then
@@ -138,8 +178,14 @@ function eat {
         [ -n "$time_diff" ] && a "bed_minus_dinner $time_diff s #u" && echo "tracked bed_minus_dinner AS $time_diff"
     fi
 
-    if ! (ob b | grep -q cook) && ask "Add cook?"; then
-        a "cook #b @home"
+    if $is_lunch || $is_dinner; then
+        if ! (ob b | grep -q cook) && ask "Add cook?"; then
+            a "cook #b @home"
+        fi
+    fi
+
+    if ! is_home --guess-yes; then
+        echo "chew"
     fi
 
     echo
@@ -147,7 +193,7 @@ function eat {
 }
 
 function eve {
-    local main screen
+    local screen, decomp, tv
     set -- $($MY_SCRIPTS/lang/shell/expand_args.sh $*)
 
     if $MY_SCRIPTS/lang/shell/is_help.sh $*; then
@@ -164,7 +210,6 @@ function eve {
         short -s focus sleep # NOTE - should run early, before short phondo
         short -s night_shift 1
         theme 1
-        pkill 'ChatGPT'
     fi
 
     # reset ---------------------------------------------------------------------- #
@@ -185,8 +230,10 @@ function eve {
     # Display weather if snow
     local forecast=$(weather)
     if echo $forecast | grep -q "snow"; then
-        echo "$forecast"
-        echo "Ear plugs - snow expected"
+        echo "$forecast"    
+        if ask "Add ear plugs? - snow"; then 
+            a "ear plugs #b"
+        fi
     fi
 
     if weather /moon T | grep -q "Full Moon"; then
@@ -217,7 +264,22 @@ function eve {
     # manual track ------------------------------------------------- #
 
     vared -p "Screen: " -c screen
-    [[ -n "$screen" ]] && a "screen $(hm $screen) s #u"
+    if [[ -n "$screen" ]]; then 
+        local screen_min=$(hm $screen)
+        a "screen $screen_min s #u"
+    fi
+
+    vared -p "Decomp: " -c decomp
+    if [[ -n "$decomp" ]]; then 
+        local decomp_min=$(hm $decomp)
+        a "decomp $decomp_min #u"
+    fi
+
+    vared -p "TV: " -c tv
+    if [[ -n "$tv" ]]; then 
+        local tv_min=$(hm $tv)
+        a "tv $tv_min s #u"
+    fi
 
     # auto track ------------------------------------------------- #
 
@@ -239,9 +301,9 @@ function eve {
         echo "optimize melatonin"
     fi
 
-   local e1_res=$(is -v "$e1" 1)
-   if [[ "$e1_res" == "1" ]]; then
-       ask "cort_diff -2.5?" && a "cort_diff -2.5 #u"
+   local load_res=$(is -v "load" 1)
+   if [[ "$load_res" -gt 6 ]]; then
+       a "#b :p load - %% $load_res %% "
    fi
 
     # flight mode ------------------------------------------------ #
@@ -258,9 +320,18 @@ function eve {
 }
 
 function bedtime {
+    ( bedtime_state & )
+
     short -s focus sleep
-    short -s bedtime_brightness
+    # short -s bedtime_brightness
     loc p 'night?m=keep'
+
+    local decomp=""
+    vared -p "Decomp: " -c decomp
+    if [[ -n "$decomp" ]]; then 
+        local decomp_min=$(hm $decomp)
+        a "decomp $decomp_min #u"
+    fi
 
     a 'flush @rm'
 
@@ -291,6 +362,8 @@ function bedtime {
     vared -p "State: " -c state_input
     [[ -n "$state_input" ]] && a "$state_input #state"
 
+    [[ $(ob plan | lines) -lt 4 ]] && plan
+
     # shut down ------------------------------------------------------------------ #
 
     if ask "Set flight mode on phone?"; then
@@ -300,11 +373,13 @@ function bedtime {
     local uptime=$(sysctl -n kern.boottime | awk '{print $4}' | tr -d ',')
     if [[ $uptime -lt $(date -v-8d +%s) ]]; then
         if ask "Shut down?"; then
+            wait
             sudo shutdown -h now
         fi
     fi
 
     if ask "Turn off wifi?"; then
+        wait
         wifi off
         pkill -2 $BROWSER
     else
@@ -332,9 +407,6 @@ function eve_track {
     # Track brightness
     local brightness=$(calc_brightness)
     [ -n "$brightness" ] && a "$(day) brightness $brightness s #u"
-
-    # Can't be called in morning because of offline items
-    a "$(day -1) mindwork $(is -v meditation_min 1 1) #u"
 }
 
 function fall_asleep_delay {
@@ -347,7 +419,7 @@ function fall_asleep_delay {
         # Perminant debug option
         local sleep_start="$1"
     else
-        local sleep_start=$(is sleep_start 1 | hm | jq '.[]' | sed 's/"//g' 2>/dev/null)
+        local sleep_start=$(is -v sleep_start 1 | hm | sed 's/"//g' 2>/dev/null)
     fi
 
     if [ $? -ne 0 ] || [ -z "$sleep_start" ] || [[ $sleep_start == "null" ]]; then
