@@ -316,8 +316,8 @@ function sw {
                 local track_cmd="$(day) $trackActivity $min #u"
             fi
 
-            local old_main=$(state.sh main)
-            state.sh set main $((old_main + $min))
+            local old_main=$(map.sh s.main)
+            map.sh set s.main $((old_main + $min))
 
             echo "$track_cmd" | to_color.sh yellow
             a "$track_cmd"

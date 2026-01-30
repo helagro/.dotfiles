@@ -5257,23 +5257,27 @@
 			</dict>
 			<key>Ansi 7 Color (Dark)</key>
 			<dict>
+				<key>Alpha Component</key>
+				<real>1</real>
 				<key>Blue Component</key>
-				<real>0.83529411764705885</real>
+				<real>0.098247207701206207</real>
 				<key>Color Space</key>
-				<string>sRGB</string>
+				<string>P3</string>
 				<key>Green Component</key>
-				<real>0.90980392156862744</real>
+				<real>0.16053119301795959</real>
 				<key>Red Component</key>
-				<real>0.93333333333333335</real>
+				<real>0.15436306595802307</real>
 			</dict>
 			<key>Ansi 7 Color (Light)</key>
 			<dict>
+				<key>Alpha Component</key>
+				<real>1</real>
 				<key>Blue Component</key>
-				<real>0.83529411764705885</real>
+				<real>0.65490196078431373</real>
 				<key>Color Space</key>
-				<string>sRGB</string>
+				<string>P3</string>
 				<key>Green Component</key>
-				<real>0.90980392156862744</real>
+				<real>0.80784313725490198</real>
 				<key>Red Component</key>
 				<real>0.93333333333333335</real>
 			</dict>
@@ -6227,7 +6231,7 @@
 				<key>Has Toolbelt</key>
 				<false/>
 				<key>Height</key>
-				<real>788</real>
+				<real>810</real>
 				<key>Hide After Opening</key>
 				<false/>
 				<key>Hiding Toolbelt Should Resize Window</key>
@@ -7096,7 +7100,7 @@
 												<real>0.094477064907550812</real>
 											</dict>
 											<key>Guid</key>
-											<string>4E2703E5-C99C-43F4-844E-F6A15F3A5880</string>
+											<string>584996FC-49DA-4D85-842D-BE82D47EB772</string>
 											<key>Has Hotkey</key>
 											<false/>
 											<key>Horizontal Spacing</key>
@@ -7607,6 +7611,8 @@
 											<string>/Users/h/.dotfiles/config/tabs/a</string>
 											<string>/Users/h/.dotfiles/config/tabs/a</string>
 											<string>/Users/h/.dotfiles/config/tabs/a</string>
+											<string>/Users/h/.dotfiles/config/tabs/a</string>
+											<string>/Users/h/.dotfiles/config/tabs/a</string>
 										</array>
 										<key>Environment</key>
 										<dict>
@@ -7617,6 +7623,12 @@
 										<dict/>
 										<key>Hosts</key>
 										<array>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
 											<dict>
 												<key>Host name</key>
 												<string>Henriks-MacBook-Air.local</string>
@@ -7745,7 +7757,7 @@
 											<string>Shell Launcher</string>
 										</dict>
 										<key>Rows</key>
-										<integer>39</integer>
+										<integer>40</integer>
 										<key>Session GUID</key>
 										<string>20111947-7A40-4E08-98E8-65D707E3CF92</string>
 										<key>Short Lived Single Use</key>
@@ -7769,7 +7781,7 @@
 									<key>frame</key>
 									<dict>
 										<key>height</key>
-										<real>750</real>
+										<real>772</real>
 										<key>width</key>
 										<real>1296</real>
 										<key>x</key>
@@ -7784,7 +7796,7 @@
 							<key>frame</key>
 							<dict>
 								<key>height</key>
-								<real>750</real>
+								<real>772</real>
 								<key>width</key>
 								<real>1296</real>
 								<key>x</key>
@@ -8722,7 +8734,7 @@
 												<real>0.0</real>
 											</dict>
 											<key>Guid</key>
-											<string>EDDEA307-A97E-4626-9260-7C3CB9512E46</string>
+											<string>CA93879F-8F57-4CB5-89C3-CFED73B5C32D</string>
 											<key>Has Hotkey</key>
 											<true/>
 											<key>Horizontal Spacing</key>
@@ -9306,9 +9318,6 @@
 											<string>/Users/h</string>
 											<string>/Users/h</string>
 											<string>/Users/h</string>
-											<string>/Users/h</string>
-											<string>/Users/h</string>
-											<string>/Users/h</string>
 											<string>/Users/h/.dotfiles/config/tabs/act</string>
 											<string>/Users/h/.dotfiles/config/tabs/act</string>
 											<string>/Users/h/.dotfiles/config/tabs/act</string>
@@ -9331,6 +9340,9 @@
 											<string>/Users/h</string>
 											<string>/Users/h</string>
 											<string>/Users/h</string>
+											<string>/Users/h/.dotfiles/config/tabs/act</string>
+											<string>/Users/h/.dotfiles/config/tabs/act</string>
+											<string>/Users/h/.dotfiles/config/tabs/act</string>
 											<string>/Users/h/.dotfiles/config/tabs/act</string>
 											<string>/Users/h/.dotfiles/config/tabs/act</string>
 											<string>/Users/h/.dotfiles/config/tabs/act</string>
@@ -9812,13 +9824,13 @@
 											</dict>
 											<dict>
 												<key>Host name</key>
-												<string>Macbook-Air-3.local</string>
+												<string>Henriks-MacBook-Air.local</string>
 												<key>User name</key>
 												<string></string>
 											</dict>
 											<dict>
 												<key>Host name</key>
-												<string>Macbook-Air-3.local</string>
+												<string>Henriks-MacBook-Air.local</string>
 												<key>User name</key>
 												<string></string>
 											</dict>
@@ -9983,13 +9995,13 @@
 											<string>Shell Launcher</string>
 										</dict>
 										<key>Rows</key>
-										<integer>39</integer>
+										<integer>40</integer>
 										<key>Session GUID</key>
 										<string>E5349A8E-7B05-4E75-A09E-867480476257</string>
 										<key>Short Lived Single Use</key>
 										<false/>
 										<key>Should Expect Current Dir Updates</key>
-										<true/>
+										<false/>
 										<key>Should Expect Prompt Marks</key>
 										<true/>
 										<key>Substitutions</key>
@@ -10007,7 +10019,7 @@
 									<key>frame</key>
 									<dict>
 										<key>height</key>
-										<real>750</real>
+										<real>772</real>
 										<key>width</key>
 										<real>1296</real>
 										<key>x</key>
@@ -10022,7 +10034,7 @@
 							<key>frame</key>
 							<dict>
 								<key>height</key>
-								<real>750</real>
+								<real>772</real>
 								<key>width</key>
 								<real>1296</real>
 								<key>x</key>
@@ -10960,7 +10972,7 @@
 												<real>0.0</real>
 											</dict>
 											<key>Guid</key>
-											<string>F745E0F0-D037-416D-AF94-DB37E02EC92D</string>
+											<string>4F7BCA67-5F3D-4B20-BB0D-F774A89C1843</string>
 											<key>Has Hotkey</key>
 											<true/>
 											<key>Horizontal Spacing</key>
@@ -11577,6 +11589,11 @@
 											<string>/Users/h</string>
 											<string>/Users/h</string>
 											<string>/Users/h/.dotfiles/config/tabs/work</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h/.dotfiles/config/tabs/work</string>
 										</array>
 										<key>Environment</key>
 										<dict>
@@ -12055,6 +12072,36 @@
 												<key>User name</key>
 												<string></string>
 											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
 										</array>
 										<key>Is UTF-8</key>
 										<true/>
@@ -12080,7 +12127,7 @@
 											<string>Shell Launcher</string>
 										</dict>
 										<key>Rows</key>
-										<integer>39</integer>
+										<integer>40</integer>
 										<key>Session GUID</key>
 										<string>CA708DD2-AE8C-4134-803E-F175177A1B94</string>
 										<key>Short Lived Single Use</key>
@@ -12104,7 +12151,7 @@
 									<key>frame</key>
 									<dict>
 										<key>height</key>
-										<real>750</real>
+										<real>772</real>
 										<key>width</key>
 										<real>1296</real>
 										<key>x</key>
@@ -12119,7 +12166,7 @@
 							<key>frame</key>
 							<dict>
 								<key>height</key>
-								<real>750</real>
+								<real>772</real>
 								<key>width</key>
 								<real>1296</real>
 								<key>x</key>
@@ -13057,7 +13104,7 @@
 												<real>0.0</real>
 											</dict>
 											<key>Guid</key>
-											<string>0272B6EE-AE7D-451C-88B7-8D28A1E74781</string>
+											<string>CF59A5FE-D570-401B-A8E9-83D712475816</string>
 											<key>Has Hotkey</key>
 											<true/>
 											<key>Horizontal Spacing</key>
@@ -13622,6 +13669,11 @@
 											<string>/Users/h</string>
 											<string>/Users/h</string>
 											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
 										</array>
 										<key>Environment</key>
 										<dict>
@@ -13854,6 +13906,36 @@
 												<key>User name</key>
 												<string></string>
 											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
 										</array>
 										<key>Is UTF-8</key>
 										<true/>
@@ -13879,7 +13961,7 @@
 											<string>Shell Launcher</string>
 										</dict>
 										<key>Rows</key>
-										<integer>39</integer>
+										<integer>40</integer>
 										<key>Session GUID</key>
 										<string>732C601E-CCEE-488C-B0D2-36F649572D18</string>
 										<key>Short Lived Single Use</key>
@@ -13903,7 +13985,7 @@
 									<key>frame</key>
 									<dict>
 										<key>height</key>
-										<real>750</real>
+										<real>772</real>
 										<key>width</key>
 										<real>1296</real>
 										<key>x</key>
@@ -13918,7 +14000,7 @@
 							<key>frame</key>
 							<dict>
 								<key>height</key>
-								<real>750</real>
+								<real>772</real>
 								<key>width</key>
 								<real>1296</real>
 								<key>x</key>
@@ -14834,13 +14916,13 @@
 												<key>Alpha Component</key>
 												<real>1</real>
 												<key>Blue Component</key>
-												<real>0.75345426797866821</real>
+												<real>0.18823529411764706</real>
 												<key>Color Space</key>
 												<string>P3</string>
 												<key>Green Component</key>
-												<real>0.74283033609390259</real>
+												<real>0.18823529411764706</real>
 												<key>Red Component</key>
-												<real>0.69048541784286499</real>
+												<real>1</real>
 											</dict>
 											<key>Foreground Color (Light)</key>
 											<dict>
@@ -14856,7 +14938,7 @@
 												<real>1</real>
 											</dict>
 											<key>Guid</key>
-											<string>B6A53AD3-9F10-460D-83DB-2365B14EFC29</string>
+											<string>9CF76F10-A94A-43AA-97BD-0AFEADCDC94F</string>
 											<key>Has Hotkey</key>
 											<true/>
 											<key>Horizontal Spacing</key>
@@ -15407,6 +15489,10 @@
 											<string>/Users/h</string>
 											<string>/Users/h</string>
 											<string>/Users/h/.dotfiles/config/tabs/red</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h/.dotfiles/config/tabs/red</string>
 										</array>
 										<key>Environment</key>
 										<dict>
@@ -15417,6 +15503,30 @@
 										<dict/>
 										<key>Hosts</key>
 										<array>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
 											<dict>
 												<key>Host name</key>
 												<string>Henriks-MacBook-Air.local</string>
@@ -15576,6 +15686,7 @@
 										<key>Overridden Fields</key>
 										<array>
 											<string>Foreground Color (Light)</string>
+											<string>Foreground Color (Dark)</string>
 											<string>Original Guid</string>
 											<string>Guid</string>
 											<string>Title Components</string>
@@ -15586,7 +15697,7 @@
 											<string>Shell Launcher</string>
 										</dict>
 										<key>Rows</key>
-										<integer>39</integer>
+										<integer>40</integer>
 										<key>Session GUID</key>
 										<string>536F5380-994C-4726-9990-B2D4FC258CD0</string>
 										<key>Short Lived Single Use</key>
@@ -15610,7 +15721,7 @@
 									<key>frame</key>
 									<dict>
 										<key>height</key>
-										<real>750</real>
+										<real>772</real>
 										<key>width</key>
 										<real>1296</real>
 										<key>x</key>
@@ -15625,7 +15736,7 @@
 							<key>frame</key>
 							<dict>
 								<key>height</key>
-								<real>750</real>
+								<real>772</real>
 								<key>width</key>
 								<real>1296</real>
 								<key>x</key>
@@ -15665,7 +15776,7 @@
 				<key>X Origin</key>
 				<real>72</real>
 				<key>Y Origin</key>
-				<real>44</real>
+				<real>45</real>
 			</dict>
 			<dict>
 				<key>Desired Columns</key>
@@ -16620,7 +16731,7 @@
 												<real>0.0</real>
 											</dict>
 											<key>Guid</key>
-											<string>BBA40606-1AB5-4D0B-AAE6-99A96E707C75</string>
+											<string>C3AA1DF0-5767-45D1-A377-7A66D04FD42A</string>
 											<key>Has Hotkey</key>
 											<true/>
 											<key>Horizontal Spacing</key>
@@ -17153,6 +17264,9 @@
 											<string>/Users/h</string>
 											<string>/Users/h</string>
 											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
+											<string>/Users/h</string>
 										</array>
 										<key>Environment</key>
 										<dict>
@@ -17163,6 +17277,18 @@
 										<dict/>
 										<key>Hosts</key>
 										<array>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
+											<dict>
+												<key>Host name</key>
+												<string>Henriks-MacBook-Air.local</string>
+												<key>User name</key>
+												<string></string>
+											</dict>
 											<dict>
 												<key>Host name</key>
 												<string>Henriks-MacBook-Air.local</string>

@@ -23,6 +23,7 @@ typeset -A ZSH_HIGHLIGHT_REGEXP
 
 alias st="python3 $MY_SCRIPTS/lang/python/st.py"
 alias lines="grep -v '^$' | wc -l | tr -d '[:space:]' && echo"
+alias map="map.sh"
 alias fun="functions"
 
 # ------------------ UNCATEGORISED FUNCTIONS ----------------- #

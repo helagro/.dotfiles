@@ -87,7 +87,7 @@ if $is_special_tab; then
 fi
 
 if ! $is_work_tab; then
-    source "$HOME/.dotfiles/.zshrc/routine.sh"
+    source "$HOME/.dotfiles/.zshrc/routines.sh"
 fi
 
 # ========================== PLUGINS ========================= #

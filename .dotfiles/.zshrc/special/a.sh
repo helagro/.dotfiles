@@ -110,6 +110,9 @@ function color {
             '(?<=^|\s)>(-?\d|\w)+(?=$|\s)' fg=cyan
             '^(R|B)[[:space:]]' fg=cyan,bold
             '^(c|d|D|h|q|s|S)$' fg=cyan,bold
+            
+            '(?<=^ .).+' 'fg=white,bg=white'
+            '(?<=^B  .).+' 'fg=white,bg=white'
         )
     else
         _color=0
@@ -172,7 +175,6 @@ function on_tab {
 function a_ui {
     next_idx=$(py len)
     print_top_right
-    echo "" > "$var_file_path"
 
     if ! command -v a.sh &>/dev/null; then
         echo "a.sh not found!"
@@ -184,20 +186,28 @@ function a_ui {
         should_extra -c && use_extra 1 || use_extra 0
 
         take_input
-        log_line "$line"
+
+        if [[ -z $line ]]; then
+            printf '\033[1A\033[J'
+            continue
+        fi
 
         # commands ------------------------------------------------------------------- #
 
         # Bin
         if [[ $line == 'B '* ]]; then
             _sign="×"
+            line=""
             continue
+        fi
+
+        log_line "$line"
+
         # Clear with reset
-        elif [[ $line == 'c' ]]; then
+        if [[ $line == 'c' ]]; then
             py clear
             my_clear
             fc -p
-            echo "" > "$var_file_path"
             
             py map set -k offline_start -v "0" 
             next_idx=0
@@ -250,7 +260,7 @@ function a_ui {
         # run -------------------------------------------------------- #
 
         expand_item "$line" expanded_line
-        if [[ $_silent != 0 ]]; then
+        if [[ $_silent != 0 || $line == " "* ]]; then
             expanded_line="$expanded_line @p"
         fi
         if [[ $line != $expanded_line ]]; then

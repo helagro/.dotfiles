@@ -19,6 +19,9 @@ setopt HIST_IGNORE_DUPS     # Remove new duplicate commands from history
 setopt HIST_IGNORE_SPACE    # Remove commands starting with space from history, useful for secrets
 
 zstyle ':omz:update' mode auto
+zstyle ':omz:update' verbose no
+zstyle ':omz:update' frequency 30
+export DISABLE_UPDATE_PROMPT=true
 
 HISTSIZE=100000
 SAVEHIST=20000

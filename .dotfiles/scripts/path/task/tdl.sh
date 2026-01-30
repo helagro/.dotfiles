@@ -99,11 +99,11 @@ function main {
             filter="^a\Z" # Matches nothing
         fi
 
-        if "$MY_SCRIPTS/path/state/state.sh" -s headache || $is_busy; then
+        if map.sh -s s.headache || map.sh -s manual.is_busy; then
             filter+="|(p3.*#bdg)|@zt"
         fi
 
-        if in_window.sh 5:00 "$earliest_coding" && $is_busy; then
+        if in_window.sh 5:00 "$earliest_coding" && map.sh -s manual.is_busy; then
             filter+="|#bdg"
         fi
 
@@ -111,15 +111,15 @@ function main {
             filter+="|@p"
         fi
 
-        if "$MY_SCRIPTS/path/state/state.sh" -s eye_strain; then
+        if map.sh -s s.eye_strain; then
             filter+="|@eye|(p3.*#bdg)|(p4.*#bdg)"
         fi
 
-        if "$MY_SCRIPTS/path/state/state.sh" -s diss && "$MY_SCRIPTS/path/utils/in_window.sh" 5:00 14:00; then
+        if map.sh -s s.diss && "$MY_SCRIPTS/path/utils/in_window.sh" 5:00 14:00; then
             filter+="|#by"
         fi
 
-        if "$MY_SCRIPTS/lang/shell/has_detached.sh"; then
+        if in_window.sh $(map.sh 'routine.full_detach' 22:30) 00:00; then
             filter+="|@wake"
         fi
     

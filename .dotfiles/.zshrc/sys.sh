@@ -114,14 +114,8 @@ function act {
     if $online; then
         tgs "$project" "$activity_name"
 
-        if $do_local; then
-            if [[ -z $full_detach_time ]]; then
-                full_detach_time=$(glo routines full_detach 'start?sep=:&sec=false')
-            fi
-
-            if in_window.sh 7:00 $full_detach_time; then
-                (loc start &) >/dev/null 2>&1
-            fi
+        if $do_local && in_window.sh 7:00 $(map.sh routine.full_detach 21:30); then
+            (loc start &) >/dev/null 2>&1
         fi
     fi
 
@@ -145,7 +139,7 @@ function act {
     # break reminder ------------------------------------------------------------- #
 
     if [[ "$activity_name" == "main" ]]; then
-        if ! state.sh -s headache && $was_home; then
+        if ! map.sh -s s.headache && $was_home; then
             local break_len
             vared -p "Break Length (minutes): " -c break_len
             if [[ -n "$break_len" && "$break_len" != "0" ]]; then
@@ -250,6 +244,8 @@ function gym {
     if [[ -z $duration || $duration -lt 5 ]]; then
         echo "Invalid duration"
         return 1
+    elif [[ $duration -gt 25 ]]; then
+        map.sh set done.gym true
     fi
 
     if $is_recent_workout; then
@@ -323,14 +319,14 @@ function is {
 function is_m {
     local value=$(is main 1)
 
-    state.sh set main $(printf '%s' $value | jq -r 'to_entries[1].value')
+    map.sh set s.main $(printf '%s' $value | jq -r 'to_entries[1].value')
     echo $value | hm
 }
 
 function is_d {
     local value=$(is decomp 1)
 
-    state.sh set decomp $(printf '%s' $value | jq -r 'to_entries[1].value')
+    map.sh set s.decomp $(printf '%s' $value | jq -r 'to_entries[1].value')
     echo $value | hm
 }
 

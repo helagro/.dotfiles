@@ -28,7 +28,7 @@ function p {
             --loop \
             --volume=$background_vol \
             "$work_url" 
-    elif (! state.sh -s 'drown') && is_home; then
+    elif (! map.sh -s 's.drown') && is_home; then
         echo "Missing tag"
         return 1
     fi

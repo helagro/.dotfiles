@@ -132,10 +132,10 @@ function dawn {
     if [[ $(ob p | lines) -gt 1 ]]; then
         ob p
     else
-        a '> plan && echo #b'
+        a '> plan &<wbr>& echo #b'
     fi
 
-    if state.sh -s 'headache'; then
+    if map.sh -s 's.headache'; then
         obc 'head period'
     fi
 
@@ -152,7 +152,7 @@ function eat {
     [[ -n "$1" ]] && ( loc -S "$@" & )
 
     in_window.sh 11:30 14:30 && local is_lunch=true || local is_lunch=false
-    in_window.sh 17:00 20:00 && local is_dinner=true || local is_dinner=false
+    in_window.sh 17:00 $(map.sh routine.detach 20:00) && local is_dinner=true || local is_dinner=false
 
     # If lunch
     if $is_lunch; then
@@ -163,6 +163,8 @@ function eat {
     if $is_dinner; then
         # Handle temperature
         local temp=$(loc -S -n sens/temp)
+        local dinner_temp_threshold=20.5
+        
         if [[ $temp -gt $dinner_temp_threshold ]]; then
             echo "Turn off radiator - ( $temp°C > $dinner_temp_threshold°C )"
         fi
@@ -193,7 +195,7 @@ function eat {
 }
 
 function eve {
-    local screen, decomp, tv
+    local screen decomp tv
     set -- $($MY_SCRIPTS/lang/shell/expand_args.sh $*)
 
     if $MY_SCRIPTS/lang/shell/is_help.sh $*; then
@@ -255,7 +257,7 @@ function eve {
         echo "Cool down - ( $temp >= 21°C )"
     fi
 
-    if state.sh -s 'sleepy'; then
+    if map.sh -s 's.sleepy'; then
         echo "Turn off alarm? - ( sleepy )"
     fi
 

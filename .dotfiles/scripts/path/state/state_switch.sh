@@ -1,7 +1,7 @@
 #!/bin/zsh
 
-state_json=$("$HOME/.dotfiles/scripts/path/state/state.sh")
-state_keys=($(echo $state_json | jq -r 'keys[]'))
+state_json=$("$HOME/.dotfiles/scripts/path/state/map.sh")
+state_keys=($(map.sh s | jq -r 'keys[]'))
 
 matches=""
 

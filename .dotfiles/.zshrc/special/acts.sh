@@ -36,11 +36,6 @@ new_task=""
 act_filter=""
 filter=""
 
-# User Facing
-calc=1
-
-print -s -- "calc="
-
 # ================================= FUNCTIONS ================================ #
 
 function on_tab {
@@ -60,12 +55,7 @@ function run {
                 selection=$(acts "$act_filter" | fzf)
             fi
         else
-            if [[ $calc == 1 ]]; then
-                carg="-c"
-            else
-                carg=""
-            fi
-
+            map.sh -s 'opt.no_calc' && carg="" || carg="-c"
 
             selection=$(tdl "$filter" $carg -p | colorize | fzf)
         fi
@@ -234,7 +224,6 @@ function menu {
     elif ! $found_match; then
         echo "functions - (a)dd, (c)opy, (d)elete, (e)xecute, (F|f)ilter, (i)nbox, (m)odify, (n)ext, (r)un, (S|s)ync, (u)pdate, (q)uit"
         echo "modifiers - (A)lt, (C)lear (M)enu, (W)ait"
-        echo "options - calc=$calc"
         menu # NOTE - recursion
     fi
 }
@@ -297,7 +286,25 @@ function act_td_filter {
 }
 
 function acts {
+    print -n -u2 "\033[90mExcluding: "
+
+    # calculate query ------------------------------------------------------------ #
+
     local query=$(echo "$*" | tr ' ' '/')
+
+    if ! map.sh -s 'opt.no_calc'; then
+        if in_window.sh $(map.sh 'routine.full_detach' 23:00) 00:00; then
+            query="$query/eve"
+            print -n -u2 "eve, "
+        fi
+
+        if map.sh -s 's.eye_strain'; then
+            query="$query/eye"
+            print -n -u2 "eye, "
+        fi
+    fi
+
+    # run ------------------------------------------------------------------------ #
 
     local output=$(
         cd $local_online_tools/dist/routes/act
@@ -306,10 +313,7 @@ function acts {
 
     # general filters ---------------------------------------------------- #
 
-    print -n -u2 "\033[90mExcluding: "
-
-
-    if ! $has_flashcards; then
+    if ! map.sh -s manual.has_flashcards true; then
         output=$(echo "$output" | grep -v 'flashcards^')
         print -n -u2 "flashcards, "
     fi
@@ -319,9 +323,21 @@ function acts {
         print -n -u2 "obsi, "
     fi
 
-    if ! state.sh -s 'tv'; then
+    if ! map.sh -s 's.tv'; then
         output=$(echo "$output" | grep -v 'review_tv^')
         print -n -u2 "review_tv, "
+    fi
+
+    # done filters --------------------------------------------------------------- #
+
+    if map.sh -s 'done.floss'; then
+        output=$(echo "$output" | grep -v 'floss^')
+        print -n -u2 "floss, "
+    fi
+
+    if map.sh -s 'done.gym'; then
+        output=$(echo "$output" | grep -v 'gym^')
+        print -n -u2 "gym, "
     fi
 
     # note filters --------------------------------------------------------------- #
