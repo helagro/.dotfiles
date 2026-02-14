@@ -1,0 +1,33 @@
+upstreams:
+  groups:
+    default:
+      - 1.1.1.1
+      - 8.8.8.8
+
+blocking:
+  denylists:
+    ads:
+      - https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts
+    distractions:
+      - 17.0.0.0/8
+      - |
+        /(^|\.)apple\.com$/
+        /(^|\.)icloud\.com$/
+        /(^|\.)mzstatic\.com$/
+        /(^|\.)itunes\.apple\.com$/
+        /(^|\.)push\.apple\.com$/
+        /(^|\.)courier\.push\.apple\.com$/
+        /(^|\.)imessage\.apple\.com$/
+        /(^|\.)facetime\.apple\.com$/
+        /(^|\.)icloud-content\.com$/
+        /(^|\.)akadns\.net$/
+        /(^|\.)apple-dns\.net$/
+        /(^|\.)facebook\.com$/
+        /(^|\.)instagram\.com$/
+        /(^|\.)discord\.com$/
+        /(^|\.)discord\.gg$/
+
+  clientGroupsBlock:
+    default:
+      - ads
+      - distractions

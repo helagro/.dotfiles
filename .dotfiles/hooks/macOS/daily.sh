@@ -35,6 +35,15 @@ function weekly {
         echo "$cleaned_done" > "$VAULT/_/log/done.md"
     fi
 
+    local week=$(date +%-V)
+    if [[ $((week % 4)) -eq 0 ]]; then
+        quadrweekly 2>&1
+    fi
+}
+
+function quadrweekly {
+    echo "Running quadrweekly tasks..."
+
     printf "" > "$VAULT/_/log/tmp.md"
 }
 

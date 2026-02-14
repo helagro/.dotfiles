@@ -44,10 +44,6 @@ function breake {
     nvim "$config_path"
 }
 
-function test {
-    local output=$(act b)
-}
-
 function lect {
     [[ $* != *'-T'* ]] && theme 0
     [[ $* != *'-M'* ]] && osascript -e 'set volume with output muted'
@@ -85,12 +81,16 @@ function on_tab {
 
 function e {
     if [[ ${system_projects[(r)$1]} == $1 ]] && is_home; then
-        if in_window.sh 05:00 "$earliest_coding"; then
+        if in_window.sh 05:00 "$earliest_coding" && ! map.sh -s s.off ; then
             local input
             vared -p "Code line: " -c input
             a "#tode $input"
             return
         fi
+    fi
+
+    if in_window.sh 10:00 20:00; then
+        ( loc start >/dev/null 2>&1 & ) 
     fi
 
     if [ -d "$DEV/$1" ]; then
@@ -306,21 +306,20 @@ function sw {
     if $just_output; then
         echo -n "$min"
     elif $trackable; then
+
         if [ "$min" -eq 0 ]; then
             echo "(Not tracking because time was less than 1 minute)"
         else
             # Track time
-            if ping -c1 -t1 8.8.8.8 &>/dev/null; then
+            if is_online; then
                 local track_cmd="$trackActivity $min #u"
             else
                 local track_cmd="$(day) $trackActivity $min #u"
             fi
 
-            local old_main=$(map.sh s.main)
-            map.sh set s.main $((old_main + $min))
-
             echo "$track_cmd" | to_color.sh yellow
             a "$track_cmd"
+            map.sh inc "s.$trackActivity" $min
         fi
 
     fi

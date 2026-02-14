@@ -5,6 +5,7 @@
 export DISABLED_TD_APP_ITEMS="---,ob,null,"
 
 alias glo="tl.sh"
+alias map="map.sh"
 
 # ================================= FUNCTIONS ================================ #
 
@@ -33,12 +34,12 @@ function act {
     local important_flag="-i"
     local do_local=true
 
-    local focus_flag="-f"
+    map.sh -s opt.auto_focus true && local focus_flag="-f" || local focus_flag=""
     local max_duration="50:00"
 
     # calc connectivity ---------------------------------------------------------- #
     
-    if ping -c1 -t1 8.8.8.8 &>/dev/null; then
+    if is_online; then
         local online=true
     else
         local online=false
@@ -73,6 +74,10 @@ function act {
             ;;
         -F | --skip-focus)
             focus_flag=""
+            shift 1
+            ;;
+        -f | --focus)
+            focus_flag="-f"
             shift 1
             ;;
         -S | --continue-after-duration)
@@ -114,8 +119,9 @@ function act {
     if $online; then
         tgs "$project" "$activity_name"
 
-        if $do_local && in_window.sh 7:00 $(map.sh routine.full_detach 21:30); then
-            (loc start &) >/dev/null 2>&1
+        if $do_local && in_window.sh 7:00 $(map routine.full_detach 21:30); then
+            (map -s s.headache false || map -s s.eye_strain false) && local start_param="?alert_frequency=17"
+            (loc "start$start_param" &) >/dev/null 2>&1
         fi
     fi
 
@@ -133,7 +139,7 @@ function act {
 
     if $online; then
         toggl stop
-        (loc stop &) >/dev/null 2>&1
+        map.sh -s s.off || (loc stop &) >/dev/null 2>&1
     fi
 
     # break reminder ------------------------------------------------------------- #
@@ -150,12 +156,42 @@ function act {
 }
 
 
+function dnd {
+    local mode=$1
+    local was_on=$(map opt.dnd_on)
+
+    if [[ ! -e /opt/homebrew/etc/blocky/config.yml ]]; then
+        ln -s $HOME/.dotfiles/config/blocky.yml /opt/homebrew/etc/blocky/config.yml
+    fi
+
+    if [[ $mode == $was_on ]]; then
+        return
+    fi
+    
+    if [[ -z $mode ]]; then
+        mode=$((1 - $was_on))
+    fi
+
+    if [[ $mode == 1 ]]; then
+        echo "block drop out quick from any to 17.0.0.0/8" | sudo pfctl -ef -
+        sudo networksetup -setdnsservers Wi-Fi 127.0.0.1
+        brew services restart blocky
+        
+        map.sh set opt.dnd_on 1
+    else
+        sudo pfctl -d
+        sudo networksetup -setdnsservers Wi-Fi "Empty"
+        brew services stop blocky
+
+        map.sh set opt.dnd_on 0
+    fi
+}
+
+
 function exit_if_empty {
     local input=$(tee /dev/tty)
 
-    if [[ -n "$input" ]]; then
-        echo "$input"
-    else
+    if [[ -z "$input" ]]; then
         exit 0
     fi
 }
@@ -212,6 +248,10 @@ function gym {
         elif [[ -z ${(M)cardio_types:#$type} && $type != "exorita" ]]; then
             local is_probably_gym=true
             obc "gym"
+
+            if [[ $type == *"leg"* ]]; then
+                a 't leg_day #u'
+            fi
         fi
 
         # Track and time
@@ -221,7 +261,8 @@ function gym {
 
         # Set duration
         duration=$(( (end_time - start_time) / 60 ))
-        vared -p "Duration minutes: " -c duration
+        vared -p "Duration minutes equation: " -c duration
+        duration=$(echo "$duration" | bc)
 
         if [[ -n $is_probably_gym ]]; then
             local decomp
@@ -337,7 +378,7 @@ function plan {
     # load 
 
     if in_window.sh 20:00 15:00 && [[ $(date +"%m") -le 2 ]]; then # Is Jan or Feb
-        later 'vared -c s && a "$s - sunlight #p"'
+        later 'vared -c s && a "$s - reflection #p"'
     fi
 
     if in_window.sh 20:00 13:00 && ! (echo "$b" | grep -q @bigb); then
@@ -497,7 +538,7 @@ alias tdis='td s && tdi'
 alias tdls='td s && tdl'
 
 function tundo {
-    if ping -c 1 -t 1 8.8.8.8 &>/dev/null; then
+    if is_online; then
         local N=$1
         tdls -p | tac | tail -n +$((N+1)) | in.sh
     else
@@ -529,27 +570,10 @@ function a {
     fi
 }
 
-function tdu {
-    if $MY_SCRIPTS/lang/shell/is_help.sh $*; then
-        echo "tdu <update> <id>..."
-        return 0
-    fi
-
-    local update=$1
-    shift
-
-    for id in "$@"; do
-        local content_line=$(td show $id | grep Content | cut -d' ' -f2-)
-
-        a "$content_line" "$update"
-        tdc $id
-    done
-}
-
 function tdc {
-    ping -c 1 -t 1 8.8.8.8 &>/dev/null
-    local ping_exit_code=$?
-    if [[ $ping_exit_code != 0 ]]; then
+    is_online
+    local is_online_exit_code=$?
+    if [[ $is_online_exit_code != 0 ]]; then
         echo "[OFFLINE]"
     fi
 
@@ -566,7 +590,7 @@ function tdc {
                 done
             fi
 
-            if [[ $ping_exit_code == 0 ]]; then # If is online
+            if [[ $is_online_exit_code == 0 ]]; then # If is online
                 if command -v todoist >/dev/null 2>&1; then
                     (nohup todoist c "$id" >/dev/null 2>&1 &)
                 else
@@ -579,3 +603,4 @@ function tdc {
         done
     done
 }
+

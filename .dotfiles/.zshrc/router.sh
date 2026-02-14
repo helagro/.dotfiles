@@ -25,6 +25,7 @@ if $is_special_tab; then
 
     if [[ "$PWD" == "$HOME/.dotfiles/config/tabs/hotkey"* ]]; then
         source "$HOME/.dotfiles/.zshrc/secret/sys.sh"
+        source "$HOME/.dotfiles/.zshrc/secret/hotkey.sh"
         source "$HOME/.dotfiles/.zshrc/special/hotkey.sh"
 
         if [[ "$PWD" == "$HOME/.dotfiles/config/tabs/hotkey/note" ]]; then
@@ -82,12 +83,13 @@ if $is_special_tab; then
         source "$HOME/.dotfiles/.zshrc/special/acts.sh"
     elif [[ "$PWD" == "$HOME/.dotfiles/config/tabs/a" ]]; then
         source "$HOME/.dotfiles/.zshrc/secret/a.sh"
+        source "$HOME/.dotfiles/.zshrc/special/a_custom.sh"
         source "$HOME/.dotfiles/.zshrc/special/a.sh"
     fi
 fi
 
-if ! $is_work_tab; then
-    source "$HOME/.dotfiles/.zshrc/routines.sh"
+if ! $is_work_tab && [[ -e "$HOME/.dotfiles/.zshrc/routine.sh" ]]; then
+    source "$HOME/.dotfiles/.zshrc/routine.sh"
 fi
 
 # ========================== PLUGINS ========================= #

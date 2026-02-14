@@ -1,3 +1,77 @@
+
+## @function eat 
+## @param {string[]}  Arguments to pass to `loc` function
+function eat {
+    local maybe_home=$(is_home --guess-yes)
+    in_window.sh 11:30 14:30 && local is_lunch=true || local is_lunch=false
+    in_window.sh 17:00 $(map.sh routine.detach 20:00) && local is_dinner=true || local is_dinner=false
+
+    # If home
+    if $maybe_home; then
+        $MY_SCRIPTS/lang/shell/battery.sh 60
+        [[ -n "$1" ]] && ( loc -S "$@" & )
+    fi
+
+    # If lunch
+    if $is_lunch; then
+        echo "Do florinef?"
+    fi
+
+    # If dinner
+    if $is_dinner; then
+        ( short -s night_shift 1 & )
+
+        # Handle temperature
+        if $maybe_home; then
+            local temp=$(loc -S -n sens/temp)
+            local dinner_temp_threshold=21
+            
+            if (( $temp > $dinner_temp_threshold )); then
+                echo "Turn off radiator - ( $temp°C > $dinner_temp_threshold°C )"
+            fi
+        fi
+
+        # Handle creatine
+            # local did_creatine=$(tl.sh habits | jq '.creatine')
+            # if ! $did_creatine; then
+            #     echo "Creatine - ( not taken )"
+            # fi
+
+        # Track time
+        ({
+            local time_diff=$(bed_minus_dinner)
+            [ -n "$time_diff" ] && a "bed_minus_dinner $time_diff s #u"
+        }&)
+    fi
+
+    if $is_lunch || $is_dinner; then
+        if ! (ob b | grep -q cook) && ask "Add cook?"; then
+            a "cook #b @home"
+        fi
+
+        if map -s 's.headache' false; then
+            echo "Cold pad - ( headache )"
+        fi 
+    fi
+
+    if ! $maybe_home; then
+        echo "chew"
+    fi
+
+    echo
+    ob meal
+}
+
+## @function eat 
+## @param {string[]}  Arguments to pass to `loc` function
+function back {
+    ( loc "$@" & )
+    
+    ob back
+}
+
+# ================================ TIME BOUND ================================ #
+
 function wake {
     a 'c wake'
 
@@ -11,6 +85,7 @@ function wake {
     else
         ({
             red_mode 0
+            dnd 0
             short -s night_shift 0
         }&)
 
@@ -44,7 +119,7 @@ function wake {
         wifi on
         ({
             while ! ping -c 1 -t 1 8.8.8.8 &>/dev/null; do
-                sleep 0.5
+                sleep 0.3
             done
 
             loc p "$1"
@@ -76,34 +151,35 @@ function dawn {
         esac
     done
 
-    if ask "Light theme?"; then
-        theme 0
-    else
-        theme 1
-    fi
+    # if ask "Light theme?"; then
+    #     theme 0
+    # else
+    #     theme 1
+    # fi
 
     # sync ------------------------------------------------------- #
 
     while ! ping -c 1 -t 1 8.8.8.8 &>/dev/null; do
-        sleep 0.5
+        sleep 0.3
         echo "(waiting for internet...)"
     done
 
-    (
-        (
-            local brightness=$(calc_brightness)
-            [[ -n "$brightness" && "$brightness" -ge 400 ]] && echo "Brightness: $brightness"
-        ) &
-    )
+    ({
+        local brightness=$(calc_brightness)
+        [[ -n "$brightness" && "$brightness" -ge 400 ]] && echo "Brightness: $brightness"
+    }&)
 
     td s
     state_calc && daily_calcs
 
     # env -------------------------------------------------------- #
 
-    short -N -s focus "$focus_mode"
-    short -s night_shift "$night_shift"
-    red_mode 0
+    ({
+        dnd 0
+        short -N -s focus "$focus_mode"
+        short -s night_shift "$night_shift"
+        red_mode 0
+    }&)
 
     # display ---------------------------------------------------- #
 
@@ -114,9 +190,6 @@ function dawn {
 
     # Display secondary stuff
     glo habits streak
-    for state in "${state_list[@]}"; do
-        $(eval echo \$$state) && echo $state
-    done | to_color.sh magenta
 
     local forecast=$(weather -l 1)
     if echo $forecast | grep -q "rain"; then
@@ -145,62 +218,13 @@ function dawn {
     ob b | $MY_SCRIPTS/secret/agenda_switch.sh
 }
 
-## @function eat 
-## @param {string[]}  Arguments to pass to `loc` function
-function eat {
-    $MY_SCRIPTS/lang/shell/battery.sh 60
-    [[ -n "$1" ]] && ( loc -S "$@" & )
-
-    in_window.sh 11:30 14:30 && local is_lunch=true || local is_lunch=false
-    in_window.sh 17:00 $(map.sh routine.detach 20:00) && local is_dinner=true || local is_dinner=false
-
-    # If lunch
-    if $is_lunch; then
-        echo "Do florinef?"
-    fi
-
-    # If dinner
-    if $is_dinner; then
-        # Handle temperature
-        local temp=$(loc -S -n sens/temp)
-        local dinner_temp_threshold=20.5
-        
-        if [[ $temp -gt $dinner_temp_threshold ]]; then
-            echo "Turn off radiator - ( $temp°C > $dinner_temp_threshold°C )"
-        fi
-
-        # Handle creatine
-        local did_creatine=$(tl.sh habits | jq '.creatine')
-        if ! $did_creatine; then
-            echo "Creatine - ( not taken )"
-        fi
-
-        # Track time
-        local time_diff=$(bed_minus_dinner)
-        [ -n "$time_diff" ] && a "bed_minus_dinner $time_diff s #u" && echo "tracked bed_minus_dinner AS $time_diff"
-    fi
-
-    if $is_lunch || $is_dinner; then
-        if ! (ob b | grep -q cook) && ask "Add cook?"; then
-            a "cook #b @home"
-        fi
-    fi
-
-    if ! is_home --guess-yes; then
-        echo "chew"
-    fi
-
-    echo
-    ob meal
-}
-
 function eve {
     local screen decomp tv
     set -- $($MY_SCRIPTS/lang/shell/expand_args.sh $*)
 
     if $MY_SCRIPTS/lang/shell/is_help.sh $*; then
         print 'Usage: eve [options...]'
-        printf " %-3s %-20s %s\n" "-F," "" "Skip enabling flight mode on phone"
+        printf " %-3s %-20s %s\n" "-F," "" "Skip flight mode"
         printf " %-3s %-20s %s\n" "-E," "" "Skip environment setup"
         printf " %-3s %-20s %s\n" "-h," "--help" "Show this help message"
         return 0
@@ -313,6 +337,7 @@ function eve {
     if [[ ! " $@ " == *" -F "* ]]; then
         read
         short phondo "flight mode"
+        dnd 1
     fi
 
     # other ------------------------------------------------------------ #

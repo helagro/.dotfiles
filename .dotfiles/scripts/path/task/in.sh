@@ -53,25 +53,26 @@ function menu {
     
     # Take input
     local input="$1"
+    local id=$(td.sh x id "$input")
+    local content=$(td.sh x no_id "$input")
+    
     read action </dev/tty
 
     # IFs through actions
     if [[ "$action" == "d" ]]; then
-        local id=$(echo "$1" | grep -o '^[0-9]*')
         close "$id" &
         
     elif [[ "$action" == "u" ]]; then
         # NOTE - Removes project and p4 priority
-        do_update "$(echo "$input" | sed 's/#\([A-Za-z0-9/]*\)//' | sed 's/p4//')"
+        do_update "$id" "$(echo "$content" | sed 's/#\([A-Za-z0-9/]*\)//' | sed 's/p4//')"
     elif [[ "$action" == "m" ]]; then
-        do_update "$input"
+        do_update "$id" "$content"
     elif [[ "$action" == "q" ]]; then
         exit 0
     elif [[ "$action" == "s" || "$action" == "n" ]]; then
         return
     elif [[ "$action" == "c" ]]; then
-        echo "$task" | pbcopy
-        local id=$(echo "$1" | grep -o '^[0-9]*')
+        echo "$content" | pbcopy
         close "$id" &
 
     else
@@ -103,10 +104,11 @@ function close {
 function do_update {
 
     # Parse parts
-    local id=$(echo "$1" | grep -o '^[0-9]*')
+    local id=$1
+    local content=$2
 
     # NOTE - Removes long spaces and IDs
-    item=$(echo "$1" | tr -s '[:space:]' ' ' | sed 's/^[0-9]*\ //')
+    item=$(print "$content" | tr -s '[:space:]' ' ')
 
     vared -p " " item </dev/tty
 

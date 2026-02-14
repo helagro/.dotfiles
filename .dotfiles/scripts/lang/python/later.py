@@ -4,6 +4,8 @@ import subprocess
 
 FILE_PATH = f'{os.getenv("HOME")}/.dotfiles/tmp/later.txt'
 
+yes_to_all = False
+
 
 def add_to_later(command):
     command = command.rstrip("\n")
@@ -41,17 +43,26 @@ def run_later():
 
 def handle_line(line):
     ''' Handles line. Returns if should save line '''
+    global yes_to_all
+
     if not line:
         return False
 
     should_save = False
-    action = input(f'"{line}" :', )
+    if yes_to_all:
+        print(f'"{line}" : Y (yes to all)', flush=True)
+        action = 'Y'
+    else:
+        action = input(f'"{line}" :', )
 
     if 's' in action:
         should_save = True
 
-    if 'y' in action:
+    if 'y' in action or 'Y' in action:
         subprocess.run(["zsh", "-i", "-c", f"{line}"], stdout=sys.stdout, stderr=sys.stderr, text=True, shell=False)
+
+        if 'Y' in action:
+            yes_to_all = True
     elif 'n' in action:
         pass
     elif action == 'c':

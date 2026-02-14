@@ -137,9 +137,7 @@ function main {
     if $plain; then
         echo "$tasks"
     elif $json || ! command -v todoist &>/dev/null; then
-        echo '['
         echo "$tasks" | rat.sh -pPl json
-        echo ']'
     else
         tasks=$(echo "$tasks" | add_line_nr)
         echo "$tasks" >"$HOME/.dotfiles/tmp/tdl.txt"
@@ -154,10 +152,7 @@ function m_td_get {
     if ! $json && command -v todoist &>/dev/null; then
         todoist --indent list --filter "$1"
     else
-        curl -sX GET \
-            https://api.todoist.com/rest/v2/tasks \
-            -H "Authorization: Bearer $TODOIST_TOKEN" -G \
-            --data-urlencode "filter=$1" | grep -E "content|priority|{|}|(\"id\":)|(\w$)"
+        tl.sh tdl "$(echo "$1" | jq -sRr @uri)" | jq
     fi
 }
 

@@ -8,6 +8,7 @@ import numpy as np
 from sklearn.linear_model import LinearRegression
 from scipy.interpolate import UnivariateSpline
 from sklearn.metrics import r2_score
+from scipy.optimize import curve_fit
 
 TIME_REGEX = r"^\d{2}:\d{2}$"
 
@@ -63,8 +64,19 @@ def main(arg, plot_name):
 
     # Fit a polynomial regression model
 
-    poly_model = np.poly1d(np.polyfit(df['Days'], y, 8))
-    df['Polynomial'] = poly_model(df['Days'])
+    # poly_model = np.poly1d(np.polyfit(df['Days'], y, 8))
+    # df['Polynomial'] = poly_model(df['Days'])
+
+    def poly_sine(x, *p):
+        poly = np.poly1d(p[:-4])(x)
+        A, w, phi, c = p[-4:]
+        return poly + A * np.sin(w * x + phi) + c
+
+    degree = 8
+    p0 = [0] * (degree + 1) + [(y.max() - y.min()) / 2, 2 * np.pi / 7, 0, y.mean()]
+
+    params, _ = curve_fit(poly_sine, df['Days'], y, p0=p0)
+    df['Polynomial'] = poly_sine(df['Days'], *params)
 
     # ---------------------- SPLINE INTERPOLATION ----------------- #
 

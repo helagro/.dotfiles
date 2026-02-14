@@ -17,7 +17,6 @@ print -s -- '$u'
 
 export FZF_DEFAULT_OPTS='-m --cycle --ansi --no-sort --layout=reverse-list --bind ctrl-a:select-all,ctrl-d:deselect-all,ctrl-t:toggle-all'
 
-local_online_tools="$HOME/Developer/server-app"
 
 # Colors
 BLUE='\033[34m'
@@ -36,6 +35,7 @@ new_task=""
 act_filter=""
 filter=""
 
+
 # ================================= FUNCTIONS ================================ #
 
 function on_tab {
@@ -50,14 +50,22 @@ function run {
         if $do_act; then
             if $alt; then
                 selection=""
-                acts "$act_filter"
+                acts.sh "$act_filter"
             else
-                selection=$(acts "$act_filter" | fzf)
+                local list=$(acts.sh "$act_filter")
+                selection=$(echo "$list" | fzf)
             fi
         else
-            map.sh -s 'opt.no_calc' && carg="" || carg="-c"
+            (map.sh -s 'opt.no_calc' || map.sh -s 's.off') && carg="" || carg="-c"
 
-            selection=$(tdl "$filter" $carg -p | colorize | fzf)
+            local tasks=$(tdl "$filter" $carg -p)
+            local filtered_ids=$(map.sh -m acts | jq -r 'join("|")')
+
+            if [[ -n "$filtered_ids" && -n "$tasks" ]]; then
+                tasks=$(echo "$tasks" | grep -Ev "^($filtered_ids)\ ")
+            fi
+
+            selection=$(echo "$tasks" | colorize | fzf )
         fi
 
         echo "$selection" | colorize
@@ -88,6 +96,7 @@ function menu {
     read action </dev/tty
 
     local await_completion=true
+    [[ $action == *"w"* ]] && await_completion=true
     [[ $action == *"W"* ]] && await_completion=false
 
     alt=false
@@ -135,7 +144,7 @@ function menu {
         if [[ $(wc -l <<<"$selection") -gt 1 ]]; then
             update=""
         else
-            update=$(echo "$selection" | tr -s '[:space:]' ' ' | sed 's/^[0-9]*\ //' | sed 's/p4//')
+            update=$(td.sh x no_id "$selection" |  sed 's/p4//' | td.sh s)
 
             if [[ $action == *"u"* ]]; then
                 update=$(echo "$update" | sed 's/#\([A-Za-z0-9/]*\)//')
@@ -166,15 +175,14 @@ function menu {
     if [[ $action =~ [umdec] ]]; then
         (
             echo "$selection" | while read -r select_item; do
+                local id=$(td.sh x id "$select_item")
+                local content=$(td.sh x no_id "$select_item" | td.sh s)
+
                 local select_item_content=$(
-                        print "$select_item" | 
-                        sed 's/^[0-9]*\ //' | # Remove ID
+                        echo "$content" | 
                         sed 's/#\([A-Za-z0-9/]*\)//' | # Remove project
                         sed 's/p[0-9]//' | # Remove priority
-                        sed 's/@[A-Za-z0-9_/-]*//g' | # Remove tags
-                        sed 's/^ *//' | # Leading spaces
-                        tr -s '[:space:]' ' ' | # Remove bad spaces
-                        tr -s '  ' ' ' # Remove bad spaces
+                        sed 's/@[A-Za-z0-9_/-]*//g' # Remove tags
                     )
 
                 if [[ $action == *"e"* ]]; then
@@ -186,15 +194,14 @@ function menu {
                 fi
                 
                 if [[ "$action" == *"d"* ]]; then
-                    local id=$(echo "$select_item" | grep -o '^[0-9]*')
                     close "$id" &
                     
                 elif [[ "$action" == *"u"* ]]; then
                     # NOTE - Removes project and p4 priority
-                    do_update "$(echo "$select_item" | sed 's/#\([A-Za-z0-9/]*\)//' | sed 's/p4//')" &
+                    do_update "$id" "$(echo "$content" | sed 's/#\([A-Za-z0-9/]*\)//' | sed 's/p4//')" &
 
                 elif [[ "$action" == *"m"* ]]; then
-                    do_update "$(echo "$select_item" | sed 's/p4//')" &
+                    do_update "$id" "$(echo "$content" | sed 's/p4//')" &
                 fi
             done
 
@@ -211,6 +218,8 @@ function menu {
             $await_completion && wait
         )
         found_match=true
+
+        map.sh -m set acts "[]" 2>/dev/null
     elif [[ $action == *"S"* ]]; then
         act_sync
         found_match=true
@@ -223,7 +232,7 @@ function menu {
         return 2
     elif ! $found_match; then
         echo "functions - (a)dd, (c)opy, (d)elete, (e)xecute, (F|f)ilter, (i)nbox, (m)odify, (n)ext, (r)un, (S|s)ync, (u)pdate, (q)uit"
-        echo "modifiers - (A)lt, (C)lear (M)enu, (W)ait"
+        echo "modifiers - (A)lt, (C)lear (M)enu, (W|w)ait"
         menu # NOTE - recursion
     fi
 }
@@ -240,30 +249,22 @@ function colorize {
 
 # -------------------------- ACTIONS ------------------------- #
 
-function close {
-    if ping -c 1 -t 1 8.8.8.8 &>/dev/null; then
-        todoist c "$1" >/dev/null
-    else
-        python3 $MY_SCRIPTS/lang/python/later.py "tdc $1" 
-    fi
-}
 
 function do_update {
 
     # Parse parts
-    local id=$(echo "$1" | grep -o '^[0-9]*')
+    local id=$1
+    local content=$2
 
     if [[ $(wc -l <<<"$selection") -gt 1 ]]; then
-        # NOTE - Removes long spaces and IDs
-        item=$(echo "$1" | tr -s '[:space:]' ' ' | sed 's/^[0-9]*\ //')
-        item="$item $update"
+        item="$content $update"
     else
         item="$update"
     fi
 
     if [ -n "$item" ]; then
         # Very neccessary, some runaway otherwise
-        local item_copy="$(echo "$item" | sed -E 's/(#[a-zA-Z]+)\/[a-zA-Z]+/\1/g')"
+        local item_copy="$(echo "$item" | sed -E 's/(#[a-zA-Z]+)\/[a-zA-Z]+/\1/g' | td.sh s)"
 
         nohup a.sh "$item_copy" &>/dev/null
         close "$id"
@@ -274,151 +275,9 @@ function do_update {
     fi
 }
 
-# ==================================== ACT =================================== #
-
-function act_td_filter {
-    if [ $(tdl -F '#run|/ph' :$1 | wc -l) -le $2 ]; then
-        echo "$3" | grep -v "$1^"
-        print -n -u2 "$1, "
-    else
-        echo "$3"
-    fi
-}
-
-function acts {
-    print -n -u2 "\033[90mExcluding: "
-
-    # calculate query ------------------------------------------------------------ #
-
-    local query=$(echo "$*" | tr ' ' '/')
-
-    if ! map.sh -s 'opt.no_calc'; then
-        if in_window.sh $(map.sh 'routine.full_detach' 23:00) 00:00; then
-            query="$query/eve"
-            print -n -u2 "eve, "
-        fi
-
-        if map.sh -s 's.eye_strain'; then
-            query="$query/eye"
-            print -n -u2 "eye, "
-        fi
-    fi
-
-    # run ------------------------------------------------------------------------ #
-
-    local output=$(
-        cd $local_online_tools/dist/routes/act
-        NODE_NO_WARNINGS=1 DO_LOG=false node index.js "$query"
-    )
-
-    # general filters ---------------------------------------------------- #
-
-    if ! map.sh -s manual.has_flashcards true; then
-        output=$(echo "$output" | grep -v 'flashcards^')
-        print -n -u2 "flashcards, "
-    fi
-
-    if [[ $(obsi.sh 8 | wc -l) -lt 3 ]]; then
-        output=$(echo "$output" | grep -v 'obsi^')
-        print -n -u2 "obsi, "
-    fi
-
-    if ! map.sh -s 's.tv'; then
-        output=$(echo "$output" | grep -v 'review_tv^')
-        print -n -u2 "review_tv, "
-    fi
-
-    # done filters --------------------------------------------------------------- #
-
-    if map.sh -s 'done.floss'; then
-        output=$(echo "$output" | grep -v 'floss^')
-        print -n -u2 "floss, "
-    fi
-
-    if map.sh -s 'done.gym'; then
-        output=$(echo "$output" | grep -v 'gym^')
-        print -n -u2 "gym, "
-    fi
-
-    # note filters --------------------------------------------------------------- #
-
-    if [ $(ob b | wc -l) -le 4 ]; then
-        output=$(echo "$output" | grep -v 'b^')
-        print -n -u2 "b, "
-    fi
-
-    if [ $(ob p | wc -l) -ge 3 ]; then
-        output=$(echo "$output" | grep -v 'plan^')
-        print -n -u2 "plan, "
-    fi
-
-    # todoist filters ------------------------------------------------------------ #
-
-    output=$(act_td_filter 'bdg' 2 "$output")
-    output=$(act_td_filter 'by' 6 "$output")
-    output=$(act_td_filter 'do' 5 "$output")
-    output=$(act_td_filter 'eval' 4 "$output")
-    output=$(act_td_filter 'inbox' 15 "$output")
-    output=$(act_td_filter 'p1' 1 "$output")
-    output=$(act_td_filter 'res' 7 "$output")
-    output=$(act_td_filter 'u' 10 "$output")
-    output=$(act_td_filter 'zz' 2 "$output")
-
-    # calendar filters ----------------------------------------------------------- #
-
-    local cal=$(short -m -N day tod)
-
-    if echo $cal | grep -Fq " detach"; then
-        output=$(echo "$output" | grep -v 'eve^')
-        print -n -u2 "eve, "
-    else
-        if ! echo $cal | grep -Fq "full_detach"; then
-            output=$(echo "$output" | grep -v 'cook^' | grep -v 'by^' | grep -v 'walk^')
-            print -n -u2 "cook, by, walk, "
-
-            if ! echo $cal | grep -Fq "bedtime"; then
-                output=$(echo "$output" | grep -v 'floss^')
-                print -n -u2 "floss, "
-            fi
-        fi
-    fi
-
-    # big filters ----------------------------------------------------------------- #
-
-    if [[ " $@ " == *" b "* ]]; then
-        ob b | while read -r break_item; do
-            local item=$(echo "$break_item" | grep -oE '[[:alnum:]_]([[:alnum:]_]| )+$')
-
-            if [[ -z "$item" ]]; then
-                continue
-            fi
-
-            if printf "%s\n" "$output" | grep -qF "$item"; then
-                print -n -u2 "$item, "
-                output=$(echo "$output" | grep -v "$item")
-            fi
-        done
-    fi
-
-    # print ------------------------------------------------------ #
-
-    print -u2 "\033[0m"
-    echo $output | rat.sh -pPl "json" | $HOME/.dotfiles/scripts/secret/act_highlight.sh
-
-    # sync ----------------------------------------------------------------------- #
-
-    if rand 3 >/dev/null; then
-        act_sync &
-    fi
-}
-
-function act_sync {
-    local table=$(curl -s --connect-timeout 2 "$MY_CONFIG_URL/server-app/act.tsv")
-
-    if [ -n "$table" ]; then
-        echo "$table" >$local_online_tools/data/act.tsv
-        print -u2 "Updated act.tsv"
-    else
-        print -u2 "Failed to update act.tsv"
+function close {
+    if [[ -n "$1" ]]; then
+        map.sh -m add acts "$1" 2>/dev/null
+        tdc "$1" >/dev/null &
     fi
 }

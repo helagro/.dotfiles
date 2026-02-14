@@ -1,172 +1,58 @@
 {
-  "windowSwitcherFeatures" : 57,
+  "alwaysHideOthers" : false,
+  "windowOnlySwitchOSDDelay" : 0,
   "activateAllWindows" : true,
-  "enableStaticCycle" : false,
-  "showWindowSwitcher" : true,
-  "enableCycleHotkey" : true,
-  "windowTriggerKeys" : [
-    5
-  ],
+  "switcherScreenPlacement" : 1,
+  "enableAssignHotkey" : false,
   "windowSwitchOSDDelay" : 350,
-  "appSwitcherUseNumbersForWindows" : false,
-  "whenAlreadyFocusedAction" : 2,
+  "windowKeyAssignments" : [
+
+  ],
+  "hideStaticSettings" : false,
+  "minimizeKey" : "minus",
+  "specialKey" : "equal",
+  "keyTapThreshold" : 0.14,
   "zeroAsLastFocusedWindow" : false,
-  "windowSwitcherDimFocused" : false,
+  "windowSwitcherAppearance" : "comfortable",
+  "windowSwitcherFeatures" : 57,
+  "enableStaticCycle" : false,
+  "hideOnlyFocusedAppOnMinus" : false,
+  "appSwitcherUseNumbersForWindows" : false,
+  "appSortReverse" : false,
+  "showWindowSwitcher" : true,
   "ignoredApps" : [
 
   ],
-  "alwaysHideOthers" : false,
-  "appSortReverse" : false,
-  "hideStaticSettings" : false,
-  "appSort" : "name",
-  "windowSwitcherAppearance" : "comfortable",
-  "fnWindowSwitching" : false,
-  "focusOnKeyUp" : false,
-  "appKeyAssignments" : [
-    {
-      "index" : 0,
-      "whenAlreadyFocusedAction" : 2,
-      "app" : {
-        "originalName" : "iTerm",
-        "useCount" : 13,
-        "path" : "/Applications/iTerm.app",
-        "identifier" : "com.googlecode.iterm2:26669",
-        "switchCount" : 0
-      },
-      "key" : "i"
-    },
-    {
-      "index" : 0,
-      "whenAlreadyFocusedAction" : 2,
-      "app" : {
-        "switchCount" : 0,
-        "identifier" : "com.microsoft.VSCode:22481",
-        "path" : "/Applications/Visual Studio Code.app",
-        "useCount" : 4,
-        "originalName" : "Visual Studio Code"
-      },
-      "key" : "v"
-    },
-    {
-      "index" : 0,
-      "whenAlreadyFocusedAction" : 2,
-      "app" : {
-        "originalName" : "Obsidian",
-        "identifier" : "md.obsidian:33798",
-        "useCount" : 2,
-        "path" : "/Applications/Obsidian.app",
-        "switchCount" : 0
-      },
-      "key" : "o"
-    },
-    {
-      "index" : 0,
-      "whenAlreadyFocusedAction" : 2,
-      "app" : {
-        "switchCount" : 0,
-        "path" : "/Applications/Arc.app",
-        "identifier" : "company.thebrowser.Browser:1963",
-        "originalName" : "Arc",
-        "useCount" : 6
-      },
-      "key" : "a"
-    },
-    {
-      "index" : 2,
-      "whenAlreadyFocusedAction" : 2,
-      "app" : {
-        "path" : "/Applications/Toggl Track.app",
-        "originalName" : "Toggl Track",
-        "switchCount" : 0,
-        "useCount" : 29,
-        "identifier" : "com.toggl.daneel:20916"
-      },
-      "key" : "t"
-    },
-    {
-      "index" : 1,
-      "whenAlreadyFocusedAction" : 2,
-      "app" : {
-        "originalName" : "ChatGPT",
-        "identifier" : "com.openai.chat:25393",
-        "path" : "/Applications/ChatGPT.app",
-        "useCount" : 24,
-        "switchCount" : 0
-      },
-      "key" : "g"
-    },
-    {
-      "index" : 0,
-      "whenAlreadyFocusedAction" : 2,
-      "app" : {
-        "identifier" : "com.apple.Preview:35347",
-        "originalName" : "Preview",
-        "useCount" : 28,
-        "path" : "/System/Applications/Preview.app",
-        "switchCount" : 0
-      },
-      "key" : "l"
-    },
-    {
-      "index" : 0,
-      "whenAlreadyFocusedAction" : 2,
-      "app" : {
-        "path" : "/Applications/1Password.app",
-        "switchCount" : 1,
-        "identifier" : "com.1password.1password:827",
-        "useCount" : 21,
-        "originalName" : "1Password"
-      },
-      "key" : "p"
-    },
-    {
-      "index" : 0,
-      "whenAlreadyFocusedAction" : 2,
-      "app" : {
-        "identifier" : "net.whatsapp.WhatsApp:53065",
-        "useCount" : 9,
-        "path" : "/Applications/WhatsApp.app",
-        "switchCount" : 0,
-        "originalName" : "WhatsApp"
-      },
-      "key" : "w"
-    },
-    {
-      "index" : 0,
-      "whenAlreadyFocusedAction" : 2,
-      "app" : {
-        "identifier" : "com.apple.Notes:41122",
-        "path" : "/System/Applications/Notes.app",
-        "originalName" : "Notes",
-        "switchCount" : 0,
-        "useCount" : 11
-      },
-      "key" : "n"
-    },
-    {
-      "index" : 0,
-      "whenAlreadyFocusedAction" : 2,
-      "app" : {
-        "identifier" : "com.apple.iCal:16122",
-        "path" : "/System/Applications/Calendar.app",
-        "useCount" : 29,
-        "originalName" : "Calendar",
-        "switchCount" : 0
-      },
-      "key" : "c"
-    }
+  "ignoredKeys" : [
+    "\"four\"",
+    "\"seven\"",
+    "9",
+    "\"zero\"",
+    "\"five\"",
+    "8",
+    "1",
+    "2",
+    "\"nine\"",
+    "\"two\"",
+    "5",
+    "7",
+    "\"one\"",
+    "\"three\"",
+    "3",
+    "6",
+    "\"eight\"",
+    "4",
+    "\"six\"",
+    "0"
   ],
-  "enableAssignHotkey" : true,
-  "minimizeKey" : "minus",
-  "switcherScreenPlacement" : 1,
-  "notificationsPermissionsGranted" : false,
+  "windowTriggerKeys" : [
+    5
+  ],
   "showAppSwitcher" : false,
-  "enableHideOnFocusHotkey" : false,
+  "whenAlreadyFocusedAction" : 2,
   "triggerKeys" : [
     4
   ],
-  "hideOnlyFocusedAppOnMinus" : false,
-  "keyTapThreshold" : 0.14,
   "windowKeyPatterns" : [
     {
       "id" : "com.sublimetext.4",
@@ -197,34 +83,160 @@
       "pattern" : ".* — [^\\w\\d]*(.)"
     }
   ],
-  "windowOnlySwitchOSDDelay" : 0,
-  "allowWindowSwitcher" : false,
+  "appKeyAssignments" : [
+    {
+      "key" : "i",
+      "whenAlreadyFocusedAction" : 2,
+      "index" : 0,
+      "app" : {
+        "identifier" : "com.googlecode.iterm2:26669",
+        "switchCount" : 0,
+        "path" : "/Applications/iTerm.app",
+        "useCount" : 13,
+        "originalName" : "iTerm"
+      }
+    },
+    {
+      "key" : "v",
+      "whenAlreadyFocusedAction" : 2,
+      "index" : 0,
+      "app" : {
+        "identifier" : "com.microsoft.VSCode:22481",
+        "switchCount" : 0,
+        "path" : "/Applications/Visual Studio Code.app",
+        "useCount" : 4,
+        "originalName" : "Visual Studio Code"
+      }
+    },
+    {
+      "key" : "o",
+      "whenAlreadyFocusedAction" : 2,
+      "index" : 0,
+      "app" : {
+        "identifier" : "md.obsidian:33798",
+        "switchCount" : 0,
+        "path" : "/Applications/Obsidian.app",
+        "useCount" : 2,
+        "originalName" : "Obsidian"
+      }
+    },
+    {
+      "key" : "a",
+      "whenAlreadyFocusedAction" : 2,
+      "index" : 0,
+      "app" : {
+        "identifier" : "company.thebrowser.Browser:1963",
+        "switchCount" : 0,
+        "path" : "/Applications/Arc.app",
+        "useCount" : 6,
+        "originalName" : "Arc"
+      }
+    },
+    {
+      "key" : "g",
+      "whenAlreadyFocusedAction" : 2,
+      "index" : 1,
+      "app" : {
+        "identifier" : "com.openai.chat:25393",
+        "switchCount" : 0,
+        "path" : "/Applications/ChatGPT.app",
+        "useCount" : 24,
+        "originalName" : "ChatGPT"
+      }
+    },
+    {
+      "key" : "l",
+      "whenAlreadyFocusedAction" : 2,
+      "index" : 0,
+      "app" : {
+        "identifier" : "com.apple.Preview:35347",
+        "switchCount" : 0,
+        "path" : "/System/Applications/Preview.app",
+        "useCount" : 28,
+        "originalName" : "Preview"
+      }
+    },
+    {
+      "key" : "p",
+      "whenAlreadyFocusedAction" : 2,
+      "index" : 0,
+      "app" : {
+        "identifier" : "com.1password.1password:827",
+        "switchCount" : 1,
+        "path" : "/Applications/1Password.app",
+        "useCount" : 21,
+        "originalName" : "1Password"
+      }
+    },
+    {
+      "key" : "n",
+      "whenAlreadyFocusedAction" : 2,
+      "index" : 0,
+      "app" : {
+        "identifier" : "com.apple.Notes:41122",
+        "switchCount" : 0,
+        "path" : "/System/Applications/Notes.app",
+        "useCount" : 11,
+        "originalName" : "Notes"
+      }
+    },
+    {
+      "key" : "t",
+      "whenAlreadyFocusedAction" : 2,
+      "index" : 2,
+      "app" : {
+        "identifier" : "com.toggl.daneel:20916",
+        "switchCount" : 0,
+        "path" : "/Applications/Toggl Track.app",
+        "useCount" : 29,
+        "originalName" : "Toggl Track"
+      }
+    },
+    {
+      "key" : "f",
+      "whenAlreadyFocusedAction" : 2,
+      "index" : 0,
+      "app" : {
+        "identifier" : "com.apple.finder:609",
+        "switchCount" : 0,
+        "path" : "/System/Library/CoreServices/Finder.app",
+        "useCount" : 1,
+        "originalName" : "Finder"
+      }
+    },
+    {
+      "key" : "b",
+      "whenAlreadyFocusedAction" : 2,
+      "index" : 0,
+      "app" : {
+        "identifier" : "md.obsidian:5203",
+        "switchCount" : 0,
+        "path" : "/Applications/Obsidian.app",
+        "useCount" : 26553,
+        "originalName" : "Obsidian"
+      }
+    },
+    {
+      "key" : "c",
+      "whenAlreadyFocusedAction" : 2,
+      "index" : 0,
+      "app" : {
+        "identifier" : "com.apple.iCal:39317",
+        "switchCount" : 0,
+        "path" : "/System/Applications/Calendar.app",
+        "useCount" : 3,
+        "originalName" : "Calendar"
+      }
+    }
+  ],
+  "fnWindowSwitching" : false,
+  "minimizeOnlyFocusedWindowOnMinus" : true,
+  "enableHideOnFocusHotkey" : false,
   "appSwitcherFeatures" : 38,
-  "windowKeyAssignments" : [
-
-  ],
-  "specialKey" : "equal",
-  "ignoredKeys" : [
-    "0",
-    "\"two\"",
-    "9",
-    "6",
-    "\"six\"",
-    "2",
-    "\"three\"",
-    "7",
-    "\"eight\"",
-    "5",
-    "3",
-    "\"nine\"",
-    "\"four\"",
-    "1",
-    "\"zero\"",
-    "\"one\"",
-    "\"seven\"",
-    "\"five\"",
-    "8",
-    "4"
-  ],
-  "minimizeOnlyFocusedWindowOnMinus" : true
+  "windowSwitcherDimFocused" : false,
+  "appSort" : "name",
+  "focusOnKeyUp" : false,
+  "enableCycleHotkey" : true,
+  "notificationsPermissionsGranted" : false,
+  "allowWindowSwitcher" : false
 }

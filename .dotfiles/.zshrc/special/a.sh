@@ -1,8 +1,14 @@
 #!/bin/zsh
 
-# =================================== SETUP ================================== #
+# ================================= CONSTANTS ================================ #
 
-exec 3>/dev/tty
+max_pyg_preview=5
+beep_volume=0.55
+
+# dynamic -------------------------------------------------------------------- #
+
+init_cols=$(tput cols)
+wiper=$(printf '%*s' $((max_pyg_preview + 3)) '')
 
 _python_version=$(python3 --version 2>&1 | awk '{print $2}')
 if (( ${_python_version%%.*} < 3 || ( ${_python_version%%.*} == 3 && ${_python_version#*.} < 10 ) )); then
@@ -11,50 +17,34 @@ else
     _disable_python=false
 fi
 
-_sign="-"
-_color=1
-_prev_audio=1
-_silent=0
-_hist=1
-
-# ================================= CONSTANTS ================================ #
-
-init_cols=$(tput cols)
-
-max_pyg_preview=5
-wiper=$(printf '%*s' $((max_pyg_preview + 3)) '')
-
-# =============================== USER FEATURES ============================== #
+# =============================== INTEGRAL USER FEATURES ============================== #
 
 pgo=""
 speak=0
 extra=1
-audio=$_prev_audio
+audio=1
 
-alias pyg="py get --"
-alias e="echo"
+function out_pipe {
+    local input=$(cat)
+    input=${input## }
 
-function in {
-    print -n "  > $1" >&3
-    local input=$(head -n 1 </dev/tty | tr -d '\n' )
-
-    if [[ -n $1 ]]; then
-        printf '%s' "$1 $input" 
+    if [[ -z $input ]]; then
+        return
+    fi
+        
+    if [[ $1 == '-e' ]]; then
+        echo -e "\e[31m$input\e[0m" >&3
     else
-        printf '%s' "$input"    
+        out "$input"
     fi
 }
 
 function out {
-    echo -e "    \e[30m$1\e[0m" >&3
-}
+    local input=$1
 
-function len {
-    my_speak $(py len)
-}
-
-function p {
-    my_speak $(py get -- -1p)
+    if [[ -n $input ]]; then   
+        echo -e "    \e[30m$input\e[0m" >&3
+    fi
 }
 
 function py {
@@ -124,14 +114,25 @@ function color {
     fi
 }
 
-
 # =========================== SETUP ========================== #
 
-use_extra 0
+exec 3>/dev/tty
+unset HISTFILE SAVEHIST
+
+_sign="-"
+_color=1
+_prev_audio=1
+_silent=0
+_hist=1
+
+cols=$(tput cols)
+
+# Reminder setup
 reminder_file="/tmp/reminders_sorted.txt"
 LC_ALL=C printf '%s\n' "$(ob "p/auto/ash remind" | awk NF)" | grep -vF "**" | sort > "$reminder_file"
 
-unset HISTFILE SAVEHIST
+
+# auto completion ------------------------------------------------------------ #
 
 cmds=(
     'R echo $start_time'
@@ -159,8 +160,10 @@ for cmd in "${cmds[@]}"; do
     print -s -- "$cmd"
 done
 
-color 1 no_shortcuts
+# call setup functions ------------------------------------------------------- #
 
+use_extra 0
+color 1 no_shortcuts
 
 # ========================= GENERAL FUNCTIONS ======================== #
 
@@ -174,7 +177,7 @@ function on_tab {
 
 function a_ui {
     next_idx=$(py len)
-    print_top_right
+    print_top_right "$pgo"
 
     if ! command -v a.sh &>/dev/null; then
         echo "a.sh not found!"
@@ -187,7 +190,7 @@ function a_ui {
 
         take_input
 
-        if [[ -z $line ]]; then
+        if [[ -z $line || $line == "#" ]]; then
             printf '\033[1A\033[J'
             continue
         fi
@@ -210,6 +213,7 @@ function a_ui {
             fc -p
             
             py map set -k offline_start -v "0" 
+            (nohup a.sh "$(day -1) ash $next_idx" >/dev/null &)
             next_idx=0
 
             start_time="$(date +"%Y-%m-%d %H:%M:%S")"
@@ -235,13 +239,7 @@ function a_ui {
         # Run
         elif [[ $line == 'R '* ]]; then
             command=$(echo "$line" | sed -E 's/R[[:space:]]+//g')
-            tmpfile=$(mktemp)
-            
-            eval "$command" >"$tmpfile"
-            local output=$(<"$tmpfile")
-            
-            [[ -n $output ]] && echo -e "    \e[30m${output## }\e[0m"       
-            rm "$tmpfile"
+            eval "$command" > >(out_pipe) 2> >(out_pipe -e)
             continue
         # Silent for one command
         elif [[ $line == 's' ]]; then
@@ -274,15 +272,15 @@ function a_ui {
             (
                 {
                     py add -- "$expanded_line" &
-                    nohup a.sh "$expanded_line" &>/dev/null &
+                    nohup a.sh "$expanded_line" >/dev/null &
                     wait
-                    print_top_right
+                    print_top_right "$pgo"
                 } &
             )
             
             if [[ $_silent == 0 ]]; then
                 [[ $speak == 1 ]] && my_speak "$expanded_line"
-                handle_if_reminder "$line"
+                handle_if_special "$line"
             elif [[ $_silent == 1 ]]; then
                 _silent=0
             fi
@@ -299,8 +297,8 @@ function expand_item {
         -e 's/`/\\`/g' \
         -e 's/"/\\"/g')
 
-    local once_expanded_line=$(eval echo \"$escaped\")
-    local expanded_line_loc=$(eval echo \"$once_expanded_line\" | tr -d '\\')
+    local once_expanded_line=$(eval echo \"$escaped\" 2> >(out_pipe -e))
+    local expanded_line_loc=$(eval echo \"$once_expanded_line\" 2> >(out_pipe -e) | tr -d '\\')
 
     if [[ $expanded_line_loc =~ '(?<=^|\s)>((-?\d|\w|\.)+)(?=$|\s)' ]]; then
         pgo=$(py get -- "$match[1]")
@@ -318,23 +316,34 @@ function my_speak {
     say -v samantha -r 500 "$*"
 }
 
-function handle_if_reminder {
-    local input=$(echo ${1//[0-9.]##/*} | sed 's/#/TO /g' | sed 's/TO b t/t/g' | tr -d '\n')
+function handle_if_special {
+    local input=$(echo "$1" | sed 's/#/TO /g' | sed 's/TO b t/t/g' | tr -d '\n')
 
     local dest=$(echo "$input" | grep -o 'TO [A-Za-z0-9_]\+' | tr -d '\n')
     if [[ -n $dest ]]; then
-        _handle_if_reminder "$dest"
+        _handle_if_special "$dest"
     fi
 
-    _handle_if_reminder "$input"
+    local parts=(${(s:;:)input})
+    for p in $parts; do
+        p="${${p##[[:space:]]#}%%[[:space:]]#}"
+
+        if printf '%s\n' "$p" | grep -Eq '^[[:alnum:]_]+ -?[0-9]+$'; then
+            local track_parts=(${(z)p})
+            map inc s.${track_parts[1]} ${track_parts[2]}
+        fi
+
+        _handle_if_special "${p//[0-9.]##/*}"
+    done
 }
 
-function _handle_if_reminder {
+function _handle_if_special {
     local reminders=$(look -f -- "- [ ] $1 |" "$reminder_file")
+
     while read -r reminder; do
         if [[ -n $reminder ]]; then
             local reminder_parts=("${(@s:|:)reminder}")
-            local reminder_text="${reminder_parts[2, -1]## }"
+            local reminder_text="${(j:|:)reminder_parts[2, -1]## }"
 
             if [[ $reminder_text == "*"* ]]; then
                 should_extra -C || continue
@@ -349,7 +358,7 @@ function _handle_if_reminder {
             else
                 expanded=""
                 expand_item "$reminder_text" expanded
-                ( nohup a.sh "$expanded" &>/dev/null & )
+                ( nohup a.sh "$expanded" >/dev/null & )
             fi
         fi
     done <<< "$reminders"
@@ -362,13 +371,15 @@ function my_clear {
     local wipe_col=$((cols - $max_pyg_preview))
     print -n "\e7\e[1;${wipe_col}H\033[35m${wiper}\033[0m\e8" >&3 
 
-    ( print_top_right & )
+    ( print_top_right "" & )
 }
 
 function print_top_right {
     local row=1
-    local cols=$(tput cols)
     local wipe_col=$((cols - $max_pyg_preview - 3))
+    local msg="$1"
+    
+    [[ $2 != "-C" ]] && cols=$(tput cols)
 
     local old_offline_amt=$(py map get -k offline_amt -d 0)
     local offline_amt=$(cat "$HOME/.dotfiles/tmp/a.txt" | wc -l | tr -d '[:space:]')
@@ -401,12 +412,12 @@ function print_top_right {
     # expansion info ------------------------------------------------------------- #
 
     if should_extra -C; then
-        if [[ -n $pgo ]]; then
+        if [[ -n $1 ]]; then
             print -n "\e7\e[${row};${wipe_col}H\033[35m${wiper}\033[0m\e8" >&3
-            local truncated=" ${pgo[1,$max_pyg_preview]}"
+            local truncated=" ${msg[1,$max_pyg_preview]}"
 
-            if (( ${#pgo} > max_pyg_preview )); then
-                truncated+="…${pgo[-2,-1]}"
+            if (( ${#msg} > max_pyg_preview )); then
+                truncated+="…${msg[-2,-1]}"
             fi
 
             local text=" $truncated"
@@ -414,8 +425,6 @@ function print_top_right {
 
             sleep 0.1
             print -n "\e7\e[${row};${col}H\033[35m${text}\033[0m\e8" >&3
-
-            pgo=""
         fi
     else
         print -n "\e7\e[${row};${wipe_col}H\033[35m${wiper}\033[0m\e8" >&3
@@ -444,7 +453,7 @@ function take_input {
         echo
     fi
 
-    [[ $audio == 1 && $_extra == 1 ]] && beep 0.55
+    [[ $audio == 1 && $_extra == 1 ]] && beep $beep_volume
 
     line=$(echo "$line" | tr -d '\\')
     _sign="-"
