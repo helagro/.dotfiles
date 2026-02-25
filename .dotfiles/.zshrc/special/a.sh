@@ -98,8 +98,8 @@ function color {
             '`.+`' fg=cyan
             '\$\([^\$]+\)' fg=cyan
             '(?<=^|\s)>(-?\d|\w)+(?=$|\s)' fg=cyan
-            '^(R|B)[[:space:]]' fg=cyan,bold
-            '^(c|d|D|h|q|s|S)$' fg=cyan,bold
+            '^(R|B|U)[[:space:]]' fg=cyan,bold
+            '^(c|d|D|h|q|s|S|U)$' fg=cyan,bold
             
             '(?<=^ .).+' 'fg=white,bg=white'
             '(?<=^B  .).+' 'fg=white,bg=white'
@@ -216,6 +216,9 @@ function a_ui {
             (nohup a.sh "$(day -1) ash $next_idx" >/dev/null &)
             next_idx=0
 
+            map.sh unset s
+            map.sh unset done
+
             start_time="$(date +"%Y-%m-%d %H:%M:%S")"
             divide "$start_time"
             continue
@@ -231,6 +234,16 @@ function a_ui {
         # History toggle
         elif [[ $line == 'h' ]]; then
             hist
+            continue
+        # Update
+        elif [[ $line == 'U'* ]]; then
+            local u_arg=$(echo "$line" | sed -E 's/U[[:space:]]+//g')
+            [[ -z $u_arg ]] && u_arg=-1
+
+            local search=$u_arg
+            [[ $u_arg == <-> ]] && search=$(pyg $u_arg)
+
+            tdls -p | grep -i "$search" | tac | in.sh --format=a
             continue
         # Quit
         elif [[ $line == 'q' ]]; then
@@ -333,7 +346,7 @@ function handle_if_special {
             map inc s.${track_parts[1]} ${track_parts[2]}
         fi
 
-        _handle_if_special "${p//[0-9.]##/*}"
+        _handle_if_special "${p//[1-9][0-9.]#/*}"
     done
 }
 
@@ -356,6 +369,8 @@ function _handle_if_special {
                 cmd=${reminder_text//\`/}
                 ttab -d '' -w $cmd
             else
+                map -s opt.no_ash_auto_add && continue
+
                 expanded=""
                 expand_item "$reminder_text" expanded
                 ( nohup a.sh "$expanded" >/dev/null & )

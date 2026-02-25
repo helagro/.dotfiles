@@ -87,10 +87,10 @@ function e {
             a "#tode $input"
             return
         fi
-    fi
 
-    if in_window.sh 10:00 20:00; then
-        ( loc start >/dev/null 2>&1 & ) 
+        if [[ $(map.sh act.current) != 'sys' ]]; then
+            ask 'Start tracking!' || return
+        fi
     fi
 
     if [ -d "$DEV/$1" ]; then

@@ -15,7 +15,7 @@ function acts {
             print -n -u2 "eve, "
         fi
 
-        if map.sh -s 's.eye_strain'; then
+        if map.sh -s 's.eye_strain' && ! map.sh -s 's.off'; then
             query="$query/eye"
             print -n -u2 "eye, "
         fi

@@ -29,10 +29,11 @@ function main {
 
 function weekly {
     echo "Running weekly tasks..."
+    
+    echo "" > "$VAULT/_/log/done.md"
 
-    local cleaned_done=$(obc done -F b | grep -v '^$')
-    if [[ -n "$cleaned_done" ]]; then
-        echo "$cleaned_done" > "$VAULT/_/log/done.md"
+    if map off; then
+        a '#b weekly log'
     fi
 
     local week=$(date +%-V)

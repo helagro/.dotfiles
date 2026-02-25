@@ -12,105 +12,117 @@ from scipy.optimize import curve_fit
 
 TIME_REGEX = r"^\d{2}:\d{2}$"
 
+colors = ['blue', 'orange', 'green', 'red', 'purple', 'brown', 'pink', 'gray', 'olive', 'cyan']
+colorI = 0
 
-def main(arg, plot_name):
-    # Load the JSON data
-    json_data = json.loads(arg)
-    json_data = {
-        k: v
-        for k, v in json_data.items() if isinstance(v, (int, float)) or (isinstance(v, str) and is_time(v))
-    }
 
-    df = pd.DataFrame(list(json_data.items()), columns=['Date', 'Value'])
-    df['Date'] = pd.to_datetime(df['Date'])
+def next_color():
+    global colorI
+    color = colors[colorI % len(colors)]
+    colorI += 1
+    return color
 
+
+def main(args: list[str], plot_name):
     plt.figure(figsize=(10, 6))
     plt.tight_layout()
 
-    # Handle y values of type time
-    df.dropna(subset=['Value'], inplace=True)
-    is_time_series = is_time(str(df['Value'].iloc[0]))
-    if is_time_series:
-        print("Time series detected")
-        df['Value'] = df['Value'].apply(to_time)
-    df.dropna(subset=['Value'], inplace=True)
+    for arg in args:
+        # Load the JSON data
+        json_data = json.loads(arg)
+        json_data = {
+            k: v
+            for k, v in json_data.items() if isinstance(v, (int, float)) or (isinstance(v, str) and is_time(v))
+        }
 
-    # --------------------- LINEAR REGRESSION -------------------- #
+        df = pd.DataFrame(list(json_data.items()), columns=['Date', 'Value'])
+        df['Date'] = pd.to_datetime(df['Date'])
 
-    # Fit a linear regression model
-    df['Days'] = (df['Date'].max() - df['Date']).dt.days
-    X = df['Days'].values.reshape(-1, 1)
-    y = df['Value'].apply(conv_time) if is_time_series else df['Value']
-    model = LinearRegression().fit(X, y)
-    df['Trend'] = model.predict(X)
+        # Handle y values of type time
+        df.dropna(subset=['Value'], inplace=True)
+        is_time_series = is_time(str(df['Value'].iloc[0]))
+        if is_time_series:
+            print("Time series detected")
+            df['Value'] = df['Value'].apply(to_time)
+        df.dropna(subset=['Value'], inplace=True)
 
-    slope = model.coef_[0]
+        # --------------------- LINEAR REGRESSION -------------------- #
 
-    # Calculate the difference in y values
-    intercept = model.intercept_
-    x_start = X.min()
-    x_end = X.max()
-    y_start = slope * x_start + intercept
-    y_end = slope * x_end + intercept
-    difference = y_end - y_start
+        # Fit a linear regression model
+        df['Days'] = (df['Date'].max() - df['Date']).dt.days
+        X = df['Days'].values.reshape(-1, 1)
+        y = df['Value'].apply(conv_time) if is_time_series else df['Value']
+        model = LinearRegression().fit(X, y)
+        df['Trend'] = model.predict(X)
 
-    plt.subplots_adjust(bottom=0.65)
-    plt.figtext(0.5, 0.01, f"Slope: {slope}; Change: {difference}", fontsize=11, color='blue', ha='center')
+        slope = model.coef_[0]
 
-    # Plot the trend line
-    plt.plot(df["Date"], df["Trend"], color='red', label="Trend")
+        # Calculate the difference in y values
+        intercept = model.intercept_
+        x_start = X.min()
+        x_end = X.max()
+        y_start = slope * x_start + intercept
+        y_end = slope * x_end + intercept
+        difference = y_end - y_start
 
-    # ------------------- POLYNOMIAL REGRESSION ------------------- #
+        plt.subplots_adjust(bottom=0.65)
+        plt.figtext(0.5, 0.01, f"Slope: {slope}; Change: {difference}", fontsize=11, color=next_color(), ha='center')
 
-    # Fit a polynomial regression model
+        # Plot the trend line
+        plt.plot(df["Date"], df["Trend"], color=next_color(), label="Trend")
 
-    # poly_model = np.poly1d(np.polyfit(df['Days'], y, 8))
-    # df['Polynomial'] = poly_model(df['Days'])
+        # ------------------- POLYNOMIAL REGRESSION ------------------- #
 
-    def poly_sine(x, *p):
-        poly = np.poly1d(p[:-4])(x)
-        A, w, phi, c = p[-4:]
-        return poly + A * np.sin(w * x + phi) + c
+        # Fit a polynomial regression model
 
-    degree = 8
-    p0 = [0] * (degree + 1) + [(y.max() - y.min()) / 2, 2 * np.pi / 7, 0, y.mean()]
+        # poly_model = np.poly1d(np.polyfit(df['Days'], y, 8))
+        # df['Polynomial'] = poly_model(df['Days'])
 
-    params, _ = curve_fit(poly_sine, df['Days'], y, p0=p0)
-    df['Polynomial'] = poly_sine(df['Days'], *params)
+        def poly_sine(x, *p):
+            poly = np.poly1d(p[:-4])(x)
+            A, w, phi, c = p[-4:]
+            return poly + A * np.sin(w * x + phi) + c
 
-    # ---------------------- SPLINE INTERPOLATION ----------------- #
+        degree = 8
+        p0 = [0] * (degree + 1) + [(y.max() - y.min()) / 2, 2 * np.pi / 7, 0, y.mean()]
 
-    # Fit a spline interpolation model
-    print(df['Days'])
-    spline_model = UnivariateSpline(df['Days'], y)
-    df['Spline'] = spline_model(df['Days'])
+        params, _ = curve_fit(poly_sine, df['Days'], y, p0=p0, maxfev=10000)
+        df['Polynomial'] = poly_sine(df['Days'], *params)
 
-    # ----------------------- USE BEST FIT ----------------------- #
+        # ---------------------- SPLINE INTERPOLATION ----------------- #
 
-    # Use the best fit line
-    if r2_score(y, df['Polynomial']) < r2_score(y, df['Spline']):
-        plt.plot(df["Date"], df["Spline"], color='orange', label="Spline")
+        # Fit a spline interpolation model
+        print(df['Days'])
+        spline_model = UnivariateSpline(df['Days'], y)
+        df['Spline'] = spline_model(df['Days'])
 
-    plt.plot(df["Date"], df["Polynomial"], color='green', label="Polynomial")
+        # ----------------------- USE BEST FIT ----------------------- #
 
-    # ------------------------- MAIN PLOT ------------------------ #
-    # Plot the line with 50% opacity
-    plt.plot(
-        df["Date"],
-        df["Value"].apply(conv_time) if is_time_series else df["Value"],
-        alpha=0.3,  # Line opacity at 50%
-        color="tab:blue",
-        label="Value")
+        # Use the best fit line
+        if r2_score(y, df['Polynomial']) < r2_score(y, df['Spline']):
+            plt.plot(df["Date"], df["Spline"], color=next_color(), label="Spline")
 
-    # Plot the markers with 100% opacity
-    plt.plot(
-        df["Date"],
-        df["Value"].apply(conv_time) if is_time_series else df["Value"],
-        marker="o",  # Markers
-        alpha=1.0,  # Marker opacity at 100%
-        linestyle="None",  # No line between markers
-        color="tab:blue",  # Marker color
-        label="Value (Markers)")
+        plt.plot(df["Date"], df["Polynomial"], color=next_color(), label="Polynomial")
+
+        if len(args) == 1:
+            # ------------------------- MAIN PLOT ------------------------ #
+            # Plot the line with 50% opacity
+            plt.plot(
+                df["Date"],
+                df["Value"].apply(conv_time) if is_time_series else df["Value"],
+                alpha=0.3,  # Line opacity at 50%
+                color="tab:blue",
+                label="Value")
+
+            # Plot the markers with 100% opacity
+            plt.plot(
+                df["Date"],
+                df["Value"].apply(conv_time) if is_time_series else df["Value"],
+                marker="o",  # Markers
+                alpha=1.0,  # Marker opacity at 100%
+                linestyle="None",  # No line between markers
+                color="tab:blue",  # Marker color
+                label="Value (Markers)")
 
     plt.title(plot_name, fontsize=16)
     plt.xlabel("Date", fontsize=14)
@@ -146,15 +158,12 @@ def conv_time(value):
 
 
 if __name__ == "__main__":
-    plot_name = "Value Over Time"
-    if len(sys.argv) > 2:
-        plot_name = sys.argv[2]
-
     print(f"Arguments: {sys.argv}")
+    name = sys.argv[1]
 
-    if len(sys.argv) >= 2:
+    if len(sys.argv) >= 3:
         try:
-            main(sys.argv[1], plot_name)
+            main(sys.argv[2:], name)
         except KeyboardInterrupt:
             pass
     else:

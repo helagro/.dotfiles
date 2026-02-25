@@ -63,6 +63,11 @@ function sugar_fun {
         echo "> map set done.gum true #b"
         return
     fi
+
+    if ! map -s done.salt; then
+        echo "> map set done.salt true #b"
+        return
+    fi
 }
 
 # manually executed ------------------------------------------------------------ #

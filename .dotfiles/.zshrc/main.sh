@@ -28,7 +28,7 @@ alias fun="functions"
 # ------------------ UNCATEGORISED FUNCTIONS ----------------- #
 
 function ask {
-    echo -n "$1 (y/n) "
+    echo -n "$1 (y/N) "
     read response
     [[ "$response" =~ ^[Yy]$ ]]
 }

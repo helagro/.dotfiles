@@ -4,7 +4,7 @@
 busez="(!#then)&(#bdg|#zz|@ez)&!p3"
 print -s -- '$busez'
 
-i="(tod|od|p1)"
+i="(tod|od|p1)|(#inbox&(@blind|@siri))"
 print -s -- '$i'
 
 in="#inbox"
@@ -15,7 +15,7 @@ print -s -- '$u'
 
 # ================================= CONSTANTS ================================ #
 
-export FZF_DEFAULT_OPTS='-m --cycle --ansi --no-sort --layout=reverse-list --bind ctrl-a:select-all,ctrl-d:deselect-all,ctrl-t:toggle-all'
+export FZF_DEFAULT_OPTS='-m -e --cycle --ansi --no-sort --layout=reverse-list --bind ctrl-a:select-all,ctrl-d:deselect-all,ctrl-t:toggle-all'
 
 
 # Colors
@@ -117,6 +117,7 @@ function menu {
 
         print -s -- "$filter"
         print -s -- " "
+        clr
 
         found_match=true
         do_act=false
@@ -152,6 +153,7 @@ function menu {
             found_match=true
         fi
 
+        update="$update "
         vared -p "Update: " update </dev/tty
     elif [[ $action == *"r"* ]]; then
         local command=""
@@ -195,6 +197,11 @@ function menu {
                 
                 if [[ "$action" == *"d"* ]]; then
                     close "$id" &
+                    local project=$(echo "$content" | sed -n 's/.*#\([A-Za-z0-9/]*\).*/\1/p')
+                    if [[ -n $project && $project != 'u' ]]; then
+                        local item_text=$(echo "$content" | sed 's/#//' | td.sh s)
+                        a "#done ^$project ; $item_text"
+                    fi
                     
                 elif [[ "$action" == *"u"* ]]; then
                     # NOTE - Removes project and p4 priority

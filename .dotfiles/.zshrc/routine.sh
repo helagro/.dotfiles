@@ -49,8 +49,8 @@ function eat {
             a "cook #b @home"
         fi
 
-        if map -s 's.headache' false; then
-            echo "Cold pad - ( headache )"
+        if map -s s.headache || map -s s.stiff; then
+            echo "Cold pad"
         fi 
     fi
 
@@ -86,7 +86,6 @@ function wake {
         ({
             red_mode 0
             dnd 0
-            short -s night_shift 0
         }&)
 
 
@@ -98,6 +97,7 @@ function wake {
 
             if [[ $cort_taken -ge 10 ]]; then
                 echo 'Drink water - ( cort >= 10 )'
+                ( tdc $(tdls tod | grep 'cort 10') & )
             fi
         fi
 
@@ -281,8 +281,12 @@ function eve {
         echo "Cool down - ( $temp >= 21°C )"
     fi
 
+    if [[ $(date +%a) == (Fri|Sat) ]]; then
+        echo "Earplugs - weekend"
+    fi
+
     if map.sh -s 's.sleepy'; then
-        echo "Turn off alarm? - ( sleepy )"
+        echo "Turn off alarm? - sleepy"
     fi
 
     echo
@@ -310,11 +314,7 @@ function eve {
     # auto track ------------------------------------------------- #
 
     (eve_track &)
-
     a '#tmp done ; detach'
-    a "p_ett $(tdis | lines) s #u"
-    (short track_away &)
-
 
     # display main ----------------------------------------------- #
 
@@ -378,11 +378,17 @@ function bedtime {
     ob "p/auto/state bedtime" | state_switch.sh
 
     ob bedtime
-    ob zink
+
+    printf "len zink : "
+    ob zink | lines
 
     if [[ $(date +"%m") -le 2 || $(date +"%m") -ge 9 ]]; then
         echo "have warm clothes near"
         echo "scarf?"
+    fi
+
+    if [[ $(map s.sleep_delay) -ge 90 ]]; then
+        echo "Sleep somewhere different"
     fi
 
     local state_input
@@ -423,17 +429,35 @@ function bedtime {
 function bed_minus_dinner { time_diff.sh -mp $(date +%H:%M) $(tl.sh 'routines/bed_time/start?sep=%3A'); }
 
 function eve_track {
+    a "p_ett $(tdis | lines) #u"
+    (short track_away &)
+
     # Track sleep delay
     local sleep_delay=$(fall_asleep_delay)
-    [ $? -eq 0 ] && [ -n "$sleep_delay" ] && a "$(day -1) sleep_delay $sleep_delay s #u"
+    if [[ $? -eq 0 && -n "$sleep_delay" ]]; then
+        a "$(day -1) sleep_delay $sleep_delay #u"
+        map set s.sleep_delay $sleep_delay
+    fi
 
     # Track bedtime minus detach
     local bed_minus_detach=$(bed_minus_detach)
-    [ -n "$bed_minus_detach" ] && a "$(day) bed_minus_detach $bed_minus_detach s #u"
+    [ -n "$bed_minus_detach" ] && a "bed_minus_detach $bed_minus_detach #u"
 
     # Track brightness
     local brightness=$(calc_brightness)
-    [ -n "$brightness" ] && a "$(day) brightness $brightness s #u"
+    [ -n "$brightness" ] && a "brightness $brightness #u"
+
+    if is_home && ! map -s done.clean; then
+        local last_cleaned_ago=$(is -v 'cleaned_ago' 1 1 2>/dev/null)
+        [ -n "$last_cleaned_ago" ] && a "cleaned_ago $((last_cleaned_ago + 1)) #u"
+    fi
+
+    if map -s s.social; then
+        a "social_ago 0 #u"
+    else
+        local last_social_ago=$(is -v 'social_ago' 1 1 2>/dev/null)
+        [ -n "$last_social_ago" ] && a "social_ago $((last_social_ago + 1)) #u"
+    fi
 }
 
 function fall_asleep_delay {

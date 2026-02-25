@@ -18,22 +18,8 @@ NORMAL='\033[0;39m'
 
 # --------------------------- SETUP -------------------------- #
 
-if [[ -t 0 ]]; then # Run from terminal
-    
-    # Choose project
-    project="#inbox"
-    if [ -n "$1" ]; then
-        project="$1"
-    fi
-    echo "Using project $project"
-
-    todoist s
-    task_string=$(todoist l -f "$project")
-
-else # Read from pipe
-    task_string=$(cat)
-fi
-
+arg_string="$*"
+task_string=$(cat)
 readonly task_string
 
 # ------------------------- FUNCTIONS ------------------------ #
@@ -45,10 +31,14 @@ function menu {
     local curr_later_tasks=$( cat $HOME/.dotfiles/tmp/later.txt | wc -l | tr -d '[:space:]' )
     local later_tasks_added=$((curr_later_tasks - LATER_TASKS_INIT))
 
-    if [[ "$later_tasks_added" -gt 0 ]]; then
-        printf "\033[33m($(printf "%02d" $amt_left))\033[0m $task \033[33m($later_tasks_added):\033[0m"
+    if [[ $arg_string == *--format=a* ]]; then
+        printf "    \e[30m%s :\e[0m" "$line" >&3
     else
-        printf "\033[33m($(printf "%02d" $amt_left))\033[0m $task \033[33m-:\033[0m"
+        if [[ "$later_tasks_added" -gt 0 ]]; then
+            printf "\033[33m($(printf "%02d" $amt_left))\033[0m $task \033[33m($later_tasks_added):\033[0m"
+        else
+            printf "\033[33m($(printf "%02d" $amt_left))\033[0m $task \033[33m-:\033[0m"
+        fi
     fi
     
     # Take input
@@ -139,4 +129,3 @@ for line in "${tasks[@]}"; do
     amt_left=$((amt_left - 1))
 done
 
-echo "\nYou've reached inbox zero!"

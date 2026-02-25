@@ -36,6 +36,7 @@ function act {
 
     map.sh -s opt.auto_focus true && local focus_flag="-f" || local focus_flag=""
     local max_duration="50:00"
+    in_window.sh 7:00 $(map routine.latest_dinner 20:00) && local is_day=true || local is_day=false
 
     # calc connectivity ---------------------------------------------------------- #
     
@@ -54,7 +55,6 @@ function act {
     else
         local was_home=true
     fi
-
 
     # process arguments ---------------------------------------------------------- #
 
@@ -121,7 +121,13 @@ function act {
 
         if $do_local && in_window.sh 7:00 $(map routine.full_detach 21:30); then
             (map -s s.headache false || map -s s.eye_strain false) && local start_param="?alert_frequency=17"
-            (loc "start$start_param" &) >/dev/null 2>&1
+            (
+                loc "start$start_param" &
+                if $is_day; then 
+                    [[ $activity_name == main ]] && loc "dev colored color work" &
+                    [[ $activity_name =~ ^(fix|improve)$ ]] && loc "dev colored color 55ff55" &
+                fi
+            ) >/dev/null 2>&1
         fi
     fi
 
@@ -134,12 +140,21 @@ function act {
 
     # run activity --------------------------------------------------------------- #
 
+    map set act.current "$project"
+
     sw $important_flag $focus_flag -a "$activity_name" $max_duration
     date +"%Y-%m-%d %H:%M:%S" | to_color.sh blue
 
+    # stop activity -------------------------------------------------------------- #
+
+    map set act.current null
+
     if $online; then
         toggl stop
-        map.sh -s s.off || (loc stop &) >/dev/null 2>&1
+        (
+            loc stop &
+            $is_day && loc "dev colored color chill" &
+        ) >/dev/null 2>&1
     fi
 
     # break reminder ------------------------------------------------------------- #
@@ -157,8 +172,25 @@ function act {
 
 
 function dnd {
-    local mode=$1
+    local mode do_phone=false do_wifi=false
     local was_on=$(map opt.dnd_on)
+
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+        -p | --phone)
+            do_phone=true
+            shift 1
+            ;;
+        -w | --wifi)
+            do_wifi=true
+            shift 1
+            ;;
+        *)
+            mode="$1"
+            shift 1
+            ;;
+        esac
+    done
 
     if [[ ! -e /opt/homebrew/etc/blocky/config.yml ]]; then
         ln -s $HOME/.dotfiles/config/blocky.yml /opt/homebrew/etc/blocky/config.yml
@@ -173,15 +205,32 @@ function dnd {
     fi
 
     if [[ $mode == 1 ]]; then
-        echo "block drop out quick from any to 17.0.0.0/8" | sudo pfctl -ef -
-        sudo networksetup -setdnsservers Wi-Fi 127.0.0.1
-        brew services restart blocky
+        if $do_phone; then
+            short -s phondo 'flight mode'
+            sleep 2
+        fi
+
+        if $do_wifi; then
+            wifi off
+        fi
+
+        { 
+            echo "block drop out quick from any to 17.0.0.0/8" | sudo pfctl -ef -
+            sudo networksetup -setdnsservers Wi-Fi 127.0.0.1
+            brew services restart blocky
+        } >/dev/null 2>&1
         
         map.sh set opt.dnd_on 1
     else
-        sudo pfctl -d
-        sudo networksetup -setdnsservers Wi-Fi "Empty"
-        brew services stop blocky
+        if $do_wifi; then
+            wifi on
+        fi
+
+        {
+            sudo pfctl -d
+            sudo networksetup -setdnsservers Wi-Fi "Empty"
+            brew services stop blocky
+        } >/dev/null 2>&1
 
         map.sh set opt.dnd_on 0
     fi
@@ -219,9 +268,13 @@ function gym {
         [[ -z $type ]] && return 1
     fi
 
-    # Track evening workouts
-    if $is_recent_workout && in_window.sh 18:00 23:50; then
-        a "t gym_eve #u"
+    # Track timed workouts
+    if $is_recent_workout; then
+        if in_window.sh 18:00 23:50; then
+            a "t gym_eve #u"
+        elif in_window.sh 4:00 12:00; then
+            a "t gym_dawn #u"
+        fi
     fi
 
     # Track cardio
@@ -419,10 +472,11 @@ function plan {
 function plot {
     if [[ -p /dev/stdin ]]; then
         local input=$(cat)
-        (nohup conda run -n main --live-stream python3 "$MY_SCRIPTS/lang/python/plot_json.py" "$input" "$1" >/dev/null &)
+        (nohup conda run -n main --live-stream python3 "$MY_SCRIPTS/lang/python/plot_json.py" "$1" "$input" >/dev/null &)
         # conda run -n main --live-stream python3 "$MY_SCRIPTS/lang/python/plot_json.py" "$input" "$1"
     else
-        (nohup conda run -n main --live-stream python3 "$MY_SCRIPTS/lang/python/plot_json.py" "$*" "$1" >/dev/null &)
+        # (nohup conda run -n main --live-stream python3 "$MY_SCRIPTS/lang/python/plot_json.py" "$@" >/dev/null &)
+        conda run -n main --live-stream python3 "$MY_SCRIPTS/lang/python/plot_json.py" "Plot" "$@" 
     fi
 }
 
