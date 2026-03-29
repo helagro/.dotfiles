@@ -10,7 +10,7 @@ function acts {
     local query=$(echo "$*" | tr ' ' '/')
 
     if ! map.sh -s 'opt.no_calc'; then
-        if in_window.sh $(map.sh 'routine.full_detach' 23:00) 00:00; then
+        if in_window.sh $(map.sh 'routine.detach' 22:00) 00:00; then
             query="$query/eve"
             print -n -u2 "eve, "
         fi
@@ -24,6 +24,8 @@ function acts {
             query="$query/load"
             print -n -u2 "load, "
         fi 
+    else
+        print -n -u2 "no_calc, "
     fi
 
     print -n -u2 "| "
@@ -37,7 +39,7 @@ function acts {
 
     # general filters ---------------------------------------------------- #
 
-    if ! map.sh -s manual.has_flashcards true; then
+    if ! map.sh -s manual.has_flashcards; then
         output=$(echo "$output" | grep -v 'flashcards^')
         print -n -u2 "flashcards, "
     fi
@@ -50,6 +52,11 @@ function acts {
     if ! map.sh -s 's.tv'; then
         output=$(echo "$output" | grep -v 'review_tv^')
         print -n -u2 "review_tv, "
+    fi
+
+    if map.sh -s 's.sick'; then
+        output=$(echo "$output" | grep -v 'msg^')
+        print -n -u2 "msg, "
     fi
 
     # done filters --------------------------------------------------------------- #
@@ -66,23 +73,29 @@ function acts {
 
     # note filters --------------------------------------------------------------- #
 
-    if [ $(ob.sh b | wc -l) -le 4 ]; then
+    if [[ $output == *'b^'* && $(ob.sh b | wc -l) -le 4 ]]; then
         output=$(echo "$output" | grep -v 'b^')
         print -n -u2 "b, "
     fi
 
-    if [ $(ob.sh p | wc -l) -ge 3 ]; then
+    if [[ $output == *'plan^'* && $(ob.sh p | wc -l) -ge 3 ]]; then
         output=$(echo "$output" | grep -v 'plan^')
         print -n -u2 "plan, "
     fi
 
-    if ob.sh xord | grep -q "$(date +'%Y-%m-%d')"; then
+    if [[ $output == *'exorita^'* ]] && ob.sh xord | grep -q "$(date +'%Y-%m-%d')"; then
         output=$(echo "$output" | grep -v 'exorita^')
         print -n -u2 "exorita, "
     fi
 
+    if [[ $output == *'wash_face^'* ]] && ob.sh b | grep -q 'shower'; then
+        output=$(echo "$output" | grep -v 'wash_face^')
+        print -n -u2 "wash_face, "
+    fi
+
     # todoist filters ------------------------------------------------------------ #
 
+    # Note - Already optimised in act_td_filter
     output=$(act_td_filter 'bdg' 2 "$output")
     output=$(act_td_filter 'by' 6 "$output")
     output=$(act_td_filter 'do' 5 "$output")
@@ -90,13 +103,12 @@ function acts {
     output=$(act_td_filter 'inbox' 15 "$output")
     output=$(act_td_filter 'p1' 1 "$output")
     output=$(act_td_filter 'res' 7 "$output")
-    output=$(act_td_filter 'u' 10 "$output")
+    output=$(act_td_filter 'u' 16 "$output")
     output=$(act_td_filter 'zz' 2 "$output")
 
     # routine filters ----------------------------------------------------------- #
 
     if in_window.sh $(map.sh routine.detach 21:00) '4:00'; then
-        # TODO
 
         if in_window.sh $(map.sh routine.full_detach 22:00) '4:00'; then
             output=$(echo "$output" | grep -v 'cook^' | grep -v 'by^' | grep -v 'walk^')
@@ -129,7 +141,7 @@ function acts {
     # print ------------------------------------------------------ #
 
     print -u2 "\033[0m"
-    echo $output | rat.sh -pPl "json" | $HOME/.dotfiles/scripts/secret/act_highlight.sh
+    echo $output | "$HOME/.dotfiles/scripts/secret/act_highlight.sh"
 
     # sync ----------------------------------------------------------------------- #
 

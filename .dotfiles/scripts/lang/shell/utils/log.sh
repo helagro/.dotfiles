@@ -48,7 +48,7 @@ fi
 # ================================ TRIM LOG FILE ================================ #
 
 log_size=$(wc -l $file_path | awk '{print $1}')
-excess=$(expr $log_size - 2000)
+excess=$(expr $log_size - 1000)
 
 if [ $excess -gt 0 ]; then
     del_amt=$(expr $excess + 500)

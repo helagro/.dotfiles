@@ -2,10 +2,20 @@
 
 source "$HOME/.dotfiles/.zshrc/first.sh"
 
-ping -c1 -t1 "$LOCAL_SERVER_IP" &>/dev/null
+# =============================== REQUIREMENTS =============================== #
+
+# Is at home
+loc health &>/dev/null
 if [ $? -eq 0 ]; then
     exit 1
 fi
+
+# Is doing some activity
+if ! "$MY_SCRIPTS/path/state/map.sh" -m -s act.current; then
+    exit 1
+fi
+
+# =============================== RANDOM TASKS =============================== #
 
 /opt/homebrew/bin/todoist sync &
 

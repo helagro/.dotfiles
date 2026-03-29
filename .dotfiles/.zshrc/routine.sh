@@ -44,7 +44,7 @@ function eat {
         }&)
     fi
 
-    if $is_lunch || $is_dinner; then
+    if [[ ( $is_lunch || $is_dinner ) && $maybe_home ]]; then
         if ! (ob b | grep -q cook) && ask "Add cook?"; then
             a "cook #b @home"
         fi
@@ -65,9 +65,12 @@ function eat {
 ## @function eat 
 ## @param {string[]}  Arguments to pass to `loc` function
 function back {
-    ( loc "$@" & )
+    ( loc "$@" & ) &>/dev/null
     
-    ob back
+    # TODO - add calm down routine with timer
+    
+    do_now -w p/return > /dev/null
+    ob back | cat
 }
 
 # ================================ TIME BOUND ================================ #
@@ -77,8 +80,8 @@ function wake {
 
     # Woke acedentally
     if ask 'Involontary?'; then
-        a 't woke_early'
-        ask 't melatonin?' && a 't melatonin'
+        a 'woke_early 1'
+        ask 'yesterday melatonin 1?' && a 'yesterday melatonin 1'
         obc woke
 
     # Woke deliberatelly
@@ -97,7 +100,15 @@ function wake {
 
             if [[ $cort_taken -ge 10 ]]; then
                 echo 'Drink water - ( cort >= 10 )'
-                ( tdc $(tdls tod | grep 'cort 10') & )
+                local cort_task=$(tdls tod | grep 'cort 10')
+
+                if is_online; then
+                    ( tdc $cort_task & )
+                else
+                    later "tdc '$cort_task'"
+                fi
+            elif [[ $cort_taken -eq 0 ]]; then
+                a '#b do morning cort'
             fi
         fi
 
@@ -132,6 +143,7 @@ function dawn {
 
     local focus_mode="off"
     local night_shift=0
+    local do_env=true
 
     set -- $($MY_SCRIPTS/lang/shell/expand_args.sh $*)
     while [[ $# -gt 0 ]]; do
@@ -142,6 +154,10 @@ function dawn {
             ;;
         -n | --night)
             night_shift=1
+            shift
+            ;;
+        -E | --skip-env)
+            do_env=false
             shift
             ;;
         *)
@@ -169,12 +185,15 @@ function dawn {
         [[ -n "$brightness" && "$brightness" -ge 400 ]] && echo "Brightness: $brightness"
     }&)
 
-    td s
-    state_calc && daily_calcs
+    (
+        td s &
+        state_calc && daily_calcs &
+        wait
+    )
 
     # env -------------------------------------------------------- #
 
-    ({
+    $do_env && ({
         dnd 0
         short -N -s focus "$focus_mode"
         short -s night_shift "$night_shift"
@@ -183,13 +202,13 @@ function dawn {
 
     # display ---------------------------------------------------- #
 
-    local cal=$(short -m -N day tod)
+    local cal=$(info tod)
     echo "$cal" | to_color.sh blue
 
-    ob dawn
+    obc dawn
 
     # Display secondary stuff
-    glo habits streak
+    glo habits streaks
 
     local forecast=$(weather -l 1)
     if echo $forecast | grep -q "rain"; then
@@ -208,14 +227,16 @@ function dawn {
         a '> plan &<wbr>& echo #b'
     fi
 
-    if map.sh -s 's.headache'; then
+    if map.sh -s 's.headache' && ! map.sh -s 's.off'; then
         obc 'head period'
     fi
 
-    tdi
     echo $cal | $MY_SCRIPTS/secret/agenda_switch.sh
     ob p | $MY_SCRIPTS/secret/agenda_switch.sh
     ob b | $MY_SCRIPTS/secret/agenda_switch.sh
+
+        
+    ( is_home && do_now -w p/return & ) 
 }
 
 function eve {
@@ -233,9 +254,11 @@ function eve {
     # environment ------------------------------------------------ #
 
     if [[ ! " $@ " == *" -E "* ]]; then
+        (loc p eve &) 2>/dev/null
+        theme 1
+
         short -s focus sleep # NOTE - should run early, before short phondo
         short -s night_shift 1
-        theme 1
     fi
 
     # reset ---------------------------------------------------------------------- #
@@ -246,7 +269,7 @@ function eve {
 
     do_now -Dw p/risk
     do_now -Dw p/rule
-    do_now -Dw p/p
+    do_now -Dw p/plan/p
 
     # other info ------------------------------------------------- #
 
@@ -269,11 +292,13 @@ function eve {
 
     $MY_SCRIPTS/lang/shell/battery.sh 40
 
-    tl.sh habits
-
     local xLen=$(ob x | dale)
     if [[ $xLen -eq 0 ]]; then
         echo "Do excuse practice"
+    fi
+
+    if map -s s.off; then
+        a '#b retrospective - off'
     fi
 
     local temp=$(loc -S sens/temp)
@@ -288,6 +313,9 @@ function eve {
     if map.sh -s 's.sleepy'; then
         echo "Turn off alarm? - sleepy"
     fi
+
+    printf 'Cort: '
+    is -v 'cort' 1
 
     echo
 
@@ -318,6 +346,7 @@ function eve {
 
     # display main ----------------------------------------------- #
 
+    clear
     ob eve
 
     $HOME/.dotfiles/scripts/lang/shell/battery.sh 50
@@ -343,15 +372,18 @@ function eve {
     # other ------------------------------------------------------------ #
 
     later
-    ask "Do wind-down activity later instead?" && a "#b [[detach]]"
+
+    if in_window.sh 00:00 $(map routine.full_detach 21:30) && ! map -s s.off; then
+        ask "Do wind-down activity later instead?" && a "#b [[detach]]"
+    fi
 }
 
 function bedtime {
-    ( bedtime_state & )
+    ( bedtime_state & ) 2>/dev/null
 
     short -s focus sleep
     # short -s bedtime_brightness
-    loc p 'night?m=keep'
+    loc p 'night?m=keep' 2>/dev/null
 
     local decomp=""
     vared -p "Decomp: " -c decomp
@@ -360,6 +392,7 @@ function bedtime {
         a "decomp $decomp_min #u"
     fi
 
+    # Flush tasks in desktop
     a 'flush @rm'
 
     # display -------------------------------------------------------------------- #
@@ -370,7 +403,7 @@ function bedtime {
 
     local month=$(date +%m)
     if [[ "$month" == "03" || "$month" == "04" || "$month" == "05" ]]; then
-        echo "earbuds"
+        echo "earbuds? - spring"
     fi
 
     loc led "green?a=off" 2>/dev/null
@@ -379,8 +412,11 @@ function bedtime {
 
     ob bedtime
 
-    printf "len zink : "
-    ob zink | lines
+    local zink_len=$(ob zink | lines)
+    if [[ zink_len -ge 6 ]]; then
+        printf "len zink : "
+        ob zink | lines
+    fi
 
     if [[ $(date +"%m") -le 2 || $(date +"%m") -ge 9 ]]; then
         echo "have warm clothes near"
@@ -388,7 +424,7 @@ function bedtime {
     fi
 
     if [[ $(map s.sleep_delay) -ge 90 ]]; then
-        echo "Sleep somewhere different"
+        echo "sleep somewhere different - sleep delay"
     fi
 
     local state_input
@@ -399,7 +435,7 @@ function bedtime {
 
     # shut down ------------------------------------------------------------------ #
 
-    if ask "Set flight mode on phone?"; then
+    if is_home && ask "Set flight mode on phone?"; then
         short -s phondo "flight mode"
     fi
 
@@ -411,7 +447,7 @@ function bedtime {
         fi
     fi
 
-    if ask "Turn off wifi?"; then
+    if is_online && ask "Turn off wifi?"; then
         wait
         wifi off
         pkill -2 $BROWSER
@@ -441,22 +477,22 @@ function eve_track {
 
     # Track bedtime minus detach
     local bed_minus_detach=$(bed_minus_detach)
-    [ -n "$bed_minus_detach" ] && a "bed_minus_detach $bed_minus_detach #u"
+    [[ -n "$bed_minus_detach" ]] && a "bed_minus_detach $bed_minus_detach #u"
 
     # Track brightness
     local brightness=$(calc_brightness)
-    [ -n "$brightness" ] && a "brightness $brightness #u"
+    [[ -n "$brightness" ]] && a "brightness $brightness #u"
 
     if is_home && ! map -s done.clean; then
-        local last_cleaned_ago=$(is -v 'cleaned_ago' 1 1 2>/dev/null)
-        [ -n "$last_cleaned_ago" ] && a "cleaned_ago $((last_cleaned_ago + 1)) #u"
+        local last_cleaned_ago=$(is -v 'cleaned_ago' 1 -u 1 2>/dev/null)
+        [[ -n "$last_cleaned_ago" && "$last_cleaned_ago" != "null" ]] && a "cleaned_ago $((last_cleaned_ago + 1)) #u"
     fi
 
     if map -s s.social; then
         a "social_ago 0 #u"
     else
-        local last_social_ago=$(is -v 'social_ago' 1 1 2>/dev/null)
-        [ -n "$last_social_ago" ] && a "social_ago $((last_social_ago + 1)) #u"
+        local last_social_ago=$(is -v 'social_ago' 1 -u 1 2>/dev/null)
+        [[ -n "$last_social_ago" && "$last_social_ago" != "null" ]] && a "social_ago $((last_social_ago + 1)) #u"
     fi
 }
 
@@ -489,7 +525,12 @@ function fall_asleep_delay {
 
     local hours=${time%%:*}
     local minutes=${time#*:}
-    echo $((hours * 60 + minutes))
+    local sleep_delay=$((hours * 60 + minutes))
+    if [[ $sleep_delay -lt 0 ]]; then
+        return 1
+    fi
+
+    echo $sleep_delay
 }
 
 function bed_minus_detach {

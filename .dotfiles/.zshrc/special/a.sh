@@ -5,6 +5,8 @@
 max_pyg_preview=5
 beep_volume=0.55
 
+export FZF_DEFAULT_OPTS="--ansi --no-sort --layout=reverse-list --height 20 --border"
+
 # dynamic -------------------------------------------------------------------- #
 
 init_cols=$(tput cols)
@@ -96,10 +98,11 @@ function color {
             '(?<!\*)\*[^*]+\*(?!\*)' fg=magenta,underline
 
             '`.+`' fg=cyan
+            '^`(\s|\w|\+|,|\.)+$' fg=cyan
             '\$\([^\$]+\)' fg=cyan
             '(?<=^|\s)>(-?\d|\w)+(?=$|\s)' fg=cyan
             '^(R|B|U)[[:space:]]' fg=cyan,bold
-            '^(c|d|D|h|q|s|S|U)$' fg=cyan,bold
+            '^(c|d|h|q|s|S|U)$' fg=cyan,bold
             
             '(?<=^ .).+' 'fg=white,bg=white'
             '(?<=^B  .).+' 'fg=white,bg=white'
@@ -190,6 +193,7 @@ function a_ui {
 
         take_input
 
+        # Ignored inputs
         if [[ -z $line || $line == "#" ]]; then
             printf '\033[1A\033[J'
             continue
@@ -213,11 +217,9 @@ function a_ui {
             fc -p
             
             py map set -k offline_start -v "0" 
-            (nohup a.sh "$(day -1) ash $next_idx" >/dev/null &)
+            map -s done.boot || (nohup a.sh "$(day -1) ash $next_idx" >/dev/null &)
             next_idx=0
-
-            map.sh unset s
-            map.sh unset done
+            reset_day
 
             start_time="$(date +"%Y-%m-%d %H:%M:%S")"
             divide "$start_time"
@@ -226,24 +228,25 @@ function a_ui {
         elif [[ $line == 'd' ]]; then
             divide
             continue
-        # Divide and clear
-        elif [[ $line == 'D' ]]; then
-            clear
-            divide
-            continue
         # History toggle
         elif [[ $line == 'h' ]]; then
             hist
             continue
         # Update
         elif [[ $line == 'U'* ]]; then
-            local u_arg=$(echo "$line" | sed -E 's/U[[:space:]]+//g')
-            [[ -z $u_arg ]] && u_arg=-1
+            if is_online; then
+                local u_arg=$(echo "$line" | sed -E 's/U[[:space:]]+//g')
+                [[ -z $u_arg ]] && u_arg=-1
 
-            local search=$u_arg
-            [[ $u_arg == <-> ]] && search=$(pyg $u_arg)
+                local search=$u_arg
+                [[ $u_arg == (-|)<-> ]] && search=$(pyg $u_arg)
 
-            tdls -p | grep -i "$search" | tac | in.sh --format=a
+                tdls -p | grep -i "$search" | tac | in.sh --format=a
+            else
+                vim "$HOME/.dotfiles/tmp/a.txt"
+            fi
+
+
             continue
         # Quit
         elif [[ $line == 'q' ]]; then
@@ -291,12 +294,13 @@ function a_ui {
                 } &
             )
             
-            if [[ $_silent == 0 ]]; then
-                [[ $speak == 1 ]] && my_speak "$expanded_line"
-                handle_if_special "$line"
-            elif [[ $_silent == 1 ]]; then
-                _silent=0
-            fi
+        fi
+            
+        if [[ $_silent == 0 ]]; then
+            [[ $speak == 1 && $_silent != 0 ]] && my_speak "$expanded_line"
+            handle_if_special "$line"
+        elif [[ $_silent == 1 ]]; then
+            _silent=0
         fi
     done
 }
@@ -309,6 +313,10 @@ function expand_item {
         -e "s/'/\\'/g" \
         -e 's/`/\\`/g' \
         -e 's/"/\\"/g')
+
+    if [[ "$escaped" == '\`'* ]] && $(py oddBackticks "$escaped"); then
+        escaped="$escaped\\\`"
+    fi
 
     local once_expanded_line=$(eval echo \"$escaped\" 2> >(out_pipe -e))
     local expanded_line_loc=$(eval echo \"$once_expanded_line\" 2> >(out_pipe -e) | tr -d '\\')
@@ -468,6 +476,7 @@ function take_input {
         echo
     fi
 
+    # NOTE - Is here to get instant feedback
     [[ $audio == 1 && $_extra == 1 ]] && beep $beep_volume
 
     line=$(echo "$line" | tr -d '\\')

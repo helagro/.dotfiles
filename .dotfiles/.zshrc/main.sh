@@ -1,5 +1,7 @@
 #!/bin/zsh
 
+export PATH="$PATH:/Applications/Obsidian.app/Contents/MacOS"
+
 # ------------------------- VARIABLES ------------------------ #
 export GPG_TTY=$(tty)
 export FZF_DEFAULT_OPTS="--ansi --no-sort --layout=reverse-list"
@@ -28,6 +30,8 @@ alias fun="functions"
 # ------------------ UNCATEGORISED FUNCTIONS ----------------- #
 
 function ask {
+    [[ $audio == 1 && $_extra == 1 ]] && beep $beep_volume frog 
+
     echo -n "$1 (y/N) "
     read response
     [[ "$response" =~ ^[Yy]$ ]]
@@ -61,11 +65,6 @@ function cnt {
     echo -n $((cnt + 1)) >"$HOME/.dotfiles/tmp/cnt.txt"
 }
 
-function date_if_offline {
-    if ! is_online; then
-        date +"%Y-%m-%d"
-    fi
-}
 
 function hm { 
     is_output=$(python3 $MY_SCRIPTS/lang/python/hm.py "$@")
@@ -89,10 +88,12 @@ function pass {
     fi
 }
 
+
 function tab {
     cd "$HOME/.dotfiles/config/tabs/$1"
     exec zsh
 }
+
 
 function talk {
     if [[ "$*" == *"-s"* ]]; then
@@ -145,9 +146,15 @@ function talk {
 
     file_name="$folder/$(cnt | tr -d '[:space:]').mp3"
     cat "${files[@]}" >"$file_name"
-    open $file_name
     rm "${files[@]}"
+
+    if [[ "$*" == *"-p"* ]]; then
+        mpv --msg-level=all=error,statusline=status "$file_name"
+    else
+        open $file_name
+    fi
 }
+
 
 function weather {
     local layout="2"
@@ -159,6 +166,7 @@ function weather {
 
     curl -s --max-time 4 "wttr.in$1?${layout}AMnQ$2"
 }
+
 
 function yadm_enc {
     echo -n "" | pbcopy

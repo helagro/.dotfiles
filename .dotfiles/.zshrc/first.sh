@@ -9,8 +9,6 @@ alias is_dark='[[ $(defaults read -g AppleInterfaceStyle 2>/dev/null) == "Dark" 
 alias gpt4="aichat -s -m openai:gpt-4o"
 alias rand="$MY_SCRIPTS/lang/shell/rand.sh"
 
-alias is_online="is_home || ping -c1 -t1 8.8.8.8 &>/dev/null"
-
 # ---------------------------- ZSH --------------------------- #
 
 autoload -Uz compinit
@@ -20,19 +18,19 @@ setopt HIST_IGNORE_ALL_DUPS # Remove old duplicate commands from history
 setopt HIST_IGNORE_DUPS     # Remove new duplicate commands from history
 setopt HIST_IGNORE_SPACE    # Remove commands starting with space from history, useful for secrets
 
-zstyle ':omz:update' mode auto
-zstyle ':omz:update' verbose no
-zstyle ':omz:update' frequency 30
-export DISABLE_UPDATE_PROMPT=true
-
 HISTSIZE=100000
 SAVEHIST=20000
 
 # --------------------------- MAIN --------------------------- #
 
+function is_online {
+    is_home || ping -c1 -t1 8.8.8.8 &>/dev/null
+}
+
 function loc {
     local do_new_line=true
     local do_silent=false
+    local timeout=2
 
     while [[ $# -gt 0 ]]; do
         case "$1" in
@@ -48,6 +46,10 @@ function loc {
             do_silent=true
             shift 1
             ;;
+        -t | --timeout)
+            timeout="$2"
+            shift 2
+            ;;
         *)
             break
             ;;
@@ -55,9 +57,9 @@ function loc {
     done
 
     local params="${(j:/:)@}"
-    local result=$(curl -sS --connect-timeout 2 "$LOCAL_SERVER_IP:8004/$params")
+    local result
 
-    if [[ $? -ne 0 ]]; then
+    if ! result=$(curl -sS --connect-timeout "$timeout" "$LOCAL_SERVER_IP:8004/$params"); then
         result='{"error": "Could not connect to local server"}'
         return 1
     fi
@@ -87,13 +89,13 @@ function day {
 }
 
 function is_home {
-    ping -c1 -t1 "$LOCAL_SERVER_IP" &>/dev/null
+    loc -t 0.3 health 2>/dev/null
     if [ $? -eq 0 ]; then
-        loc health &>/dev/null
-        return $?
+        return 0
     else
         if [[ $1 == '--guess-yes' ]]; then
-            return 0
+            ! is_online
+            return $?
         else
             return 1
         fi

@@ -110,7 +110,7 @@ function do_update {
         item_copy=""
         close "$id" &
     else
-        echo "WARN - empty item, ignoring"
+        echo -e "\e[31mWARN - empty item, ignoring\e[0m" >&2
     fi
 }
 

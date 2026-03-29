@@ -25,9 +25,12 @@ alias tgc="toggl current | grep -vE 'Workspace|ID'"
 
 function beep {
     local vol=0.7
-    [ -n "$1" ] && vol=$1
+    [[ -n $1 ]] && vol=$1
 
-    (sox -v $vol '/System/Library/Sounds/Purr.aiff' -d >/dev/null 2>&1 & )
+    local sound="Purr"
+    [[ -n $2 ]] && sound=$2
+
+    (sox -v $vol "/System/Library/Sounds/$sound.aiff" -d >/dev/null 2>&1 & )
 }
 
 function reinstall {
@@ -47,11 +50,11 @@ function breake {
 function lect {
     [[ $* != *'-T'* ]] && theme 0
     [[ $* != *'-M'* ]] && osascript -e 'set volume with output muted'
-    ( python3 "$MY_SCRIPTS/lang/python/a.py" map set -k extra_features_delay -v "7" & )
 
     # Misc
     ( a.sh 'plan return #b' & )
     open 'obsidian://open?file=p%2Flect'
+    map.sh set done.lect 1
 }
 
 
@@ -80,18 +83,7 @@ function on_tab {
 }
 
 function e {
-    if [[ ${system_projects[(r)$1]} == $1 ]] && is_home; then
-        if in_window.sh 05:00 "$earliest_coding" && ! map.sh -s s.off ; then
-            local input
-            vared -p "Code line: " -c input
-            a "#tode $input"
-            return
-        fi
-
-        if [[ $(map.sh act.current) != 'sys' ]]; then
-            ask 'Start tracking!' || return
-        fi
-    fi
+    e_checks || return 1
 
     if [ -d "$DEV/$1" ]; then
         code "$DEV/$1"
@@ -181,13 +173,6 @@ function short {
         echo "Failure when running: $1 $2"
         return 1
     fi
-}
-
-function home {
-    while [[ $# -gt 0 ]]; do
-        (short -s home $1 &)
-        shift
-    done
 }
 
 function inv {

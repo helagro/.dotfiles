@@ -1,32 +1,41 @@
-if [ $# -eq 0 ]; then
-    echo "Waiting..."
-    sleep 45
-fi
-
 MY_SCRIPTS="$HOME/.dotfiles/scripts"
 
 function log_login {
     cat | $MY_SCRIPTS/lang/shell/utils/log.sh -sof on_login
 }
 
+# =================================== DELAY ================================== #
+
+if [ $# -eq 0 ]; then
+    echo "Waiting..."
+    sleep 45
+fi
+
+# ================================== LOGGING ================================= #
+
 dt=$(date '+%d/%m/%Y %H:%M:%S')
 echo "\n----- RAN on_login.sh AT ($dt) -----\n" | log_login
 echo "Running..."
 
-# --------------------------- OTHER -------------------------- #
+# =================================== MAIN =================================== #
 
-nohup "look_away" 2>&1 | $MY_SCRIPTS/lang/shell/utils/log.sh -sf break &
+{
+    # state ---------------------------------------------------------------------- #
 
-# ------------------------- ARCHIVER ------------------------- #
+    $MY_SCRIPTS/lang/shell/state/map.sh set done.boot 1 2>&1 
 
-echo "   archiver" | log_login
-$HOME/Documents/archiver-go/build/macOS 2>&1 | log_login
+    # ------------------------- ARCHIVER ------------------------- #
 
-# ------------------------- APP LIST ------------------------- #
+    echo "   archiver" 
+    $HOME/Documents/archiver-go/build/macOS 2>&1 
 
-echo "   list_app" | log_login
-cd "$MY_SCRIPTS/lang/shell" && ./list_app.sh 2>&1 | log_login
+    # ------------------------- APP LIST ------------------------- #
 
-# ------------------------ BREW STUFF ------------------------ #
+    echo "   list_app"
+    cd "$MY_SCRIPTS/lang/shell" && ./list_app.sh 2>&1
 
-brew cleanup 2>&1 | log_login
+    # ------------------------ BREW STUFF ------------------------ #
+
+    brew cleanup 2>&1
+} | log_login
+

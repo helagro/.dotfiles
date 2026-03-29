@@ -1,4 +1,5 @@
 #!/bin/zsh
+setopt null_glob
 
 # =========================== HELP =========================== #
 
@@ -22,6 +23,8 @@ if [[ "$1" == "-e" ]]; then
     }
 else
     function action {
+        [[ $1 =~ '_SRC|_RES' ]] && exit 1
+
         /Users/h/.dotfiles/scripts/path/utils/rat.sh -P "$1"
     }
 fi
@@ -37,11 +40,16 @@ vault="$HOME/vault" # Can't use exported, called by break timer
 
 if [[ -d $vault ]]; then
     (
-        action "$vault/i/$input.md" 2>/dev/null ||
+        action $vault/i/$input.md 2>/dev/null ||
             action "$vault/p/$input.md" 2>/dev/null ||
             action "$vault/_/log/$input.md" 2>/dev/null ||
             action "$vault/$input.md" 2>/dev/null ||
-            action "$vault/tmp/$input.md" 2>/dev/null
+            action "$vault/tmp/$input.md" 2>/dev/null ||
+
+            # Globbed
+            action $vault/i/*/$input.md 2>/dev/null ||
+            action $vault/p/*/$input.md 2>/dev/null ||
+            action $vault/_/log/*/$input.md 2>/dev/null
     ) || exit 1
 else
     curl -s "https://raw.githubusercontent.com/helagro/notes/refs/heads/main/$input.md"

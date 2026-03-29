@@ -103,6 +103,10 @@ def main():
     replace_parser.add_argument("to_replace", help="string to replace with")
     replace_parser.add_argument("replacement", help="replacement string")
 
+    # odd backticks command
+    odd_backticks_parser = subparsers.add_parser("oddBackticks", help="Check for odd amount of backticks in a string")
+    odd_backticks_parser.add_argument("original", help="original string")
+
     # map command
     map_parser = subparsers.add_parser("map", help="Interact with a map")
     map_subparsers = map_parser.add_subparsers(dest="operation", required=True)
@@ -128,6 +132,8 @@ def main():
         update_meta(lambda m: setattr(m, 'count', current_length + 1))
     elif args.command == "len":
         print(length())
+    elif args.command == "oddBackticks":
+        exit(args.original.count('`') % 2 == 0)
     elif args.command == "map":
         if (args.operation == "set"):
             map_set(args.key, args.value)

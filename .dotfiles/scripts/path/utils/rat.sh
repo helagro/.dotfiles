@@ -5,7 +5,7 @@ function my_cat {
 
     while [[ $# -gt 0 ]]; do
         case "$1" in
-        -p | -P |--)
+        -p | -P | -- | --color=always)
             shift 
             ;;
         -l | --file-name)

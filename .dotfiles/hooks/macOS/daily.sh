@@ -23,15 +23,11 @@ function main {
     # add tasks
     echo "--- add_day_tasks"
     do_now -w p/day 2>&1
-    
-    is_home && do_now -w p/return 2>&1
 }
 
 function weekly {
     echo "Running weekly tasks..."
     
-    echo "" > "$VAULT/_/log/done.md"
-
     if map off; then
         a '#b weekly log'
     fi
@@ -45,6 +41,7 @@ function weekly {
 function quadrweekly {
     echo "Running quadrweekly tasks..."
 
+    echo "" > "$VAULT/_/log/done.md"
     printf "" > "$VAULT/_/log/tmp.md"
 }
 

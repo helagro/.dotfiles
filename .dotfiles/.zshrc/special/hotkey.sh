@@ -19,6 +19,9 @@ function p {
         my_play -l "https://youtu.be/Za4gLn2KoHM"
         return
 
+    elif [[ $media == "clue" ]]; then
+        play_clue "$@"
+
     elif [ "$media" = "ambiance" ]; then
         my_play "https://youtu.be/_4kHxtiuML0"
         return
@@ -38,5 +41,33 @@ function p {
     else
         play_unproductive "$media" "$@"
     fi
+}
 
+function play_clue {
+    local current last_current
+
+    trap "ps -ef | grep -- '--screen-name=clue' | awk '{print \$2}' | xargs kill 2>/dev/null; return 1" INT
+
+    while :; do
+        last_current="$current"
+        current=$(map.sh -m act.current)
+
+        if [[ "$current" == "$last_current" ]]; then
+            sleep 10
+            continue
+        fi
+        
+        ps -ef | grep -- '--screen-name=clue' | awk '{print $2}' | xargs kill 2>/dev/null
+        [[ $current == "null" ]] && continue
+
+        if [[ $current =~ "improve|fix" ]]; then
+            p pink --screen-name=clue &
+        elif [[ $current =~ "p1|study" ]]; then
+            p brown --screen-name=clue &
+        # TODO - reflect → Soft rain / light nature ambience
+        
+        elif [[ $current == "sys" ]]; then
+            p 'plane' --screen-name=clue &
+        fi
+    done
 }

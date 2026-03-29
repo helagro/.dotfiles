@@ -7,7 +7,38 @@ export DISABLED_TD_APP_ITEMS="---,ob,null,"
 alias glo="tl.sh"
 alias map="map.sh"
 
+
 # ================================= FUNCTIONS ================================ #
+
+function is_occupied {
+    [[ $(map.sh -m act.current) == "study" || $(map.sh -m act.current) == "p1" ]]
+}
+
+function blind {
+    local input=$(cat)
+    local lines=("${(@f)input}")   # split on newlines
+    local line_nr=1
+
+    while true; do
+        say -v samantha -r 270 -- "${lines[$line_nr]}"
+
+        printf "(n)ext (p)revious (c)urrent (q)uit: " > /dev/tty
+        read -k 1 choice </dev/tty
+        echo >/dev/tty
+
+        case "$choice" in
+            n)
+                line_nr=$((line_nr + 1))
+            ;;
+            p)
+                line_nr=$((line_nr - 1))
+            ;;
+            q)
+                break
+            ;;
+        esac
+    done
+}
 
 function addo {
     pushd $VAULT > /dev/null
@@ -34,7 +65,7 @@ function act {
     local important_flag="-i"
     local do_local=true
 
-    map.sh -s opt.auto_focus true && local focus_flag="-f" || local focus_flag=""
+    map.sh -s opt.auto_focus && local focus_flag="-f" || local focus_flag=""
     local max_duration="50:00"
     in_window.sh 7:00 $(map routine.latest_dinner 20:00) && local is_day=true || local is_day=false
 
@@ -103,15 +134,20 @@ function act {
 
     if [[ $project == "study" || $project == "p1" ]]; then
         activity_name="main"
-    elif [[ $project == "sys" ]]; then
+    fi
+    
+    if [[ $project == "sys" ]]; then
         if [[ "$full_input" != *'-d '* ]]; then
-            echo "Custom duration required"
+            echo "Custom duration required" | to_color.sh cyan
             return 1
         fi
-        do_sys
     elif [[ $activity_name == "eat" ]]; then
         eat
         return
+
+    elif [[ $activity_name == "medd" ]]; then
+        do_meditation
+        important_flag=""
     fi
     
     # handle connectivity -------------------------------------------------------- #
@@ -120,12 +156,17 @@ function act {
         tgs "$project" "$activity_name"
 
         if $do_local && in_window.sh 7:00 $(map routine.full_detach 21:30); then
-            (map -s s.headache false || map -s s.eye_strain false) && local start_param="?alert_frequency=17"
+            if [[ $activity_name == "exor" ]]; then
+                local start_param="?alert_frequency=8"
+            elif (map -s s.headache || map -s s.eye_strain || map -s s.stiff); then
+                local start_param="?alert_frequency=17"
+            fi
+
             (
                 loc "start$start_param" &
                 if $is_day; then 
                     [[ $activity_name == main ]] && loc "dev colored color work" &
-                    [[ $activity_name =~ ^(fix|improve)$ ]] && loc "dev colored color 55ff55" &
+                    [[ $activity_name =~ ^(fix|improve)$ ]] && loc "dev colored color 55ff55" &
                 fi
             ) >/dev/null 2>&1
         fi
@@ -140,18 +181,18 @@ function act {
 
     # run activity --------------------------------------------------------------- #
 
-    map set act.current "$project"
+    map -m set act.current "$project"
 
     sw $important_flag $focus_flag -a "$activity_name" $max_duration
     date +"%Y-%m-%d %H:%M:%S" | to_color.sh blue
 
     # stop activity -------------------------------------------------------------- #
 
-    map set act.current null
+    map -m set act.current null
 
     if $online; then
-        toggl stop
         (
+            toggl stop || later 'toggl stop'
             loc stop &
             $is_day && loc "dev colored color chill" &
         ) >/dev/null 2>&1
@@ -160,13 +201,15 @@ function act {
     # break reminder ------------------------------------------------------------- #
 
     if [[ "$activity_name" == "main" ]]; then
-        if ! map.sh -s s.headache && $was_home; then
-            local break_len
-            vared -p "Break Length (minutes): " -c break_len
-            if [[ -n "$break_len" && "$break_len" != "0" ]]; then
-                short -s timer "$break_len:00"
-            fi
-        fi
+        $was_home && echo $reminder_1 | to_color.sh yellow
+
+        # if $was_home && ! map.sh -s s.headache; then
+        #     local break_len
+        #     vared -p "Break Length (minutes): " -c break_len
+        #     if [[ -n "$break_len" && "$break_len" != "0" ]]; then
+        #         short -s timer "$break_len:00"
+        #     fi
+        # fi
     fi
 }
 
@@ -184,6 +227,11 @@ function dnd {
         -w | --wifi)
             do_wifi=true
             shift 1
+            ;;
+        -f | --focus)
+            short -s focus "$2"
+            sleep 2
+            shift 2
             ;;
         *)
             mode="$1"
@@ -237,6 +285,7 @@ function dnd {
 }
 
 
+# NOTE - Used by obsidian-extension
 function exit_if_empty {
     local input=$(tee /dev/tty)
 
@@ -271,9 +320,9 @@ function gym {
     # Track timed workouts
     if $is_recent_workout; then
         if in_window.sh 18:00 23:50; then
-            a "t gym_eve #u"
+            a "gym_eve 1 #u"
         elif in_window.sh 4:00 12:00; then
-            a "t gym_dawn #u"
+            a "gym_dawn 1 #u"
         fi
     fi
 
@@ -292,13 +341,17 @@ function gym {
     vared -p "Duration minutes (empty for start): " -c duration
     if $is_recent_workout && [[ -z $duration ]]; then
 
+        if map -s s.sleepy && in_window.sh 07:00 14:00; then
+            echo "WARN - Workout when tired, consider afternoon energy" | to_color.sh yellow
+        fi
+
         # Show relevant note
         local types_with_notes=("floorball" "tennis" "bike")
         if [[ -n ${(M)types_with_notes:#$type} ]]; then
             obc "$type"
         elif [[ $type == "run" ]]; then
             obc "running"
-        elif [[ -z ${(M)cardio_types:#$type} && $type != "exorita" ]]; then
+        elif [[ -z ${(M)cardio_types:#$type} && $type != *"exorita"* ]]; then
             local is_probably_gym=true
             obc "gym"
 
@@ -331,7 +384,7 @@ function gym {
             fi
         fi
 
-        is_home && echo "Wash hands"
+        is_home && [[ $type != *"exorita"* ]] && echo "Wash hands"
         echo "Upper pmr"
     fi
 
@@ -355,7 +408,6 @@ function gym {
 function pmr {
     local messages=("Feet" "Calves" "Thighs" "Torso" "Back" "Hands" "Biceps" "Triceps" "Shoulders & Neck" "Face")
 
-    a 'mindwork 2 #u'
     trap 'print -n "\e[?25h"; return ; return' INT
     print -n "\e[?25l"
 
@@ -368,6 +420,8 @@ function pmr {
     done
 
     print -n "\e[?25h"
+    a 'mindwork 2 #u'
+    map.sh inc stat.pmr 1
 }
 
 function tgs {
@@ -530,10 +584,11 @@ function do_now {
     fi
 
     local content=$(cat "$file_name")
-    local tasks=$(echo "$content" | awk '/----/ {found = NR; next} NR > found')
 
     if [[ $? -eq 0 ]]; then
         if $do_add; then
+            local tasks=$(echo "$content" | awk '/----/ {found = NR; next} NR > found' | state_switch.sh)
+
             echo "$tasks" | a
             echo "$tasks"
         fi
@@ -568,8 +623,6 @@ function dale {
 }
 
 function ob {
-    set -- $($MY_SCRIPTS/lang/shell/expand_args.sh $*)
-
     ob.sh $*
 }
 function _ob_completions {
@@ -591,15 +644,6 @@ alias tds='(td s &)'
 alias tdis='td s && tdi'
 alias tdls='td s && tdl'
 
-function tundo {
-    if is_online; then
-        local N=$1
-        tdls -p | tac | tail -n +$((N+1)) | in.sh
-    else
-        vim "$HOME/.dotfiles/tmp/a.txt"
-    fi
-}
-
 function a {
     if [ -z "$*" ]; then  # If no arguments passed
         if [ -t 0 ]; then # If terminal
@@ -612,15 +656,13 @@ function a {
             done
         fi
     else # If arguments passed
-        (
-            (
-                if command -v a.sh >/dev/null 2>&1; then
-                    nohup a.sh "$*" &>/dev/null &
-                else
-                    echo "FAILED TO ADD: '$*' - a.sh not found"
-                fi
-            ) &
-        )
+        ({
+            if command -v a.sh >/dev/null 2>&1; then
+                nohup a.sh "$*" &>/dev/null &
+            else
+                echo "FAILED TO ADD: '$*' - a.sh not found"
+            fi
+        }&)
     fi
 }
 

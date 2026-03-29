@@ -17,6 +17,7 @@ import sys
 import json
 from datetime import datetime, time, timedelta
 from typing import Any
+import argparse
 
 # ------------------------- VARIABLES ------------------------ #
 
@@ -31,42 +32,70 @@ HEADERS = {'Authorization': f'Token {EXIST_TOKEN_READ}'}
 
 
 def main():
-    args_len = len(sys.argv)
-    days = 7
+    parser = argparse.ArgumentParser()
 
-    attr = sys.argv[1]
+    if sys.argv[1] in ["list", "plainlist", "corr"]:
+        subparsers = parser.add_subparsers(dest="command")
 
-    # List command
-    if attr in ['l', 'list']:
-        groups = sys.argv[2] if args_len >= 3 else ''
-        return sorted(get_attributes(groups=groups))
+        list_parser = subparsers.add_parser("list")
+        list_parser.add_argument("groups", nargs="?", default="")
 
-    if attr in ['plainl', 'plainlist']:
-        groups = sys.argv[2] if args_len >= 3 else ''
-        attributes = sorted(get_attributes(groups=groups))
-        print('\n'.join(a for a in attributes))
-        return
+        plainlist_parser = subparsers.add_parser("plainlist")
+        plainlist_parser.add_argument("groups", nargs="?", default="")
 
-    # Correlations command
-    if sys.argv[-1] in ['correlations', 'corr']:
-        return get_correlations(sys.argv[1:-1])
+        corr_parser = subparsers.add_parser("corr")
+        corr_parser.add_argument("attrs", nargs="+")
+        corr_parser.add_argument("-u", "--uncertain", action="store_true")
 
-    if args_len >= 3:
-        if sys.argv[2].isnumeric():
-            days = int(sys.argv[2])
-        elif sys.argv[2] in ['count', 'cnt', 'len']:
-            return get_count(attr)
+        args = parser.parse_args()
 
-    date_max_input = sys.argv[3] if args_len >= 4 else None
-    result = {"timestamp": datetime.now().isoformat(timespec='minutes'), **get_values(attr, days, date_max_input)}
+        # ---- subcommands first ----
+        if args.command == "list":
+            return sorted(get_attributes(groups=args.groups))
 
-    # Filter results
-    if sys.argv[-1] in ['pos', '+', 'nonull']:
-        result = {k: v for k, v in result.items() if v is not None}
-    if sys.argv[-1] in ['pos', '+']:
-        result = {k: v for k, v in result.items() if v > 0}
+        if args.command == "plainlist":
+            attributes = sorted(get_attributes(groups=args.groups))
+            print("\n".join(attributes))
+            return
 
-    return result
+        if args.command == "corr":
+            return get_correlations(args.attrs, uncertain=args.uncertain)
+    else:
+
+        # ---- default (values) args on root ----
+        parser.add_argument(
+            "attr",
+            nargs=1,
+            type=str,
+        )
+        parser.add_argument("days", nargs="?", type=int, default=7)
+
+        parser.add_argument("-u", "--until", type=str, default=None)
+        parser.add_argument("--count", action="store_true")
+        parser.add_argument("--nonull", action="store_true")
+        parser.add_argument("--positive", action="store_true")
+
+        args = parser.parse_args()
+
+        # ---- default: values ----
+        if not args.attr:
+            parser.error("attr is required unless using a subcommand")
+
+        if args.count:
+            return get_count(args.attr)
+
+        result = {
+            "timestamp": datetime.now().isoformat(timespec="minutes"),
+            **get_values(args.attr, args.days, args.until),
+        }
+
+        if args.nonull:
+            result = {k: v for k, v in result.items() if v is not None}
+
+        if args.positive:
+            result = {k: v for k, v in result.items() if v is not None and v > 0}
+
+        return result
 
 
 # ------------------------- ABILITIES ------------------------ #
@@ -130,7 +159,7 @@ def get_count(attr: str) -> int:
     return _fetch_attribute_values(attr, None, None)['total_count']
 
 
-def get_correlations(attrs: list[Any]) -> list:
+def get_correlations(attrs: list[Any], uncertain: bool = False) -> list:
     keys = [
         'attribute2',
         'value',
@@ -149,7 +178,7 @@ def get_correlations(attrs: list[Any]) -> list:
         keys.insert(0, 'attribute')
 
     for attr in attrs:
-        results.extend(_fetch_attribute_correlations(attr))
+        results.extend(_fetch_attribute_correlations(attr, uncertain))
 
     for attr in attrs:
         results = [v for v in results if v['attribute2'] != attr]
@@ -161,7 +190,7 @@ def get_correlations(attrs: list[Any]) -> list:
 # ------------------------- FETCH FUNCTIONS ------------------------ #
 
 
-def _fetch_attribute_correlations(attr: str | None) -> list:
+def _fetch_attribute_correlations(attr: str | None, uncertain: bool) -> list:
     params = {
         'attribute': attr,
         'confident': True,
@@ -180,7 +209,10 @@ def _fetch_attribute_correlations(attr: str | None) -> list:
     # Filters
     results = [result for result in results if result['attribute2'] != attr]
     results = [result for result in results if result['attribute2'] != None]
-    results = [result for result in results if result['stars'] == 5]
+
+    if not uncertain:
+        results = [result for result in results if result['stars'] == 5]
+
     return results
 
 

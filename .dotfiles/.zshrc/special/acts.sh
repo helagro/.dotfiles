@@ -53,19 +53,19 @@ function run {
                 acts.sh "$act_filter"
             else
                 local list=$(acts.sh "$act_filter")
-                selection=$(echo "$list" | fzf)
+                selection=$(echo "$list" | output_result)
             fi
         else
             (map.sh -s 'opt.no_calc' || map.sh -s 's.off') && carg="" || carg="-c"
 
             local tasks=$(tdl "$filter" $carg -p)
-            local filtered_ids=$(map.sh -m acts | jq -r 'join("|")')
+            local filtered_ids=$(map.sh -m acts | jq -r 'join("|")' 2>/dev/null)
 
             if [[ -n "$filtered_ids" && -n "$tasks" ]]; then
                 tasks=$(echo "$tasks" | grep -Ev "^($filtered_ids)\ ")
             fi
 
-            selection=$(echo "$tasks" | colorize | fzf )
+            selection=$(echo "$tasks" | colorize | output_result )
         fi
 
         echo "$selection" | colorize
@@ -99,8 +99,8 @@ function menu {
     [[ $action == *"w"* ]] && await_completion=true
     [[ $action == *"W"* ]] && await_completion=false
 
-    alt=false
-    [[ $action == *"A"* ]] && alt=true
+    [[ $action == *"A"* ]] && alt=true || alt=false
+    [[ $action == *"B"* ]] && do_blind=true || do_blind=false
 
     if [[ "$action" == *"q"* ]]; then
         return 1
@@ -174,7 +174,7 @@ function menu {
     fi
 
 
-    if [[ $action =~ [umdec] ]]; then
+    if [[ $action =~ [umdDec] ]]; then
         (
             echo "$selection" | while read -r select_item; do
                 local id=$(td.sh x id "$select_item")
@@ -195,12 +195,16 @@ function menu {
                     print -n "$prev_clipboard$(print -n $select_item_content)" | pbcopy
                 fi
                 
-                if [[ "$action" == *"d"* ]]; then
+                if [[ "$action" == *"d"* || "$action" == *"D"* ]]; then
                     close "$id" &
-                    local project=$(echo "$content" | sed -n 's/.*#\([A-Za-z0-9/]*\).*/\1/p')
-                    if [[ -n $project && $project != 'u' ]]; then
-                        local item_text=$(echo "$content" | sed 's/#//' | td.sh s)
-                        a "#done ^$project ; $item_text"
+
+                    if [[ $action == *"d"* ]]; then
+                        # Add to done
+                        local project=$(echo "$content" | sed -n 's/.*#\([A-Za-z0-9/]*\).*/\1/p')
+                        if [[ -n $project && ! $project =~ 'u|Inbox|then|done' ]]; then
+                            local item_text=$(echo "$content" | sed 's/#//' | td.sh s)
+                            a "#done ^$project ; $item_text"
+                        fi
                     fi
                     
                 elif [[ "$action" == *"u"* ]]; then
@@ -239,8 +243,19 @@ function menu {
         return 2
     elif ! $found_match; then
         echo "functions - (a)dd, (c)opy, (d)elete, (e)xecute, (F|f)ilter, (i)nbox, (m)odify, (n)ext, (r)un, (S|s)ync, (u)pdate, (q)uit"
-        echo "modifiers - (A)lt, (C)lear (M)enu, (W|w)ait"
+        echo "modifiers - (A)lt, (B)lind, (C)lear (M)enu, (W|w)ait"
         menu # NOTE - recursion
+    fi
+}
+
+# =================================== UTILS ================================== #
+
+function output_result {
+    if $do_blind; then
+        blind 
+        echo >/dev/tty
+    else
+        fzf
     fi
 }
 
@@ -254,7 +269,7 @@ function colorize {
     }'
 }
 
-# -------------------------- ACTIONS ------------------------- #
+# ================================== ACTIONS ================================= #
 
 
 function do_update {
@@ -286,5 +301,6 @@ function close {
     if [[ -n "$1" ]]; then
         map.sh -m add acts "$1" 2>/dev/null
         tdc "$1" >/dev/null &
+
     fi
 }

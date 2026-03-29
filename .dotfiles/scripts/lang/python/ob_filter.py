@@ -62,9 +62,10 @@ def main(input, args):
             print_line(line, args.raw)
 
     tags_str = json.dumps(list(found_tags))
+
     if args.list:
         print(tags_str)
-    else:
+    elif found_tags and not args.raw:
         print(f'<!-- {tags_str} -->')
 
 
