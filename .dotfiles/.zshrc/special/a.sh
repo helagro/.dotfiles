@@ -75,48 +75,6 @@ function use_extra {
     fi
 }
 
-function color {
-    if [[ $1 == '1' ]] || [[ -z $1 && $_color == 0 ]]; then
-        _color=1
-        print -n "\033]111\007" >&3
-        [[ -z $2 ]] && red_mode 0 >&3
-
-        ZSH_HIGHLIGHT_REGEXP+=(
-            '#[a-z0-9]+[a-zA-Z0-9]*' fg=green,bold
-            ';' fg=yellow,bold
-            '&&' fg=yellow,bold
-
-            '@\w+' fg=blue
-            '(?:(?<=^)|(?<=\s))(daily|weekly|monthly|yearly|tomorrow|today|yesterday|every week|every day|tod|tom)(?=$|\s)' fg=blue
-
-            '(\s|^)p1(\s|$)' fg=red,bold
-            '(\s|^)p2(\s|$)' fg=red,bold
-            '\*\*.+\*\*' fg=red,bold
-            # '%%.+%%' fg=black
-
-            '(?<=\s|^)p3(?=\s|$)' fg=magenta,underline
-            '(?<!\*)\*[^*]+\*(?!\*)' fg=magenta,underline
-
-            '`.+`' fg=cyan
-            '^`(\s|\w|\+|,|\.)+$' fg=cyan
-            '\$\([^\$]+\)' fg=cyan
-            '(?<=^|\s)>(-?\d|\w)+(?=$|\s)' fg=cyan
-            '^(R|B|U)[[:space:]]' fg=cyan,bold
-            '^(c|d|h|q|s|S|U)$' fg=cyan,bold
-            
-            '(?<=^ .).+' 'fg=white,bg=white'
-            '(?<=^B  .).+' 'fg=white,bg=white'
-        )
-    else
-        _color=0
-        ZSH_HIGHLIGHT_REGEXP=()
-        print -n "\033]11;rgb:00/00/00\007" >&3
-        
-        [[ -z $2 ]] && red_mode 1 >&3
-        print -n "\033]10;rgb:ff/df/df\007" >&3
-    fi
-}
-
 # =========================== SETUP ========================== #
 
 exec 3>/dev/tty
@@ -166,7 +124,7 @@ done
 # call setup functions ------------------------------------------------------- #
 
 use_extra 0
-color 1 no_shortcuts
+command -v color &>/dev/null && color 1 no_shortcuts
 
 # ========================= GENERAL FUNCTIONS ======================== #
 
@@ -189,7 +147,7 @@ function a_ui {
 
     while :; do
         [[ $_hist == 0 ]] && my_clear
-        should_extra -c && use_extra 1 || use_extra 0
+        should_extra -c 2>/dev/null && use_extra 1 || use_extra 0
 
         take_input
 
@@ -208,19 +166,21 @@ function a_ui {
             continue
         fi
 
-        log_line "$line"
+        ( command -v log_line &>/dev/null && log_line "$line" & )
 
         # Clear with reset
         if [[ $line == 'c' ]]; then
+            # NOTE - must be first
+            map -s done.boot || (nohup a.sh "$(day -1) ash $next_idx" >/dev/null &)
+
             py clear
             my_clear
             fc -p
-            
-            py map set -k offline_start -v "0" 
-            map -s done.boot || (nohup a.sh "$(day -1) ash $next_idx" >/dev/null &)
-            next_idx=0
-            reset_day
 
+            py map set -k offline_start -v "0" 
+            next_idx=0
+            
+            command -v reset_day &>/dev/null && reset_day
             start_time="$(date +"%Y-%m-%d %H:%M:%S")"
             divide "$start_time"
             continue
@@ -246,7 +206,6 @@ function a_ui {
                 vim "$HOME/.dotfiles/tmp/a.txt"
             fi
 
-
             continue
         # Quit
         elif [[ $line == 'q' ]]; then
@@ -256,10 +215,6 @@ function a_ui {
         elif [[ $line == 'R '* ]]; then
             command=$(echo "$line" | sed -E 's/R[[:space:]]+//g')
             eval "$command" > >(out_pipe) 2> >(out_pipe -e)
-            continue
-        # Silent for one command
-        elif [[ $line == 's' ]]; then
-            _silent=1
             continue
         # Toggle silent mode
         elif [[ $line == 'S' ]]; then
@@ -284,23 +239,20 @@ function a_ui {
         if [[ $expanded_line == [[:space:]]# ]]; then
             _sign="×"
         else
-            next_idx=$(($(py len) + 1))
-            (
-                {
-                    py add -- "$expanded_line" &
-                    nohup a.sh "$expanded_line" >/dev/null &
-                    wait
-                    print_top_right "$pgo"
-                } &
-            )
-            
+            # next_idx=$(($(py len) + 1))
+            next_idx=$((next_idx + 1))
+
+            ({
+                py add -- "$expanded_line" &
+                nohup a.sh "$expanded_line" >/dev/null &
+                wait
+                print_top_right "$pgo"
+            }&)
         fi
             
         if [[ $_silent == 0 ]]; then
             [[ $speak == 1 && $_silent != 0 ]] && my_speak "$expanded_line"
             handle_if_special "$line"
-        elif [[ $_silent == 1 ]]; then
-            _silent=0
         fi
     done
 }
@@ -311,15 +263,14 @@ function a_ui {
 function expand_item {
     local escaped=$(echo "$1" | sed -E \
         -e "s/'/\\'/g" \
-        -e 's/`/\\`/g' \
         -e 's/"/\\"/g')
 
-    if [[ "$escaped" == '\`'* ]] && $(py oddBackticks "$escaped"); then
-        escaped="$escaped\\\`"
+    if [[ "$escaped" == '`'* ]] && $(py oddBackticks "$escaped"); then
+        escaped="$escaped\`"
     fi
 
-    local once_expanded_line=$(eval echo \"$escaped\" 2> >(out_pipe -e))
-    local expanded_line_loc=$(eval echo \"$once_expanded_line\" 2> >(out_pipe -e) | tr -d '\\')
+    local expanded_line_loc=$(eval echo \"$escaped\" 2> >(out_pipe -e) | tr -d '\\')
+    # local expanded_line_loc=$(eval echo \"$once_expanded_line\" 2> >(out_pipe -e) | tr -d '\\')
 
     if [[ $expanded_line_loc =~ '(?<=^|\s)>((-?\d|\w|\.)+)(?=$|\s)' ]]; then
         pgo=$(py get -- "$match[1]")
@@ -338,7 +289,12 @@ function my_speak {
 }
 
 function handle_if_special {
-    local input=$(echo "$1" | sed 's/#/TO /g' | sed 's/TO b t/t/g' | tr -d '\n')
+    # NOTE - For performance
+    if [[ "$1" != *[\$#0-9]* ]]; then
+        return
+    fi
+
+    local input=$(echo "$1" | sed 's/#/TO /g' | sed 's/$mb/TO b/g' | tr -d '\n')
 
     local dest=$(echo "$input" | grep -o 'TO [A-Za-z0-9_]\+' | tr -d '\n')
     if [[ -n $dest ]]; then
@@ -349,12 +305,16 @@ function handle_if_special {
     for p in $parts; do
         p="${${p##[[:space:]]#}%%[[:space:]]#}"
 
-        if printf '%s\n' "$p" | grep -Eq '^[[:alnum:]_]+ -?[0-9]+$'; then
-            local track_parts=(${(z)p})
-            map inc s.${track_parts[1]} ${track_parts[2]}
-        fi
+        ({
+            if printf '%s\n' "$p" | grep -Eq '^[[:alnum:]_]+ -?[0-9]+$'; then
+                local track_parts=(${(z)p})
+                map inc s.${track_parts[1]} ${track_parts[2]}
+            fi
+        }&)
 
-        _handle_if_special "${p//[1-9][0-9.]#/*}"
+        parts_input="${p//[1-9][0-9.]#/*}"
+        _handle_if_special "$parts_input"
+        ( _handle_if_special "$parts_input -A" & )
     done
 }
 
@@ -367,18 +327,16 @@ function _handle_if_special {
             local reminder_text="${(j:|:)reminder_parts[2, -1]## }"
 
             if [[ $reminder_text == "*"* ]]; then
-                should_extra -C || continue
+                should_extra -C 2>/dev/null || continue
 
                 rem=${reminder_text//'*'/}
                 out "$rem"
             elif [[ $reminder_text == "\`"* ]]; then
-                should_extra -c || continue
+                should_extra -c 2>/dev/null || continue
 
                 cmd=${reminder_text//\`/}
                 ttab -d '' -w $cmd
             else
-                map -s opt.no_ash_auto_add && continue
-
                 expanded=""
                 expand_item "$reminder_text" expanded
                 ( nohup a.sh "$expanded" >/dev/null & )
@@ -434,7 +392,7 @@ function print_top_right {
 
     # expansion info ------------------------------------------------------------- #
 
-    if should_extra -C; then
+    if should_extra -C 2>/dev/null; then
         if [[ -n $1 ]]; then
             print -n "\e7\e[${row};${wipe_col}H\033[35m${wiper}\033[0m\e8" >&3
             local truncated=" ${msg[1,$max_pyg_preview]}"

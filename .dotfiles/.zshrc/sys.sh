@@ -1,9 +1,5 @@
 #!/bin/zsh
 
-# NOTE - Items must end with a comma, even last one
-# NOTE - Used by server-app
-export DISABLED_TD_APP_ITEMS="---,ob,null,"
-
 alias glo="tl.sh"
 alias map="map.sh"
 
@@ -296,6 +292,7 @@ function exit_if_empty {
 
 function gym {
     local workout_time=$(date +"%Y-%m-%d %H:%M")
+    local is_probably_gym=true
 
     # Track old workouts
     local is_recent_workout=true
@@ -316,31 +313,41 @@ function gym {
         vared -p "Workout type: " -c type
         [[ -z $type ]] && return 1
     fi
+    [[ $type == *'exorita'* ]] && local is_exorita=true || local is_exorita=false
 
-    # Track timed workouts
+    # track specifics ------------------------------------------------------------ #
+
     if $is_recent_workout; then
+        
+        # Track workout for times
         if in_window.sh 18:00 23:50; then
             a "gym_eve 1 #u"
         elif in_window.sh 4:00 12:00; then
             a "gym_dawn 1 #u"
         fi
-    fi
 
-    # Track cardio
-    if [[ -n ${(M)cardio_types:#$type} ]]; then
-        if $is_recent_workout; then
-            a "t cardio #u"
-        else
-            a "$workout_time t cardio #u"
+        # Track cardio
+        if [[ -n ${(M)cardio_types:#$type} ]]; then
+            if $is_recent_workout; then
+                a "t cardio #u"
+            else
+                a "$workout_time t cardio #u"
+            fi
+
+            echo "[tracked cardio]" | to_color.sh blue
         fi
-
-        echo "tracked cardio"
     fi
+
+    # take duration input -------------------------------------------------------- #
 
     local duration
     vared -p "Duration minutes (empty for start): " -c duration
+
+    # run current workout -------------------------------------------------------- #
+
     if $is_recent_workout && [[ -z $duration ]]; then
 
+        # Show warnings
         if map -s s.sleepy && in_window.sh 07:00 14:00; then
             echo "WARN - Workout when tired, consider afternoon energy" | to_color.sh yellow
         fi
@@ -351,13 +358,14 @@ function gym {
             obc "$type"
         elif [[ $type == "run" ]]; then
             obc "running"
-        elif [[ -z ${(M)cardio_types:#$type} && $type != *"exorita"* ]]; then
-            local is_probably_gym=true
-            obc "gym"
+        elif $is_exorita || [[ -z ${(M)cardio_types:#$type} ]]; then
+            is_probably_gym=true
+            $is_exorita || obc "gym"
+        fi
 
-            if [[ $type == *"leg"* ]]; then
-                a 't leg_day #u'
-            fi
+        # Setup env
+        if $is_exorita; then
+            (loc dev bath lvl 130 & &>/dev/null) 
         fi
 
         # Track and time
@@ -370,7 +378,8 @@ function gym {
         vared -p "Duration minutes equation: " -c duration
         duration=$(echo "$duration" | bc)
 
-        if [[ -n $is_probably_gym ]]; then
+        # Track time results    
+        if $is_probably_gym; then
             local decomp
             vared -p "Decompress minutes: " -c decomp
             if [[ -n $decomp && $decomp -gt 0 ]]; then
@@ -384,9 +393,21 @@ function gym {
             fi
         fi
 
-        is_home && [[ $type != *"exorita"* ]] && echo "Wash hands"
+        # Restore env
+        if $is_exorita; then
+            ({
+                loc dev bath lvl 30
+                sleep 0.5
+                loc t bath
+            }&) &>/dev/null
+        fi
+
+        # Print reminders
+        is_home && ! $is_exorita && echo "Wash hands"
         echo "Upper pmr"
     fi
+
+    # handle duration ------------------------------------------------------------ #
 
     if [[ -z $duration || $duration -lt 5 ]]; then
         echo "Invalid duration"
@@ -395,14 +416,21 @@ function gym {
         map.sh set done.gym true
     fi
 
+    # final tracking -------------------------------------------------------------- #
+
     if $is_recent_workout; then
         a "#xord $type ; $duration"
         a "workouts_min $duration ; workouts 1 #u"
+
+        # Track leg day
+        if [[ $type == *"leg"* && $duration -ge 20 ]]; then
+            a 't leg_day #u'
+            map.sh set s.leg_day true
+        fi
     else
         a "$workout_time #u #xord $type ; $duration"
         a "$workout_time workouts_min $duration ; workouts 1 #u"
     fi
-
 }
 
 function pmr {
@@ -455,19 +483,13 @@ function group { python3 $MY_SCRIPTS/lang/python/group.py "$@" | rat.sh -pPl 'js
 function csv { conda run -n main python3 "$MY_SCRIPTS/lang/python/jsons_to_csv.py" $@ | rat.sh -pPl 'tsv'; }
 
 function is {
-    if [[ -z $* ]]; then
-        echo "$is_output"
-        return
-    fi
-
-    is_output=$(is.sh "$@")
-    echo "$is_output" | rat.sh -pPl "json"
+    is.sh "$@" | rat.sh -pPl "json"
 }
 
 function is_m {
-    local value=$(is main 1)
+    local value=$(is -v main 1)
 
-    map.sh set s.main $(printf '%s' $value | jq -r 'to_entries[1].value')
+    map.sh set s.main $(printf '%s' $value)
     echo $value | hm
 }
 
@@ -542,7 +564,7 @@ function to_days {
 }
 
 function isl {
-    is plainl $2 | grep $1 | while read attribute; do
+    is plainlist $2 | grep $1 | while read attribute; do
         printf "$attribute "
     done
 }

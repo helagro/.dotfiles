@@ -150,6 +150,8 @@ function talk {
 
     if [[ "$*" == *"-p"* ]]; then
         mpv --msg-level=all=error,statusline=status "$file_name"
+    elif [[ "$*" == *"-P"* ]]; then
+        mpv --msg-level=all=error,statusline=status --pause "$file_name"
     else
         open $file_name
     fi

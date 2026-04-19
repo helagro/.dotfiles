@@ -13,7 +13,7 @@ def calculate_statistic(json_str, operation):
     numeric_values = [v for v in values if isinstance(v, (int, float))]
 
     if not numeric_values:
-        return 0
+        return "null"
 
     if operation == "max":
         return max(numeric_values)

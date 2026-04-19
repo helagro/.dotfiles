@@ -53,7 +53,7 @@ function lect {
 
     # Misc
     ( a.sh 'plan return #b' & )
-    open 'obsidian://open?file=p%2Flect'
+    [[ $* != *'-s'* ]] && open 'obsidian://open?file=p%2Flect'
     map.sh set done.lect 1
 }
 
@@ -83,7 +83,7 @@ function on_tab {
 }
 
 function e {
-    e_checks || return 1
+    e_checks "$1" || return 1
 
     if [ -d "$DEV/$1" ]; then
         code "$DEV/$1"
@@ -93,14 +93,6 @@ function e {
         code "$1"
     elif [ -e "$*" ]; then
         nvim "$*"
-        return 0
-    elif [[ -e "$VAULT/$1.md" ]]; then
-        if $is_work_tab; then
-            echo "Err: work tab"
-            return 1
-        fi        
-
-        nvim "$VAULT/$1.md"
         return 0
     else
         gclone $1

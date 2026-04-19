@@ -8,8 +8,12 @@ from typing import cast
 
 
 def load_state():
-    with open(mapFile, "r") as f:
-        return json.load(f)
+    try:
+        with open(mapFile, "r") as f:
+            return json.load(f)
+    except Exception:
+        print(f"Could not load map file", file=sys.stderr)
+        return {}
 
 
 def save_state(state):

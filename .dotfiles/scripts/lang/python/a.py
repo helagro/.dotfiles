@@ -31,11 +31,11 @@ class GetCommand:
     @staticmethod
     def from_code(code: str):
         include_project = 'd' in code
-        include_labels = 'L' not in code
+        include_labels = 'l' not in code
         get_time = 't' in code
         get_date = 'T' in code
         get_dest = 'D' in code
-        get_labels = 'l' in code
+        get_labels = 'L' in code
         first_split = 's' in code
         last_splits = 'S' in code
         is_help = 'h' in code
@@ -60,11 +60,11 @@ class GetCommand:
 
 codes = {
     "d": "include project/destination",
-    "L": "exclude labels",
+    "l": "exclude labels",
     "t": "get time",
     "T": "get date",
     "D": "get destinations",
-    "l": "get labels",
+    "L": "get labels",
     "s": "first split",
     "S": "last splits",
     "h": "help"

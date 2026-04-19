@@ -22,7 +22,7 @@ echo "Running..."
 {
     # state ---------------------------------------------------------------------- #
 
-    $MY_SCRIPTS/lang/shell/state/map.sh set done.boot 1 2>&1 
+    $MY_SCRIPTS/path/state/map.sh set done.boot 1 2>&1 
 
     # ------------------------- ARCHIVER ------------------------- #
 

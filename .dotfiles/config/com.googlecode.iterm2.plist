@@ -4692,6 +4692,8 @@
 			</dict>
 			<key>Send Code When Idle</key>
 			<false/>
+			<key>Send Session Ended Alert</key>
+			<false/>
 			<key>Shortcut</key>
 			<string></string>
 			<key>Show Mark Indicators</key>
@@ -4752,7 +4754,7 @@
 			<key>Title Components</key>
 			<integer>512</integer>
 			<key>Transparency</key>
-			<real>0.0</real>
+			<real>0.047371453900709223</real>
 			<key>Triggers</key>
 			<array/>
 			<key>Unlimited Scrollback</key>
@@ -6073,7 +6075,7 @@
 			<key>Title Components</key>
 			<integer>544</integer>
 			<key>Transparency</key>
-			<real>0.0</real>
+			<real>0.047483377659574472</real>
 			<key>Unlimited Scrollback</key>
 			<false/>
 			<key>Use Bold Font</key>

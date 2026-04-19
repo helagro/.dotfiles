@@ -26,6 +26,9 @@ def process_dict(data):
 
 def hm(mins):
     mins = round(mins)
+    if mins < 0:
+        return "NaN"
+
     hours = mins // 60
     minutes = mins % 60
     return f"{hours:02}:{minutes:02}"

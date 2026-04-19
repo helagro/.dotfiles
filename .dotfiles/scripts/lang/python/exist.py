@@ -28,13 +28,15 @@ if EXIST_TOKEN_READ is None:
 
 HEADERS = {'Authorization': f'Token {EXIST_TOKEN_READ}'}
 
+count_aliases = ['len', 'length', 'amt']
+
 # ------------------------- PUBLIC FUNCTIONS ------------------------ #
 
 
 def main():
     parser = argparse.ArgumentParser()
 
-    if sys.argv[1] in ["list", "plainlist", "corr"]:
+    if sys.argv[1] in ["list", "plainlist", "corr", *count_aliases, "count"]:
         subparsers = parser.add_subparsers(dest="command")
 
         list_parser = subparsers.add_parser("list")
@@ -47,22 +49,27 @@ def main():
         corr_parser.add_argument("attrs", nargs="+")
         corr_parser.add_argument("-u", "--uncertain", action="store_true")
 
+        count_parser = subparsers.add_parser("count", aliases=count_aliases)
+        count_parser.add_argument("attr", nargs=1, type=str)
+        count_parser.set_defaults(func=lambda args: get_count(args.attr[0]))
+
         args = parser.parse_args()
 
-        # ---- subcommands first ----
         if args.command == "list":
             return sorted(get_attributes(groups=args.groups))
 
-        if args.command == "plainlist":
+        elif args.command == "plainlist":
             attributes = sorted(get_attributes(groups=args.groups))
             print("\n".join(attributes))
-            return
 
-        if args.command == "corr":
+        elif args.command == "corr":
             return get_correlations(args.attrs, uncertain=args.uncertain)
+
+        elif hasattr(args, "func"):
+            return args.func(args)
+
     else:
 
-        # ---- default (values) args on root ----
         parser.add_argument(
             "attr",
             nargs=1,
@@ -71,21 +78,16 @@ def main():
         parser.add_argument("days", nargs="?", type=int, default=7)
 
         parser.add_argument("-u", "--until", type=str, default=None)
-        parser.add_argument("--count", action="store_true")
         parser.add_argument("--nonull", action="store_true")
         parser.add_argument("--positive", action="store_true")
 
         args = parser.parse_args()
 
-        # ---- default: values ----
         if not args.attr:
             parser.error("attr is required unless using a subcommand")
 
-        if args.count:
-            return get_count(args.attr)
-
         result = {
-            "timestamp": datetime.now().isoformat(timespec="minutes"),
+            # "timestamp": datetime.now().isoformat(timespec="minutes"),
             **get_values(args.attr, args.days, args.until),
         }
 

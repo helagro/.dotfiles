@@ -12,11 +12,6 @@ function eat {
         [[ -n "$1" ]] && ( loc -S "$@" & )
     fi
 
-    # If lunch
-    if $is_lunch; then
-        echo "Do florinef?"
-    fi
-
     # If dinner
     if $is_dinner; then
         ( short -s night_shift 1 & )
@@ -90,7 +85,6 @@ function wake {
             red_mode 0
             dnd 0
         }&)
-
 
         # Handle cortisone
         local cort_taken
@@ -208,7 +202,7 @@ function dawn {
     obc dawn
 
     # Display secondary stuff
-    glo habits streaks
+    glo habits streaks | bat -p --color=always -l json
 
     local forecast=$(weather -l 1)
     if echo $forecast | grep -q "rain"; then
@@ -231,19 +225,21 @@ function dawn {
         obc 'head period'
     fi
 
-    echo $cal | $MY_SCRIPTS/secret/agenda_switch.sh
-    ob p | $MY_SCRIPTS/secret/agenda_switch.sh
-    ob b | $MY_SCRIPTS/secret/agenda_switch.sh
+    echo $cal | "$MY_SCRIPTS/secret/agenda_switch.sh"
+    ob p | "$MY_SCRIPTS/secret/agenda_switch.sh"
+    ob b | "$MY_SCRIPTS/secret/agenda_switch.sh"
 
-        
-    ( is_home && do_now -w p/return & ) 
+    # Other
+    (
+        is_home && do_now -w p/return & 
+    ) 
 }
 
 function eve {
     local screen decomp tv
     set -- $($MY_SCRIPTS/lang/shell/expand_args.sh $*)
 
-    if $MY_SCRIPTS/lang/shell/is_help.sh $*; then
+    if "$MY_SCRIPTS/lang/shell/is_help.sh" "$*"; then
         print 'Usage: eve [options...]'
         printf " %-3s %-20s %s\n" "-F," "" "Skip flight mode"
         printf " %-3s %-20s %s\n" "-E," "" "Skip environment setup"
@@ -290,10 +286,9 @@ function eve {
         a "t full_moon #u"
     fi
 
-    $MY_SCRIPTS/lang/shell/battery.sh 40
+    "$MY_SCRIPTS/lang/shell/battery.sh" 40
 
-    local xLen=$(ob x | dale)
-    if [[ $xLen -eq 0 ]]; then
+    if ! map.sh -s done.excuse; then
         echo "Do excuse practice"
     fi
 
@@ -349,7 +344,7 @@ function eve {
     clear
     ob eve
 
-    $HOME/.dotfiles/scripts/lang/shell/battery.sh 50
+    "$HOME/.dotfiles/scripts/lang/shell/battery.sh" 50
     ob "p/auto/state eve act.md" | state_switch.sh
 
     if [[ $(date +"%m") -gt 5 ]] && [[ $(date +"%m") -le 8 ]]; then # Is Jun, Jul or Aug
@@ -359,6 +354,10 @@ function eve {
    local load_res=$(is -v "load" 1)
    if [[ "$load_res" -gt 6 ]]; then
        a "#b :p load - %% $load_res %% "
+   fi
+
+   if [[ $(date +%u) -eq 6 ]] && map.sh -s s.off; then
+       echo "LOG #week"
    fi
 
     # flight mode ------------------------------------------------ #
@@ -382,8 +381,11 @@ function bedtime {
     ( bedtime_state & ) 2>/dev/null
 
     short -s focus sleep
-    # short -s bedtime_brightness
-    loc p 'night?m=keep' 2>/dev/null
+    (
+        [[ -n $1 ]] && loc "$@" &
+        loc led "green?a=off" &
+        loc led "red?a=off" &
+    ) 2>/dev/null
 
     local decomp=""
     vared -p "Decomp: " -c decomp
@@ -406,9 +408,7 @@ function bedtime {
         echo "earbuds? - spring"
     fi
 
-    loc led "green?a=off" 2>/dev/null
-    loc led "red?a=off" 2>/dev/null
-    ob "p/auto/state bedtime" | state_switch.sh
+    ob "state bedtime" | state_switch.sh
 
     ob bedtime
 
@@ -427,15 +427,11 @@ function bedtime {
         echo "sleep somewhere different - sleep delay"
     fi
 
-    local state_input
-    vared -p "State: " -c state_input
-    [[ -n "$state_input" ]] && a "$state_input #state"
-
     [[ $(ob plan | lines) -lt 4 ]] && plan
 
     # shut down ------------------------------------------------------------------ #
 
-    if is_home && ask "Set flight mode on phone?"; then
+    if is_home --not-offline && ask "Set flight mode on phone?"; then
         short -s phondo "flight mode"
     fi
 
@@ -467,6 +463,7 @@ function bed_minus_dinner { time_diff.sh -mp $(date +%H:%M) $(tl.sh 'routines/be
 function eve_track {
     a "p_ett $(tdis | lines) #u"
     (short track_away &)
+    ("$MY_SCRIPTS/lang/shell/track_pollen.sh" &) >/dev/null
 
     # Track sleep delay
     local sleep_delay=$(fall_asleep_delay)

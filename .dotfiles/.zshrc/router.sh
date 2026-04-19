@@ -61,7 +61,7 @@ fi
 
 if [ "$(uname)" = "Darwin" ]; then
 
-    if [[ -f "$(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ]]; then
+    if [[ -f "$(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ]] && ! $is_work_tab ; then
         source "$(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
     fi
 
@@ -94,9 +94,9 @@ fi
 
 # ========================== PLUGINS ========================= #
 
-if command -v brew >/dev/null 2>&1 && [ -f $(brew --prefix)/opt/zsh-vi-mode/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh ]; then
-    source $(brew --prefix)/opt/zsh-vi-mode/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh
-fi
+# if command -v brew >/dev/null 2>&1 && [ -f $(brew --prefix)/opt/zsh-vi-mode/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh ]; then
+#     source $(brew --prefix)/opt/zsh-vi-mode/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh
+# fi
 
 # =========================== LAST =========================== #
 

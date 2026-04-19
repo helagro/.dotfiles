@@ -24,13 +24,14 @@ SAVEHIST=20000
 # --------------------------- MAIN --------------------------- #
 
 function is_online {
-    is_home || ping -c1 -t1 8.8.8.8 &>/dev/null
+    is_home --not-offline || ping -c1 -t1 8.8.8.8 &>/dev/null
 }
 
 function loc {
     local do_new_line=true
     local do_silent=false
     local timeout=2
+    local port=8004
 
     while [[ $# -gt 0 ]]; do
         case "$1" in
@@ -50,6 +51,10 @@ function loc {
             timeout="$2"
             shift 2
             ;;
+        -c | --cpp)
+            port=8008
+            shift 1
+            ;;
         *)
             break
             ;;
@@ -59,7 +64,7 @@ function loc {
     local params="${(j:/:)@}"
     local result
 
-    if ! result=$(curl -sS --connect-timeout "$timeout" "$LOCAL_SERVER_IP:8004/$params"); then
+    if ! result=$(curl -sS --connect-timeout "$timeout" "$LOCAL_SERVER_IP:$port/$params"); then
         result='{"error": "Could not connect to local server"}'
         return 1
     fi
@@ -89,16 +94,31 @@ function day {
 }
 
 function is_home {
-    loc -t 0.3 health 2>/dev/null
+    if [[ $* != *'--not-offline' ]]; then
+        # By charger
+        ioreg -rn AppleSmartBattery | grep 'C4H10860C7VLV74AS' &>/dev/null
+        if [ $? -eq 0 ]; then
+            return 0
+        fi
+    fi
+
+    # By local server
+    loc -t 0.25 health 2>/dev/null
     if [ $? -eq 0 ]; then
         return 0
+    fi
+
+    # By local server cpp
+    loc -c -t 0.05 health 2>/dev/null
+    if [ $? -eq 0 ]; then
+        return 0
+    fi
+
+    if [[ $* == *'--guess-yes'* ]]; then
+        ! is_online
+        return $?
     else
-        if [[ $1 == '--guess-yes' ]]; then
-            ! is_online
-            return $?
-        else
-            return 1
-        fi
+        return 1
     fi
 }
 

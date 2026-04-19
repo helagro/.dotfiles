@@ -1,5 +1,7 @@
 #!/bin/zsh
 
+# NOTE!! - Doesn't work for states not currently in map
+
 state_json=$(map.sh s)
 state_keys=($(echo $state_json | jq -r 'keys[]'))
 
@@ -11,13 +13,13 @@ function match_or {
     local line="$1"
 
     for state in "${state_keys[@]}"; do
-        state_val=$(echo $state_json | jq -r ".$state")
+        local state_val=$(echo $state_json | jq -r ".$state")
 
-        if [[ "$line" =~ ".*-IF.* $state.*" ]] && [[ $state_val == true || $state_val -ge 1 ]]; then
-            echo "$line\n"
+        if [[ "$line" =~ ".*-IF.* !$state.*" ]] && ! is_truthy "$state_val"; then
+            echo "${line/\*-IF*/}\n"
             break
-        elif [[ "$line" =~ ".*-IF.*!$state.*" ]] && [[ $state_val == false || $state_val -le 0 ]]; then
-            echo "$line\n"
+        elif [[ "$line" =~ ".*-IF.* $state.*" ]] && is_truthy "$state_val"; then
+            echo "${line/\*-IF*/}\n"
             break
         fi
     done
@@ -27,20 +29,22 @@ function match_and {
     local line="$1"
 
     for state in "${state_keys[@]}"; do
-        state_val=$(echo "$state_json" | jq -r ".$state")
+        local state_val=$(echo "$state_json" | jq -r ".$state")
 
-        if [[ "$line" =~ ".*-IF.* $state.*" ]]; then
-            if [[ ! ( $state_val == true || $state_val -ge 1 ) ]]; then
-                return
-            fi
-        elif [[ "$line" =~ ".*-IF.*!$state.*" ]]; then
-            if [[ ! ( $state_val == false || $state_val -le 0 ) ]]; then
-                return
-            fi
+        if [[ "$line" =~ ".*-IF.* !$state.*" ]] && is_truthy "$state_val"; then
+            return
+        elif [[ "$line" =~ ".*-IF.* $state.*" ]] && ! is_truthy "$state_val"; then
+            return
         fi
     done
 
-    echo "$line\n"
+    echo "${line/\*\*-IF*/}\n"
+}
+
+# ================================== HELPERS ================================= #
+
+function is_truthy {
+    [[ $1 == true || $1 -ge 1 ]]
 }
 
 # ==================================== EXECUTION =================================== #

@@ -184,7 +184,7 @@ function menu {
                         echo "$content" | 
                         sed 's/#\([A-Za-z0-9/]*\)//' | # Remove project
                         sed 's/p[0-9]//' | # Remove priority
-                        sed 's/@[A-Za-z0-9_/-]*//g' # Remove tags
+                        sed 's/@[A-Za-z0-9]*//g; s/,//g' # Remove tags
                     )
 
                 if [[ $action == *"e"* ]]; then
@@ -201,8 +201,8 @@ function menu {
                     if [[ $action == *"d"* ]]; then
                         # Add to done
                         local project=$(echo "$content" | sed -n 's/.*#\([A-Za-z0-9/]*\).*/\1/p')
-                        if [[ -n $project && ! $project =~ 'u|Inbox|then|done' ]]; then
-                            local item_text=$(echo "$content" | sed 's/#//' | td.sh s)
+                        if [[ -n $project && ! $project =~ 'u|Inbox|then|done|hooks' ]]; then
+                            local item_text=$(echo "$content" | sed 's/#//g' | sed 's/://g' | td.sh s)
                             a "#done ^$project ; $item_text"
                         fi
                     fi

@@ -1,15 +1,14 @@
 #!/bin/zsh
 
 # Misc
-is="#zz @wifi p3 is"
+is3="#zz @wifi @eye p3 is"
+is="#zz @wifi @eye is"
 
 # Special activities
 cook='#b **cook** @home @mv'
 reboot='> sudo shutdown -r now #b'
 pack='[[pack]]'
-#
-shower='#b :tmp shower ; $(date +"%Y-%m-%d %H:%M:%S") @home @mv<span hidden>&<wbr>& decomp 15</span>'
-showered='#tmp shower ; $(date +"%Y-%m-%d %H:%M:%S") && decomp 15'
+eat='> eat #b @mv'
 
 # Run
 rb="#run :b"
@@ -48,35 +47,10 @@ function tv {
 }
 
 function dk {
-    printf "\033[$((1+$1))A\033[J" >&3
-}
+    local lines=$1
+    [[ -z $lines ]] && lines=1
 
-function sugar_fun {
-    if ob b | grep -q 'teeth'; then
-        return
-    fi
-
-    is_home && is_home_var=true || is_home_var=false
-
-    if $is_home_var && in_window.sh 13:00 $(map routine.latest_dinner 18:00) && ! map -s done.mouthwash; then
-        echo "> map set done.mouthwash true #b"
-        return
-    fi
-
-    if $is_home_var && ! map -s done.floss; then
-        echo "> map set done.floss true #b"
-        return
-    fi
-
-    if ! map -s done.gum; then
-        echo "> map set done.gum true #b"
-        return
-    fi
-
-    if ! map -s done.salt; then
-        echo "> map set done.salt true #b"
-        return
-    fi
+    printf "\033[$((1+$lines))A\033[J" >&3
 }
 
 # manually executed ------------------------------------------------------------ #
