@@ -5,7 +5,7 @@ source "$HOME/.dotfiles/.zshrc/first.sh"
 # =============================== REQUIREMENTS =============================== #
 
 # Is at home
-loc health &>/dev/null
+loc --health &>/dev/null
 if [ $? -eq 0 ]; then
     exit 1
 fi

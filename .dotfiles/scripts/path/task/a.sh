@@ -1,5 +1,7 @@
 #!/bin/zsh
 
+setopt EXTENDED_GLOB
+
 # NOTE - Needs work without sourcing main
 
 file_path="$HOME/.dotfiles/tmp/a.txt"
@@ -37,12 +39,15 @@ function process {
 function process_local {
     # return 1 # Disable local processing
 
-    (! command -v ob.sh >/dev/null 2>&1 || [ ! -e "$vault" ]) && return 1
+    (! command -v "$HOME/.dotfiles/scripts/path/note/ob.sh" >/dev/null 2>&1 || [ ! -e "$vault" ]) && return 1
 
-    local tag=$(echo "$1" | grep -o '#\w\+')
+    local destination=$(echo "$1" | grep -o '#\w\+')
     local escaped_input=$(echo "$1" | sed 's/#/\\#/g')
 
-    if ob.sh "${tag#?}" >/dev/null 2>&1; then
+    "$HOME/.dotfiles/scripts/path/note/ob.sh" "${destination#?}" 2>&1
+    echo hi
+
+    if "$HOME/.dotfiles/scripts/path/note/ob.sh" "${destination#?}" >/dev/null 2>&1; then
         echo "$escaped_input" >>"$vault/_/local/in.md"
         return 0
     else
@@ -91,6 +96,27 @@ function upload_stored {
     done
 }
 
+# update map ----------------------------------------------------------------- #
+
+function update_map {
+    if ! command -v map.sh >/dev/null 2>&1; then
+        return
+    fi
+
+    local parts=(${(s:;:)1})
+    for p in $parts; do
+        p="${${p##[[:space:]]#}%%[[:space:]]#}"
+
+        ({
+            if printf '%s\n' "$p" | grep -Eq '^[[:alnum:]_]+ -?[0-9]+$'; then
+                local track_parts=(${(z)p})
+                echo "Updating map: ${track_parts[1]} += ${track_parts[2]}"
+                map.sh inc s.${track_parts[1]} ${track_parts[2]}
+            fi
+        }&)
+    done
+}
+
 # --------------------------- START -------------------------- #
 
 for input in ${(s:&& :)*}; do
@@ -98,6 +124,8 @@ for input in ${(s:&& :)*}; do
         if process "$input" && [ "$did_local" = false ]; then
             upload_stored
         fi
+
+        update_map "$input"
     ) | $HOME/.dotfiles/scripts/lang/shell/utils/log.sh -sof a
 done
 

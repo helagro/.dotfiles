@@ -16,10 +16,6 @@ function main {
     echo "--- archiver"
     "$HOME/Documents/archiver-go/build/macOS" 2>&1
 
-    # list apps
-    echo "--- list_app"
-    cd "$MY_SCRIPTS/lang/shell" && ./list_app.sh 2>&1
-
     # add tasks
     echo "--- add_day_tasks"
     do_now -w p/day 2>&1
@@ -31,6 +27,10 @@ function weekly {
     if map off; then
         a '#b weekly log'
     fi
+    
+    # list apps
+    echo "--- list_app"
+    cd "$MY_SCRIPTS/lang/shell" && ./list_app.sh 2>&1
 
     local week=$(date +%-V)
     if [[ $((week % 4)) -eq 0 ]]; then
@@ -40,9 +40,6 @@ function weekly {
 
 function quadrweekly {
     echo "Running quadrweekly tasks..."
-
-    echo "" > "$VAULT/_/log/done.md"
-    printf "" > "$VAULT/_/log/tmp.md"
 }
 
 # ================================== HELPERS ================================= #

@@ -2,6 +2,7 @@
 
 local_online_tools="$HOME/Developer/server-app"
 
+
 function acts {
     print -n -u2 "\033[90mExcluding: "
 
@@ -15,7 +16,7 @@ function acts {
             print -n -u2 "eve, "
         fi
 
-        if map.sh -s 's.eye_strain' && ! map.sh -s 's.off'; then
+        if map.sh -s 's.eye' && ! map.sh -s 'ps.off'; then
             query="$query/eye"
             print -n -u2 "eye, "
         fi
@@ -24,6 +25,14 @@ function acts {
             query="$query/load"
             print -n -u2 "load, "
         fi 
+
+        if map.sh -s 'ps.off'; then
+            query="$query/off"
+            print -n -u2 "off, "
+        else
+            query="$query/-off"
+            print -n -u2 "-off, "
+        fi
     else
         print -n -u2 "no_calc, "
     fi
@@ -39,7 +48,7 @@ function acts {
 
     # general filters ---------------------------------------------------- #
 
-    if ! map.sh -s manual.has_flashcards; then
+    if ! map.sh -s opt.use_flashcards; then
         output=$(echo "$output" | grep -v 'flashcards^')
         print -n -u2 "flashcards, "
     fi
@@ -73,16 +82,6 @@ function acts {
 
     # note filters --------------------------------------------------------------- #
 
-    if [[ $output == *'b^'* && $(ob.sh b | wc -l) -le 4 ]]; then
-        output=$(echo "$output" | grep -v 'b^')
-        print -n -u2 "b, "
-    fi
-
-    if [[ $output == *'plan^'* && $(ob.sh p | wc -l) -ge 3 ]]; then
-        output=$(echo "$output" | grep -v 'plan^')
-        print -n -u2 "plan, "
-    fi
-
     if [[ $output == *'exorita^'* ]] && ob.sh xord | grep -q "$(date +'%Y-%m-%d')"; then
         output=$(echo "$output" | grep -v 'exorita^')
         print -n -u2 "exorita, "
@@ -93,18 +92,23 @@ function acts {
         print -n -u2 "wash_face, "
     fi
 
+    # Note length checks
+
+    output=$(act_ob_filter 'b' 4 "$output")
+    output=$(act_ob_filter 'plan' 3 "$output")
+    output=$(act_ob_filter 'bdg' 4 "$output")
+    output=$(act_ob_filter 'by' 6 "$output")
+    output=$(act_ob_filter 'do' 4 "$output")
+    output=$(act_ob_filter 'zz' 5 "$output")
+    output=$(act_ob_filter 'ect' 7 "$output")
+
     # todoist filters ------------------------------------------------------------ #
 
-    # Note - Already optimised in act_td_filter
-    output=$(act_td_filter 'bdg' 2 "$output")
-    output=$(act_td_filter 'by' 6 "$output")
-    output=$(act_td_filter 'do' 5 "$output")
-    output=$(act_td_filter 'eval' 4 "$output")
-    output=$(act_td_filter 'inbox' 15 "$output")
     output=$(act_td_filter 'p1' 1 "$output")
-    output=$(act_td_filter 'res' 7 "$output")
-    output=$(act_td_filter 'u' 16 "$output")
-    output=$(act_td_filter 'zz' 2 "$output")
+    output=$(act_td_filter '#inbox' 20 "$output")
+    output=$(act_td_filter '#u' 20 "$output")
+    output=$(act_td_filter '@eval' 4 "$output")
+    output=$(act_td_filter '@res' 7 "$output")
 
     # routine filters ----------------------------------------------------------- #
 
@@ -150,6 +154,7 @@ function acts {
     fi
 }
 
+
 function act_sync {
     local table=$(curl -s --connect-timeout 2 "$MY_CONFIG_URL/server-app/act.tsv")
 
@@ -161,20 +166,34 @@ function act_sync {
     fi
 }
 
+
 function act_td_filter {
     # Speeds up checks
     if ! echo "$3" | grep -q "$1^"; then
         echo "$3"
-        # print -n -u2 "!$1, " 
         return    
     fi
 
-    if [ $(tdl.sh -F '#run' :$1 | wc -l) -le $2 ]; then
+    if [[ $(tdl.sh -F '@run' "$1" | wc -l) -lt $2 ]]; then
         echo "$3" | grep -v "$1^"
         print -n -u2 "$1, "
     else
         echo "$3"
     fi
+}
+
+
+function act_ob_filter {
+    local note_path="$1"
+    local min_length="$2"
+    local output="$3"
+
+    if [[ $output == *"$note_path^"* && $(ob.sh "$note_path" | grep -E -v '##|^$|---' | wc -l) -lt $min_length ]] then
+        echo "$output" | grep -v "$note_path^"
+        print -n -u2 "$note_path, "
+    else
+        echo "$output"
+    fi 
 }
 
 acts "$*"

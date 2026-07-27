@@ -83,7 +83,7 @@ function on_tab {
 }
 
 function e {
-    e_checks "$1" || return 1
+    command -v e_checks &>/dev/null && { e_checks "$1" || return 1 }
 
     if [ -d "$DEV/$1" ]; then
         code "$DEV/$1"

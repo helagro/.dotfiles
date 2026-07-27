@@ -10,12 +10,6 @@ import fcntl
 
 
 @dataclass
-class Meta:
-    map: dict
-    count: int = 0
-
-
-@dataclass
 class GetCommand:
     index: int
     include_project: bool
@@ -69,8 +63,8 @@ codes = {
     "S": "last splits",
     "h": "help"
 }
-HISTORY_FILE = "/tmp/a_history.txt"
-METADATA_FILE = "/tmp/a_meta.txt"
+HISTORY_FILE = "/var/tmp/a_history.txt"
+METADATA_FILE = "/var/tmp/a_meta.txt"
 
 DEST_PATTERN = r'#\w+'
 LABEL_PATTERN = r'@\w+'
@@ -84,7 +78,6 @@ def main():
 
     # misc commands
     clear_parser = subparsers.add_parser("clear", help="Clear history")
-    inc_len_parser = subparsers.add_parser("incLen", help="Increment length of history")
     len_parser = subparsers.add_parser("len", help="Get length of history")
 
     # add command
@@ -127,19 +120,10 @@ def main():
         clear()
     elif args.command == "get":
         get(args.code)
-    elif args.command == "incLen":
-        current_length = length()
-        update_meta(lambda m: setattr(m, 'count', current_length + 1))
     elif args.command == "len":
         print(length())
     elif args.command == "oddBackticks":
         exit(args.original.count('`') % 2 == 0)
-    elif args.command == "map":
-        if (args.operation == "set"):
-            map_set(args.key, args.value)
-        elif (args.operation == "get"):
-            res = map_get(args.key, args.default)
-            print(res)
     elif args.command == "replace":
         print(args.original.replace(args.to_replace, args.replacement))
 
@@ -150,8 +134,6 @@ def add(content, method=None, offline=False):
 
     row = [content, timestamp, method if method else "", "1" if offline else "0"]
 
-    update_meta(lambda m: setattr(m, 'count', m.count + 1))
-
     with open(HISTORY_FILE, "a", newline="") as f:
         writer = csv.writer(f, quoting=csv.QUOTE_MINIMAL)
         writer.writerow(row)
@@ -161,30 +143,12 @@ def clear():
     if os.path.exists(HISTORY_FILE):
         os.remove(HISTORY_FILE)
 
-    update_meta(lambda meta: setattr(meta, 'count', 0))
-
 
 def length() -> int:
     if not os.path.exists(HISTORY_FILE):
-        update_meta(lambda m: setattr(m, 'count', 0))
         return 0
 
-    return get_meta().count
-
-
-def map_set(key: str, value: str):
-    update_meta(lambda m: set_map(m.map, key, value))
-
-
-def map_get(key: str | None, default: str):
-    meta = get_meta()
-    if not key:
-        return meta.map
-
-    if key in meta.map:
-        return meta.map[key]
-    else:
-        return default
+    return sum(1 for _ in open(HISTORY_FILE))
 
 
 # ================================ GET COMMAND =============================== #
@@ -271,34 +235,6 @@ def get_line(line_number) -> list[str] | None:
 
     line = lines[line_number].strip()
     return next(csv.reader([line], quoting=csv.QUOTE_MINIMAL))
-
-
-def get_meta() -> Meta:
-    with open(METADATA_FILE, "a+") as f:
-        fcntl.flock(f, fcntl.LOCK_EX)
-        f.seek(0)
-
-        try:
-            data = json.load(f)
-        except json.JSONDecodeError:
-            return Meta(map={})
-        finally:
-            fcntl.flock(f, fcntl.LOCK_UN)
-
-        return Meta(**data)
-
-
-def save_meta(meta: Meta):
-    with open(METADATA_FILE, "w") as f:
-        fcntl.flock(f, fcntl.LOCK_EX)
-        json.dump(meta.__dict__, f)
-        fcntl.flock(f, fcntl.LOCK_UN)
-
-
-def update_meta(updater):
-    meta = get_meta()
-    updater(meta)
-    save_meta(meta)
 
 
 # =================================== START ================================== #

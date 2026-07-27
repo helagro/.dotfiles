@@ -86,6 +86,9 @@ def main():
         if not args.attr:
             parser.error("attr is required unless using a subcommand")
 
+        if args.days == -1:
+            args.days = 99999
+
         result = {
             # "timestamp": datetime.now().isoformat(timespec="minutes"),
             **get_values(args.attr, args.days, args.until),

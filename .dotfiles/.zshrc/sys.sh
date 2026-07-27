@@ -3,12 +3,28 @@
 alias glo="tl.sh"
 alias map="map.sh"
 
+dawn_start='04:00'
+day_start='12:00'
+eve_start='18:00'
+eve_end='01:00'
+ashr="$HOME/.dotfiles/scripts/secret/ash_remind.sh"
 
 # ================================= FUNCTIONS ================================ #
 
+function is_dawn { in_window.sh $dawn_start $day_start; }
+function is_day { in_window.sh $day_start $eve_start; }
+function is_eve { in_window.sh $eve_start $eve_end; }
+
+alias is_summery='test "$(date +%m)" -ge 5 -a "$(date +%m)" -le 9'
+alias is_wintery='test "$(date +%m)" -ge 11 -o "$(date +%m)" -le 2'
+
+
 function is_occupied {
-    [[ $(map.sh -m act.current) == "study" || $(map.sh -m act.current) == "p1" ]]
+    local current_activity=$(map.sh -m act.current)
+
+    [[ $current_activity =~ "^(study|p1|mind)$" ]]
 }
+
 
 function blind {
     local input=$(cat)
@@ -36,11 +52,13 @@ function blind {
     done
 }
 
+
 function addo {
     pushd $VAULT > /dev/null
     git add "$1.md"
     popd > /dev/null
 }
+
 
 function ect {
     pushd $DEV/config > /dev/null
@@ -49,20 +67,23 @@ function ect {
     popd > /dev/null
 }
 
-# activity ------------------------------------------------------------------- #
 
 function act {
 
     # initializations ------------------------------------------------------------ #
 
+    activity_name=""
     local full_input="$*"
     local project=''
-    local activity_name=""
     local important_flag="-i"
-    local do_local=true
 
-    map.sh -s opt.auto_focus && local focus_flag="-f" || local focus_flag=""
+    local do_local=true
+    local should_block=true
+
     local max_duration="50:00"
+    local duration_overridden=false
+
+    map.sh -s opt.reachable && local focus_flag="" || local focus_flag="-f"
     in_window.sh 7:00 $(map routine.latest_dinner 20:00) && local is_day=true || local is_day=false
 
     # calc connectivity ---------------------------------------------------------- #
@@ -93,6 +114,7 @@ function act {
             ;;
         -d | --duration)
             max_duration="$2:00"
+            duration_overridden=true
             shift 2
             ;;
         -D | --no-duration)
@@ -125,44 +147,70 @@ function act {
     # print secondary info ------------------------------------------------------- #
 
     date +"%Y-%m-%d %H:%M:%S" | to_color.sh blue
+    ( $was_home && act_extra "$activity_name" "$project" & )
 
     # handle specific activities ------------------------------------------------- #
 
     if [[ $project == "study" || $project == "p1" ]]; then
         activity_name="main"
-    fi
-    
-    if [[ $project == "sys" ]]; then
-        if [[ "$full_input" != *'-d '* ]]; then
+
+        if [[ $project == "p1" ]]; then
+            echo 'Main during' | to_color.sh cyan
+        fi
+    i
+    elif [[ $project == "sys" ]]; then
+        if ! $duration_overridden && ! map.sh -s ps.off; then
             echo "Custom duration required" | to_color.sh cyan
             return 1
         fi
-    elif [[ $activity_name == "eat" ]]; then
-        eat
-        return
 
-    elif [[ $activity_name == "medd" ]]; then
-        do_meditation
-        important_flag=""
+        echo 'Medd during' | to_color.sh cyan
+        should_block=false
+
+    elif [[ $project == "exor" || $project == "mind" || $project == "mixed" || $project == "social" ]]; then
+        if ! $duration_overridden; then
+            max_duration=''
+        fi
+
+        if [[ $activity_name == 'medd' ]]; then
+            do_meditation
+            important_flag=''
+        elif [[ $activity_name == 'walk' ]]; then
+            ask 'cort 2.5?' && a 'cort 2.5 #u'
+        fi
+
+    elif [[ $project == "improve" ]]; then
+        max_duration=''
+        should_block=false
+
+    elif [[ -z $project ]]; then
+        max_duration=''
+        should_block=false
+
+        if [[ $activity_name == 'b' ]]; then
+            echo 'Medd during' | to_color.sh cyan
+        fi
     fi
-    
+
     # handle connectivity -------------------------------------------------------- #
 
     if $online; then
+        # toggl
         tgs "$project" "$activity_name"
 
+        # local app
         if $do_local && in_window.sh 7:00 $(map routine.full_detach 21:30); then
-            if [[ $activity_name == "exor" ]]; then
-                local start_param="?alert_frequency=8"
-            elif (map -s s.headache || map -s s.eye_strain || map -s s.stiff); then
-                local start_param="?alert_frequency=17"
+            local start_param="?blocking=$($should_block && echo 1 || echo 0)"
+
+            if (map -s s.headache || map -s s.eye || map -s s.stiff); then
+                start_param="$start_param&alert_frequency=17"
             fi
 
             (
                 loc "start$start_param" &
                 if $is_day; then 
-                    [[ $activity_name == main ]] && loc "dev colored color work" &
-                    [[ $activity_name =~ ^(fix|improve)$ ]] && loc "dev colored color 55ff55" &
+                    [[ $activity_name == 'main' ]] && loc dev colored color work &
+                    [[ $activity_name == 'improve' ]] && loc dev colored color 55ff55 &
                 fi
             ) >/dev/null 2>&1
         fi
@@ -177,7 +225,11 @@ function act {
 
     # run activity --------------------------------------------------------------- #
 
-    map -m set act.current "$project"
+    if [[ -n $project ]]; then
+        map -m set act.current "$project"
+    else
+        map -m set act.current "no project"
+    fi
 
     sw $important_flag $focus_flag -a "$activity_name" $max_duration
     date +"%Y-%m-%d %H:%M:%S" | to_color.sh blue
@@ -192,20 +244,6 @@ function act {
             loc stop &
             $is_day && loc "dev colored color chill" &
         ) >/dev/null 2>&1
-    fi
-
-    # break reminder ------------------------------------------------------------- #
-
-    if [[ "$activity_name" == "main" ]]; then
-        $was_home && echo $reminder_1 | to_color.sh yellow
-
-        # if $was_home && ! map.sh -s s.headache; then
-        #     local break_len
-        #     vared -p "Break Length (minutes): " -c break_len
-        #     if [[ -n "$break_len" && "$break_len" != "0" ]]; then
-        #         short -s timer "$break_len:00"
-        #     fi
-        # fi
     fi
 }
 
@@ -290,9 +328,9 @@ function exit_if_empty {
     fi
 }
 
+
 function gym {
     local workout_time=$(date +"%Y-%m-%d %H:%M")
-    local is_probably_gym=true
 
     # Track old workouts
     local is_recent_workout=true
@@ -306,14 +344,19 @@ function gym {
         [[ -z $workout_time ]] && return 1
     fi
 
-    # Handle workout types
+    # handle workout types ------------------------------------------------------- #
+
     local cardio_types=("cardio" "floorball" "run" "badminton" "tennis" "bike")
     local type="$1"
     if [[ -z $type ]]; then
         vared -p "Workout type: " -c type
         [[ -z $type ]] && return 1
     fi
+
     [[ $type == *'exorita'* ]] && local is_exorita=true || local is_exorita=false
+    [[ -n ${(M)cardio_types:#$type} ]] && local is_cardio=true || local is_cardio=false 
+    [[ $type == *'run'* ]] && local is_run=true || local is_run=false
+    [[ $type == *'gym'* ]] && local is_gym=true || local is_gym=false
 
     # track specifics ------------------------------------------------------------ #
 
@@ -327,9 +370,9 @@ function gym {
         fi
 
         # Track cardio
-        if [[ -n ${(M)cardio_types:#$type} ]]; then
+        if $is_cardio; then
             if $is_recent_workout; then
-                a "t cardio #u"
+                a "cardio 1 #u"
             else
                 a "$workout_time t cardio #u"
             fi
@@ -348,7 +391,7 @@ function gym {
     if $is_recent_workout && [[ -z $duration ]]; then
 
         # Show warnings
-        if map -s s.sleepy && in_window.sh 07:00 14:00; then
+        if map -s s.low_sleep && in_window.sh 07:00 14:00; then
             echo "WARN - Workout when tired, consider afternoon energy" | to_color.sh yellow
         fi
 
@@ -356,16 +399,20 @@ function gym {
         local types_with_notes=("floorball" "tennis" "bike")
         if [[ -n ${(M)types_with_notes:#$type} ]]; then
             obc "$type"
-        elif [[ $type == "run" ]]; then
+        elif [[ $type == *"run"* ]]; then
             obc "running"
-        elif $is_exorita || [[ -z ${(M)cardio_types:#$type} ]]; then
-            is_probably_gym=true
-            $is_exorita || obc "gym"
+            ask 'Continue?'
+        elif $is_gym; then
+            if map.sh -s s.weak; then
+                obc "gym prob"
+            else
+                obc "gym"
+            fi
         fi
-
+        
         # Setup env
         if $is_exorita; then
-            (loc dev bath lvl 130 & &>/dev/null) 
+            (loc dev bath lvl 130 &>/dev/null &) 
         fi
 
         # Track and time
@@ -379,7 +426,7 @@ function gym {
         duration=$(echo "$duration" | bc)
 
         # Track time results    
-        if $is_probably_gym; then
+        if $is_gym && ! map.sh -s ps.off; then
             local decomp
             vared -p "Decompress minutes: " -c decomp
             if [[ -n $decomp && $decomp -gt 0 ]]; then
@@ -393,7 +440,7 @@ function gym {
             fi
         fi
 
-        # Restore env
+        # Restore physical environment
         if $is_exorita; then
             ({
                 loc dev bath lvl 30
@@ -403,7 +450,7 @@ function gym {
         fi
 
         # Print reminders
-        is_home && ! $is_exorita && echo "Wash hands"
+        is_home && ! $is_exorita && ! $is_run && echo "Wash hands"
         echo "Upper pmr"
     fi
 
@@ -419,19 +466,23 @@ function gym {
     # final tracking -------------------------------------------------------------- #
 
     if $is_recent_workout; then
+        a "c gym"
         a "#xord $type ; $duration"
         a "workouts_min $duration ; workouts 1 #u"
+        map.sh set done.gym true
 
         # Track leg day
-        if [[ $type == *"leg"* && $duration -ge 20 ]]; then
+        if [[ "$type" == *"leg"* && $duration -ge 20 ]]; then
             a 't leg_day #u'
             map.sh set s.leg_day true
         fi
     else
+        a "$workout_time c gym"
         a "$workout_time #u #xord $type ; $duration"
         a "$workout_time workouts_min $duration ; workouts 1 #u"
     fi
 }
+
 
 function pmr {
     local messages=("Feet" "Calves" "Thighs" "Torso" "Back" "Hands" "Biceps" "Triceps" "Shoulders & Neck" "Face")
@@ -451,6 +502,7 @@ function pmr {
     a 'mindwork 2 #u'
     map.sh inc stat.pmr 1
 }
+
 
 function tgs {
     local project_name=$1
@@ -481,10 +533,13 @@ function tgs {
 
 function group { python3 $MY_SCRIPTS/lang/python/group.py "$@" | rat.sh -pPl 'json'; }
 function csv { conda run -n main python3 "$MY_SCRIPTS/lang/python/jsons_to_csv.py" $@ | rat.sh -pPl 'tsv'; }
+alias is_mw='is main $(date +%u) | st sum | hm'
+
 
 function is {
     is.sh "$@" | rat.sh -pPl "json"
 }
+
 
 function is_m {
     local value=$(is -v main 1)
@@ -493,12 +548,14 @@ function is_m {
     echo $value | hm
 }
 
+
 function is_d {
     local value=$(is decomp 1)
 
     map.sh set s.decomp $(printf '%s' $value | jq -r 'to_entries[1].value')
     echo $value | hm
 }
+
 
 function plan {
     local item
@@ -511,39 +568,51 @@ function plan {
     fi
 
     if in_window.sh 20:00 13:00 && ! (echo "$b" | grep -q @bigb); then
-        vared -p "big break: " -c item
+        vared -p "$(echo "big break: " | to_color.sh yellow)" -c item
         [[ -n $item ]] && a "@bigb $item #p"
         item=""
     fi
 
     if in_window.sh 18:00 7:00 && ! (echo "$b" | grep -q @start); then
-        vared -p "start: " -c item
+        vared -p "$(echo "start: " | to_color.sh yellow)" -c item
         [[ -n $item ]] && a "@start $item #p"
         item=""
     fi
 
-    if ! $was_home && ! (echo "$b" | grep -q @return); then
-        vared -p "return: " -c item
+    if ! $was_home && ! (echo "$b" | grep -q @return) && ! map.sh -s s.away; then
+        vared -p "$(echo "return: " | to_color.sh yellow)" -c item
         [[ -n $item ]] && a "@return $item #p #b"
         item=""
     fi 
 
-    if $was_home || ask "Do full planning?"; then
-        vared -p "risk: " -c item
+    if { $was_home || map.sh -s s.away } || ask "Do full planning?"; then
+        vared -p "$(echo "risk: " | to_color.sh yellow)" -c item
         while [[ -n $item && $item != "q" ]]; do
             [[ -n $item ]] && a "$item #risk"
             item=""
-            vared -p "risk: " -c item
+            vared -p "$(echo "risk: " | to_color.sh yellow)" -c item
         done 
     fi
 
-    vared -p "plan: " -c item
+    if [[ $(map.sh s.tv) -gt 120 ]]; then
+        vared -p "$(echo "media: " | to_color.sh yellow)" -c item
+        item=""
+    fi
+
+    if map.sh -s s.cardio; then
+        vared -p "$(echo "energy: " | to_color.sh yellow)" -c item
+        [[ -n $item ]] && a "@energy $item #p"
+        item=""
+    fi
+
+    vared -p "$(echo "plan: " | to_color.sh yellow)" -c item
     while [[ -n $item && $item != "q" ]]; do
         [[ -n $item ]] && a "$item #p"
         item=""
-        vared -p "plan: " -c item
+        vared -p "$(echo "plan: " | to_color.sh yellow)" -c item
     done
 }
+
 
 function plot {
     if [[ -p /dev/stdin ]]; then
@@ -556,12 +625,14 @@ function plot {
     fi
 }
 
+
 function to_days {
     cat | jq -r 'to_entries | map("\(.key) \(.value)") | .[]' | while read the_date value; do
         weekday=$(date -j -f "%Y-%m-%d" $the_date +"%a")
         echo "{\"$weekday\": $value}"
     done | jq -s 'add' | rat.sh -pl json
 }
+
 
 function isl {
     is plainlist $2 | grep $1 | while read attribute; do
@@ -625,6 +696,7 @@ function do_now {
     fi
 }
 
+
 function obc {
     local file="$1"
     shift
@@ -634,8 +706,9 @@ function obc {
         lang="json"
     fi
 
-    ob "$file" | python3 $MY_SCRIPTS/lang/python/ob_filter.py "$@" | rat.sh -Pl "$lang" --file-name "$file"
+    ob --note-only "$file" | python3 $MY_SCRIPTS/lang/python/ob_filter.py "$@" | rat.sh -Pl "$lang" --file-name "$file"
 }
+
 
 # Day Length
 function dale {
@@ -644,8 +717,9 @@ function dale {
     cat | grep -F $(day $num) | lines
 }
 
+
 function ob {
-    ob.sh $*
+    ob.sh "$@"
 }
 function _ob_completions {
     _files -W $VAULT
@@ -665,6 +739,7 @@ alias tdi="tdl '(tod|od|p1)'"
 alias tds='(td s &)'
 alias tdis='td s && tdi'
 alias tdls='td s && tdl'
+
 
 function a {
     if [ -z "$*" ]; then  # If no arguments passed
@@ -687,6 +762,7 @@ function a {
         }&)
     fi
 }
+
 
 function tdc {
     is_online

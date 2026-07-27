@@ -1,8 +1,12 @@
 # ============================== USER CONTANTS ============================== #
 
-# Busy - Easy
+# Busy & Easy
 busez="(!#then)&(#bdg|#zz|@ez)&!p3"
 print -s -- '$busez'
+
+# Chill & esay
+cheese="(!#then)&(#bdg|#zz|@ez)&!@hard"
+print -s -- '$cheese'
 
 i="(tod|od|p1)|(#inbox&(@blind|@siri))"
 print -s -- '$i'
@@ -10,7 +14,7 @@ print -s -- '$i'
 in="#inbox"
 print -s -- '$in'
 
-u="#u&!#run"
+u="#u&!@run"
 print -s -- '$u'
 
 # ================================= CONSTANTS ================================ #
@@ -56,7 +60,7 @@ function run {
                 selection=$(echo "$list" | output_result)
             fi
         else
-            (map.sh -s 'opt.no_calc' || map.sh -s 's.off') && carg="" || carg="-c"
+            (map.sh -s 'opt.no_calc' || map.sh -s 'ps.off') && carg="" || carg="-c"
 
             local tasks=$(tdl "$filter" $carg -p)
             local filtered_ids=$(map.sh -m acts | jq -r 'join("|")' 2>/dev/null)
@@ -95,7 +99,7 @@ function menu {
     local input="$1"
     read action </dev/tty
 
-    local await_completion=true
+    local await_completion=false
     [[ $action == *"w"* ]] && await_completion=true
     [[ $action == *"W"* ]] && await_completion=false
 
@@ -209,10 +213,10 @@ function menu {
                     
                 elif [[ "$action" == *"u"* ]]; then
                     # NOTE - Removes project and p4 priority
-                    do_update "$id" "$(echo "$content" | sed 's/#\([A-Za-z0-9/]*\)//' | sed 's/p4//')" &
+                    do_update "$id" "$(echo "$content" | sed 's/#\([A-Za-z0-9/]*\)//' | sed 's/p4//')"
 
                 elif [[ "$action" == *"m"* ]]; then
-                    do_update "$id" "$(echo "$content" | sed 's/p4//')" &
+                    do_update "$id" "$(echo "$content" | sed 's/p4//')"
                 fi
             done
 
@@ -225,8 +229,7 @@ function menu {
     if [[ $action == *"s"* ]]; then
         (
             echo "Syncing..."
-            todoist sync &
-            $await_completion && wait
+            todoist sync
         )
         found_match=true
 
@@ -301,6 +304,5 @@ function close {
     if [[ -n "$1" ]]; then
         map.sh -m add acts "$1" 2>/dev/null
         tdc "$1" >/dev/null &
-
     fi
 }

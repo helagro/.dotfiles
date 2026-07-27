@@ -13,6 +13,12 @@ if ls "$HOME/.dotfiles/.zshrc/secret" | grep ".sh" >/dev/null; then
     for file in "$HOME/.dotfiles/.zshrc/secret/always_sourced/"*.sh; do
         [ -f "$file" ] && source "$file"
     done
+
+    if ! $is_work_tab; then 
+        for file in "$HOME/.dotfiles/.zshrc/secret/sys/"*.sh; do
+            [ -f "$file" ] && source "$file"
+        done
+    fi
 fi
 
 # ========================== SIMPLE SPECIAL WINDOWS ========================== #
@@ -24,7 +30,7 @@ if $is_special_tab; then
     fi
 
     if [[ "$PWD" == "$HOME/.dotfiles/config/tabs/hotkey"* ]]; then
-        source "$HOME/.dotfiles/.zshrc/secret/sys.sh"
+        source "$HOME/.dotfiles/.zshrc/secret/sys/sys.sh"
         source "$HOME/.dotfiles/.zshrc/secret/hotkey.sh"
         source "$HOME/.dotfiles/.zshrc/special/hotkey.sh"
 
@@ -52,8 +58,6 @@ fi
 if $is_work_tab; then
     cd "$HOME"
 else
-    source "$HOME/.dotfiles/.zshrc/secret/state.sh"
-    source "$HOME/.dotfiles/.zshrc/secret/sys.sh"
     source "$HOME/.dotfiles/.zshrc/sys.sh"
 fi
 
@@ -79,16 +83,16 @@ fi
 # ========================== COMPLEX SPECIAL TABS ========================= #
 
 if $is_special_tab; then
-    if [[ "$PWD" == "$HOME/.dotfiles/config/tabs/act" ]]; then
+    if [[ "$PWD" == "$HOME/.dotfiles/config/tabs/acts" ]]; then
         source "$HOME/.dotfiles/.zshrc/special/acts.sh"
     elif [[ "$PWD" == "$HOME/.dotfiles/config/tabs/a" ]]; then
         source "$HOME/.dotfiles/.zshrc/secret/a.sh"
         source "$HOME/.dotfiles/.zshrc/special/a_custom.sh"
         source "$HOME/.dotfiles/.zshrc/special/a.sh"
+    elif [[ "$PWD" == "$HOME/.dotfiles/config/tabs/act" ]]; then
+        source "$HOME/.dotfiles/.zshrc/special/act.sh"
     fi
-fi
-
-if ! $is_work_tab && [[ -e "$HOME/.dotfiles/.zshrc/routine.sh" ]]; then
+else
     source "$HOME/.dotfiles/.zshrc/routine.sh"
 fi
 

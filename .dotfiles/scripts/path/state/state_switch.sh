@@ -2,10 +2,9 @@
 
 # NOTE!! - Doesn't work for states not currently in map
 
-state_json=$(map.sh s)
-state_keys=($(echo $state_json | jq -r 'keys[]'))
+state_json=$(jq -n --argjson s "$(map.sh s)" --argjson ps "$(map.sh ps)" '$s * $ps')
 
-matches=""
+state_keys=($(echo $state_json | jq -r 'keys[]'))
 
 # ============================== MATCH FUNCTIONS ============================= #
 
@@ -44,12 +43,31 @@ function match_and {
 # ================================== HELPERS ================================= #
 
 function is_truthy {
-    [[ $1 == true || $1 -ge 1 ]]
+    [[ $1 == true || $1 != <-> || $1 -ge 1 ]]
 }
 
 # ==================================== EXECUTION =================================== #
 
+length_matches=""
+
+if [[ -n $1 ]]; then
+    note_length=$(ob.sh "$1" | wc -l)
+fi
+
 while IFS= read -r line; do
+    if [[ -n $1 && $line =~ '.*-IF.* <([0-9]+).*' ]]; then
+        local number="$match[1]"
+        if [ $note_length -le $number ]; then
+            length_matches+="$line\n"
+        fi
+    else
+        length_matches+="$line\n"
+    fi
+done
+
+non_state_matches=""
+
+echo "$length_matches" | while IFS= read -r line; do
     if [[ "$line" == *'**-IF'* ]]; then
         match_and "$line"
 
@@ -57,8 +75,8 @@ while IFS= read -r line; do
         match_or "$line"
         
     elif [ -n "$line" ] && [[ "$line" != "---" ]]; then
-        matches+="$line\n"
+        non_state_matches+="$line\n"
     fi
 done
 
-echo -n $matches | awk '!seen[$0]++' | sed 's/- \[ \] //g'
+echo -n $non_state_matches | awk '!seen[$0]++' | sed 's/- \[ \] //g'

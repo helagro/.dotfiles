@@ -2,6 +2,8 @@
 
 # ================================= CONSTANTS ================================ #
 
+export HISTSIZE=10000
+
 max_pyg_preview=5
 beep_volume=0.55
 
@@ -11,6 +13,7 @@ export FZF_DEFAULT_OPTS="--ansi --no-sort --layout=reverse-list --height 20 --bo
 
 init_cols=$(tput cols)
 wiper=$(printf '%*s' $((max_pyg_preview + 3)) '')
+b_counter=0
 
 _python_version=$(python3 --version 2>&1 | awk '{print $2}')
 if (( ${_python_version%%.*} < 3 || ( ${_python_version%%.*} == 3 && ${_python_version#*.} < 10 ) )); then
@@ -90,7 +93,7 @@ cols=$(tput cols)
 
 # Reminder setup
 reminder_file="/tmp/reminders_sorted.txt"
-LC_ALL=C printf '%s\n' "$(ob "p/auto/ash remind" | awk NF)" | grep -vF "**" | sort > "$reminder_file"
+LC_ALL=C get_reminders | sort > "$reminder_file"
 
 
 # auto completion ------------------------------------------------------------ #
@@ -146,8 +149,10 @@ function a_ui {
     fi
 
     while :; do
-        [[ $_hist == 0 ]] && my_clear
-        should_extra -c 2>/dev/null && use_extra 1 || use_extra 0
+        if [[ $_hist == 0 ]]; then
+            my_clear
+        fi
+        should_extra -u -c 2>/dev/null && use_extra 1 || use_extra 0
 
         take_input
 
@@ -161,12 +166,21 @@ function a_ui {
 
         # Bin
         if [[ $line == 'B '* ]]; then
+            if [[ ${#line} -lt $(($(tput cols) - 8)) ]]; then
+                echo -ne '\033[s\033[0A'
+                echo -ne "\033[1;90m $(printf "%02d" $b_counter)\033[0m"
+                echo -ne '\033[u'
+            else
+                out $b_counter
+            fi
+
+            b_counter=$((b_counter + 1 % 100))
             _sign="×"
             line=""
             continue
         fi
 
-        ( command -v log_line &>/dev/null && log_line "$line" & )
+        log_line "$line"
 
         # Clear with reset
         if [[ $line == 'c' ]]; then
@@ -177,7 +191,7 @@ function a_ui {
             my_clear
             fc -p
 
-            py map set -k offline_start -v "0" 
+            map -m set ash.offline_start 0 
             next_idx=0
             
             command -v reset_day &>/dev/null && reset_day
@@ -192,25 +206,13 @@ function a_ui {
         elif [[ $line == 'h' ]]; then
             hist
             continue
-        # Update
-        elif [[ $line == 'U'* ]]; then
-            if is_online; then
-                local u_arg=$(echo "$line" | sed -E 's/U[[:space:]]+//g')
-                [[ -z $u_arg ]] && u_arg=-1
-
-                local search=$u_arg
-                [[ $u_arg == (-|)<-> ]] && search=$(pyg $u_arg)
-
-                tdls -p | grep -i "$search" | tac | in.sh --format=a
-            else
-                vim "$HOME/.dotfiles/tmp/a.txt"
-            fi
-
-            continue
         # Quit
         elif [[ $line == 'q' ]]; then
             echo "quit"
             return 0
+        # Raw input
+        elif [[ $line == 'r' ]]; then
+            line="$(cat)"
         # Run
         elif [[ $line == 'R '* ]]; then
             command=$(echo "$line" | sed -E 's/R[[:space:]]+//g')
@@ -223,6 +225,31 @@ function a_ui {
             else
                 _silent=2
             fi
+            continue
+        # Update
+        elif [[ $line == 'U'* ]]; then
+            if is_online; then
+                local u_arg=$(echo "$line" | sed -E 's/U[[:space:]]*//g')
+
+                # Verbose for debugging. Keep as is useful from time to time
+                if [[ $u_arg == '-v'* ]]; then
+                    local verbose=1
+                    u_arg=$(echo "$u_arg" | sed -E 's/-v[[:space:]]*//g')
+                    echo "BEFORE: $u_arg"
+                fi
+
+                [[ -z $u_arg ]] && u_arg=-1
+
+                # Search, if the argument is a number
+                local search=$u_arg
+                [[ $u_arg == (-|)<-> ]] && search=$(pyg $u_arg)
+
+                [[ -n $verbose ]] && echo "AFTER: $search"
+                tdls -p | grep -i -- "$search" | tac | in.sh --format=a
+            else
+                vim "$HOME/.dotfiles/tmp/a.txt"
+            fi
+
             continue
         fi
 
@@ -270,7 +297,6 @@ function expand_item {
     fi
 
     local expanded_line_loc=$(eval echo \"$escaped\" 2> >(out_pipe -e) | tr -d '\\')
-    # local expanded_line_loc=$(eval echo \"$once_expanded_line\" 2> >(out_pipe -e) | tr -d '\\')
 
     if [[ $expanded_line_loc =~ '(?<=^|\s)>((-?\d|\w|\.)+)(?=$|\s)' ]]; then
         pgo=$(py get -- "$match[1]")
@@ -305,40 +331,34 @@ function handle_if_special {
     for p in $parts; do
         p="${${p##[[:space:]]#}%%[[:space:]]#}"
 
-        ({
-            if printf '%s\n' "$p" | grep -Eq '^[[:alnum:]_]+ -?[0-9]+$'; then
-                local track_parts=(${(z)p})
-                map inc s.${track_parts[1]} ${track_parts[2]}
-            fi
-        }&)
-
         parts_input="${p//[1-9][0-9.]#/*}"
         _handle_if_special "$parts_input"
-        ( _handle_if_special "$parts_input -A" & )
+        ({ sleep 0.1 && _handle_if_special "$parts_input -A" }&)
     done
 }
 
 function _handle_if_special {
-    local reminders=$(look -f -- "- [ ] $1 |" "$reminder_file")
+    local reminders=$(look -f -- ": '$1' ;" "$reminder_file")
 
     while read -r reminder; do
         if [[ -n $reminder ]]; then
-            local reminder_parts=("${(@s:|:)reminder}")
-            local reminder_text="${(j:|:)reminder_parts[2, -1]## }"
+
+            local reminder_parts=("${(@s:;:)reminder}")
+            local reminder_text="${(j:;:)reminder_parts[2, -1]## }"
 
             if [[ $reminder_text == "*"* ]]; then
-                should_extra -C 2>/dev/null || continue
+                should_extra 2>/dev/null || continue
 
                 rem=${reminder_text//'*'/}
                 out "$rem"
             elif [[ $reminder_text == "\`"* ]]; then
-                should_extra -c 2>/dev/null || continue
+                should_extra -u -c 2>/dev/null || continue
 
                 cmd=${reminder_text//\`/}
                 ttab -d '' -w $cmd
             else
-                expanded=""
-                expand_item "$reminder_text" expanded
+                local expanded=$(eval "$reminder_text" 2> >(out_pipe -e) | tr -d '\\')
+                echo "$expanded\n" >> ~/Desktop/ash_reminder.txt
                 ( nohup a.sh "$expanded" >/dev/null & )
             fi
         fi
@@ -346,7 +366,11 @@ function _handle_if_special {
 }
 
 function my_clear {
-    printf "\033]1337;ClearScrollback\a" >&3
+    if [[ $_hist == 0 ]]; then
+        printf "\033]1337;ClearScrollback\a\e[%s;1H" "$(tput lines)" >&3
+    else
+        printf "\033]1337;ClearScrollback\a" >&3
+    fi
     
     local cols=$(tput cols)
     local wipe_col=$((cols - $max_pyg_preview))
@@ -362,7 +386,7 @@ function print_top_right {
     
     [[ $2 != "-C" ]] && cols=$(tput cols)
 
-    local old_offline_amt=$(py map get -k offline_amt -d 0)
+    local old_offline_amt=$(map -m ash.offline_amt 0)
     local offline_amt=$(cat "$HOME/.dotfiles/tmp/a.txt" | wc -l | tr -d '[:space:]')
 
     # offline info --------------------------------------------------------------- #
@@ -373,10 +397,10 @@ function print_top_right {
         else
             if [[ $old_offline_amt -eq 0 ]]; then
                 local last_idx=$(($(py len) - 1))
-                py map set -k offline_start -v "$last_idx" 
+                map -m set ash.offline_start "$last_idx" 
                 local offline_start=$last_idx
             else
-                local offline_start=$(py map get -k offline_start -d "?")
+                local offline_start=$(map -m ash.offline_start "?")
             fi
         fi
 
@@ -387,12 +411,12 @@ function print_top_right {
         print -n "\e7\e[1;${col}H\033[33m${text}\033[0m\e8" >&3
 
         row=$((row + 1))
-        py map set -k offline_amt -v "$offline_amt"
+        map -m set ash.offline_amt "$offline_amt"
     fi
 
     # expansion info ------------------------------------------------------------- #
 
-    if should_extra -C 2>/dev/null; then
+    if should_extra 2>/dev/null; then
         if [[ -n $1 ]]; then
             print -n "\e7\e[${row};${wipe_col}H\033[35m${wiper}\033[0m\e8" >&3
             local truncated=" ${msg[1,$max_pyg_preview]}"

@@ -18,10 +18,26 @@ setopt HIST_IGNORE_ALL_DUPS # Remove old duplicate commands from history
 setopt HIST_IGNORE_DUPS     # Remove new duplicate commands from history
 setopt HIST_IGNORE_SPACE    # Remove commands starting with space from history, useful for secrets
 
-HISTSIZE=100000
+HISTSIZE=10000
 SAVEHIST=20000
 
 # --------------------------- MAIN --------------------------- #
+
+alias loccb="loc p chill && sleep 0.3 && loc dev eve lvl 15"
+alias is_orust='test "$(short ssid)" = "ZyXEL2F227C"'
+
+function locdb {
+    loc p darkish
+    sleep 0.3
+    ( loc dev eve lvl 15 & )
+
+    if is_day && map.sh -s s.bright; then
+        ({
+            sleep 0.5
+            loc 'dev/plant?a=off' 
+        }&)
+    fi
+}
 
 function is_online {
     is_home --not-offline || ping -c1 -t1 8.8.8.8 &>/dev/null
@@ -32,6 +48,8 @@ function loc {
     local do_silent=false
     local timeout=2
     local port=8004
+    local is_health=false
+    local max_time=15
 
     while [[ $# -gt 0 ]]; do
         case "$1" in
@@ -55,6 +73,10 @@ function loc {
             port=8008
             shift 1
             ;;
+        --health)
+            is_health=true
+            shift 1
+            ;;
         *)
             break
             ;;
@@ -62,9 +84,14 @@ function loc {
     done
 
     local params="${(j:/:)@}"
+    if $is_health; then
+        params="health"
+        max_time=1
+    fi
+
     local result
 
-    if ! result=$(curl -sS --connect-timeout "$timeout" "$LOCAL_SERVER_IP:$port/$params"); then
+    if ! result=$(curl -sS --connect-timeout "$timeout" --max-time "$max_time" "$LOCAL_SERVER_IP:$port/$params"); then
         result='{"error": "Could not connect to local server"}'
         return 1
     fi
@@ -103,13 +130,13 @@ function is_home {
     fi
 
     # By local server
-    loc -t 0.25 health 2>/dev/null
+    loc -t 0.25 --health 2>/dev/null
     if [ $? -eq 0 ]; then
         return 0
     fi
 
     # By local server cpp
-    loc -c -t 0.05 health 2>/dev/null
+    loc -c -t 0.05 --health 2>/dev/null
     if [ $? -eq 0 ]; then
         return 0
     fi
@@ -133,7 +160,7 @@ function red_mode {
         [[ -z $2 || $2 != 0 ]] && short -s filter 0
 
         ZSH_HIGHLIGHT_REGEXP=(
-            '\$[a-zA-Z0-9_][a-zA-Z0-9_]*' fg=cyan
+            '(?<!^ )\$[a-zA-Z0-9_][a-zA-Z0-9_]*' fg=cyan
             '[ \t]-*[0-9]+(\.[0-9]+)*(?=([ \t]|$|\)))' fg=blue
         )
     fi

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from fcntl import fcntl
 import json
 import sys
 from typing import cast
@@ -13,7 +14,7 @@ def load_state():
             return json.load(f)
     except Exception:
         print(f"Could not load map file", file=sys.stderr)
-        return {}
+        exit(1)
 
 
 def save_state(state):

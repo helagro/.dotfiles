@@ -72,6 +72,12 @@ function hm {
 }
 
 
+function indent {
+    local prefix="${1:-    }"  # default: 4 spaces
+    sed "s/^/${prefix}/"
+}
+
+
 function pass {
     local do_copy=false
 
@@ -91,12 +97,17 @@ function pass {
 
 function tab {
     cd "$HOME/.dotfiles/config/tabs/$1"
-    exec zsh
+
+    if [[ -z $2 ]]; then
+        exec zsh -ic 'on_tab; exec zsh'
+    fi
 }
 
 
 function talk {
-    if [[ "$*" == *"-s"* ]]; then
+    [[ "$*" == *"-s"* ]] && local save=true || local save=false
+
+    if $save; then
         local folder="$HOME/Library/Mobile Documents/com~apple~CloudDocs/media"
     else
         local folder="$HOME/Desktop"
@@ -118,11 +129,6 @@ function talk {
     )
 
     # prepare running -------------------------------------------- #
-
-    if [[ "$*" == *"-R"* ]]; then
-        echo "$text"
-        return 0
-    fi
 
     local chunk_size=4000
     local text_length=${#text}
@@ -220,7 +226,7 @@ function gql {
 }
 
 # Git Delete Branch
-function gdb {
+function gdelbra {
     git branch -d "$1"
     git push origin --delete "$1"
 }

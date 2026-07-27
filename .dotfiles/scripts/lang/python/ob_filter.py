@@ -36,6 +36,13 @@ def parse_args():
         action="store_true",
     )
 
+    parser.add_argument(
+        "-s",
+        "--section",
+        help="Only include the first section of the note",
+        action="store_true",
+    )
+
     return parser.parse_args()
 
 
@@ -44,11 +51,13 @@ def main(input, args):
     found_tags = set()
 
     i, hashtags_count = find_start(lines)
-
     for i in range(i + 1, len(lines)):
-        line = lines[i]
+        line: str = lines[i]
 
-        if re.match(r".*\^\w+.*", line):
+        if args.section and (not line or line.isspace()):
+            break
+
+        if re.match(r".*\^\w+\s.*", line):
             matches = re.findall(r"\^\w+", line)
             found_tags.update(m[1:] for m in matches)
 

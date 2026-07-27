@@ -99,11 +99,11 @@ function main {
             filter="^a\Z" # Matches nothing
         fi
 
-        if map.sh -s s.headache || map.sh -s manual.is_busy; then
+        if map.sh -s s.headache || map.sh -s opt.busy; then
             filter+="|(p3.*#bdg)|@zt"
         fi
 
-        if in_window.sh 5:00 "$earliest_coding" && map.sh -s manual.is_busy; then
+        if in_window.sh 5:00 "$earliest_coding" && map.sh -s opt.busy; then
             filter+="|#bdg"
         fi
 
@@ -111,7 +111,7 @@ function main {
             filter+="|@p"
         fi
 
-        if map.sh -s s.eye_strain; then
+        if map.sh -s s.eye; then
             filter+="|@eye|(p3.*#bdg)|(p4.*#bdg)"
         fi
 
