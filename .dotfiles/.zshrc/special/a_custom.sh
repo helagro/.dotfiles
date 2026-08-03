@@ -7,7 +7,7 @@ p1="#other p1"
 # Special activities
 reboot='> sudo shutdown -r now #b'
 eat='> eat #b @mv'
-gym='> gym #b @mv'
+exor='> exor #b @mv'
 
 # Run
 rb="@run #other :b"

@@ -2,5 +2,6 @@
 .dotfiles/scripts/secret/*.sh
 .dotfiles/scripts/secret/*.env
 .dotfiles/.zshrc/secret/always_sourced/*.sh
+.dotfiles/.zshrc/secret/sys/*.sh
 /Users/h/.config/todoist/config.json
 /Users/h/.dotfiles/tmp/map.json

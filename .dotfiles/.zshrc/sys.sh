@@ -329,7 +329,7 @@ function exit_if_empty {
 }
 
 
-function gym {
+function exor {
     local workout_time=$(date +"%Y-%m-%d %H:%M")
 
     # Track old workouts
@@ -393,6 +393,8 @@ function gym {
         # Show warnings
         if map -s s.low_sleep && in_window.sh 07:00 14:00; then
             echo "WARN - Workout when tired, consider afternoon energy" | to_color.sh yellow
+        elif map -s s.fam && ! map -s ps.off; then
+            echo "WARN - Workout when fam, consider energy" | to_color.sh yellow
         fi
 
         # Show relevant note

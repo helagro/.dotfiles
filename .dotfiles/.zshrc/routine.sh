@@ -12,7 +12,7 @@ function back {
 
 function cook {
     ( loc p out & ) &>/dev/null
-    map.sh -s ps.off && echo $_chore_reminder
+    map.sh -s ps.off && echo $chore_reminder
 
     if map.sh -s ps.off; then
         obc diet
@@ -174,7 +174,7 @@ function dawn {
     if [[ $(ob p | lines) -gt 1 ]]; then
         ob p
     else
-        a '> plan &<wbr>& echo #b'
+        a 'plan` - missing #b'
     fi
 
     if map.sh -s 's.headache' && ! map.sh -s 'ps.off'; then
@@ -189,6 +189,10 @@ function dawn {
     ({
         if is_home; then
             do_now -w p/situation/return
+
+            if (( $(loc sens temp) > 25 )); then
+                a '#b open window - ( temp > 25°C )'
+            fi
         fi
     }&) 
 }
