@@ -4,7 +4,7 @@ local_online_tools="$HOME/Developer/server-app"
 
 
 function acts {
-    print -n -u2 "\033[90mExcluding: "
+    print -n -u2 "\033[90mFiltering: "
 
     # calculate query ------------------------------------------------------------ #
 
@@ -12,25 +12,29 @@ function acts {
 
     if ! map.sh -s 'opt.no_calc'; then
         if in_window.sh $(map.sh 'routine.detach' 22:00) 00:00; then
-            query="$query/eve"
+            query="eve/$query"
             print -n -u2 "eve, "
         fi
 
+        if [[ $query == *"away"* ]]; then
+            print -n -u2 "away, "
+        fi
+
         if map.sh -s 's.eye' && ! map.sh -s 'ps.off'; then
-            query="$query/eye"
+            query="eye/$query"
             print -n -u2 "eye, "
         fi
 
         if [[ $(map.sh 's.main') -ge 420 ]]; then
-            query="$query/load"
+            query="load/$query"
             print -n -u2 "load, "
         fi 
 
         if map.sh -s 'ps.off'; then
-            query="$query/off"
+            query="off/$query"
             print -n -u2 "off, "
         else
-            query="$query/-off"
+            query="-off/$query"
             print -n -u2 "-off, "
         fi
     else
@@ -42,13 +46,15 @@ function acts {
     # run ------------------------------------------------------------------------ #
 
     local output=$(
-        cd $local_online_tools/dist/routes/act
-        NODE_NO_WARNINGS=1 DO_LOG=false node local.js "$query" || tl.sh "act/$query"
+        { 
+            cd $local_online_tools/dist/routes/act 2>/dev/null && 
+            NODE_NO_WARNINGS=1 DO_LOG=false node local.js "$query" 
+        } || tl.sh "act/$query"
     )
 
     # general filters ---------------------------------------------------- #
 
-    if ! map.sh -s opt.use_flashcards; then
+    if ! map.sh -s opt.s.has_flashcards; then
         output=$(echo "$output" | grep -v 'flashcards^')
         print -n -u2 "flashcards, "
     fi
@@ -96,11 +102,15 @@ function acts {
 
     output=$(act_ob_filter 'b' 4 "$output")
     output=$(act_ob_filter 'plan' 3 "$output")
-    output=$(act_ob_filter 'bdg' 4 "$output")
     output=$(act_ob_filter 'by' 6 "$output")
+
     output=$(act_ob_filter 'do' 4 "$output")
     output=$(act_ob_filter 'zz' 5 "$output")
+
     output=$(act_ob_filter 'ect' 7 "$output")
+    output=$(act_ob_filter 'bdg' 4 "$output")
+    output=$(act_ob_filter 'dot' 4 "$output")
+    output=$(act_ob_filter 'ashr' 4 "$output")
 
     # todoist filters ------------------------------------------------------------ #
 
@@ -168,17 +178,21 @@ function act_sync {
 
 
 function act_td_filter {
+    local filter="$1"
+    local min_count="$2"
+    local output="$3"
+
     # Speeds up checks
-    if ! echo "$3" | grep -q "$1^"; then
-        echo "$3"
+    if ! echo "$output" | grep -q "$filter^"; then
+        echo "$output"
         return    
     fi
 
-    if [[ $(tdl.sh -F '@run' "$1" | wc -l) -lt $2 ]]; then
-        echo "$3" | grep -v "$1^"
-        print -n -u2 "$1, "
+    if [[ $(tdl.sh "$filter" | wc -l) -lt $min_count ]]; then
+        echo "$output" | grep -v "$filter^"
+        print -n -u2 "$filter, "
     else
-        echo "$3"
+        echo "$output"
     fi
 }
 
@@ -188,7 +202,8 @@ function act_ob_filter {
     local min_length="$2"
     local output="$3"
 
-    if [[ $output == *"$note_path^"* && $(ob.sh "$note_path" | grep -E -v '##|^$|---' | wc -l) -lt $min_length ]] then
+    local note_length=$(ob.sh "$note_path" | perl -0777 -pe 's/\Q# Low\E.*//s' | grep -- '- [ ] ' | wc -l)
+    if [[ $output == *"$note_path^"* && $note_length -lt $min_length ]] then
         echo "$output" | grep -v "$note_path^"
         print -n -u2 "$note_path, "
     else

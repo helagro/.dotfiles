@@ -2,6 +2,10 @@
 
 export MY_SCRIPTS="$HOME/.dotfiles/scripts"
 export LOCAL_SERVER_IP="192.168.3.46"
+export chore_reminder="medd during"
+export is_red_tab=false
+
+diab="$MY_SCRIPTS/lang/shell/diab_util.sh"
 
 # -------------------------- ALIASES ------------------------- #
 
@@ -22,7 +26,6 @@ HISTSIZE=10000
 SAVEHIST=20000
 
 # --------------------------- MAIN --------------------------- #
-
 alias loccb="loc p chill && sleep 0.3 && loc dev eve lvl 15"
 alias is_orust='test "$(short ssid)" = "ZyXEL2F227C"'
 
@@ -156,7 +159,7 @@ function red_mode {
 
         ZSH_HIGHLIGHT_REGEXP=()
     else
-        $is_red_tab || print -n "\033]110\007"
+        $is_red_tab || printf "\033]110\007"
         [[ -z $2 || $2 != 0 ]] && short -s filter 0
 
         ZSH_HIGHLIGHT_REGEXP=(

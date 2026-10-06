@@ -17,11 +17,7 @@ function my_cat {
         esac
     done
 
-    if [[ -n "$@" ]]; then
-        cat "$@"
-    else
-        exit 1
-    fi
+    cat "$@"
 }
 
 if $is_red_tab; then

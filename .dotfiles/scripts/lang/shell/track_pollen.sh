@@ -55,4 +55,13 @@ if [[ -n $birch_pollen_info ]]; then
     fi
 fi
 
+graminales_pollen_info=$(echo $pollen_response | jq '.dailyInfo[0].plantInfo[] | select(.code == "GRAMINALES")')
+if [[ -n $graminales_pollen_info ]]; then
+    graminales_pollen_value=$(echo "$graminales_pollen_info" | jq '.indexInfo.value')
+
+    if [[ $graminales_pollen_value != 'null' ]]; then
+        track_command+="pollen_graminales $graminales_pollen_value ; "
+    fi
+fi
+
 A75H="$A75H" a.sh "$track_command"

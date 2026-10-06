@@ -26,7 +26,6 @@ fi
 
 pgo=""
 speak=0
-extra=1
 audio=1
 
 function out_pipe {
@@ -102,7 +101,6 @@ cmds=(
     'R echo $start_time'
     "R speak="
     "R audio="
-    "R extra="
     "R pyg"
     "R len"
     "R p"
@@ -346,10 +344,10 @@ function _handle_if_special {
             local reminder_parts=("${(@s:;:)reminder}")
             local reminder_text="${(j:;:)reminder_parts[2, -1]## }"
 
-            if [[ $reminder_text == "*"* ]]; then
+            if [[ $reminder_text == "'"* ]]; then
                 should_extra 2>/dev/null || continue
 
-                rem=${reminder_text//'*'/}
+                rem=${reminder_text//"'"/}
                 out "$rem"
             elif [[ $reminder_text == "\`"* ]]; then
                 should_extra -u -c 2>/dev/null || continue

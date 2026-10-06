@@ -18,7 +18,7 @@ function main {
 
     # add tasks
     echo "--- add_day_tasks"
-    do_now -w p/day 2>&1
+    do_now -w p/plan/day 2>&1
 }
 
 function weekly {

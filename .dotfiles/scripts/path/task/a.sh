@@ -45,7 +45,6 @@ function process_local {
     local escaped_input=$(echo "$1" | sed 's/#/\\#/g')
 
     "$HOME/.dotfiles/scripts/path/note/ob.sh" "${destination#?}" 2>&1
-    echo hi
 
     if "$HOME/.dotfiles/scripts/path/note/ob.sh" "${destination#?}" >/dev/null 2>&1; then
         echo "$escaped_input" >>"$vault/_/local/in.md"
@@ -110,7 +109,6 @@ function update_map {
         ({
             if printf '%s\n' "$p" | grep -Eq '^[[:alnum:]_]+ -?[0-9]+$'; then
                 local track_parts=(${(z)p})
-                echo "Updating map: ${track_parts[1]} += ${track_parts[2]}"
                 map.sh inc s.${track_parts[1]} ${track_parts[2]}
             fi
         }&)

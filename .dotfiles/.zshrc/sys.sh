@@ -26,6 +26,11 @@ function is_occupied {
 }
 
 
+function has_headphones {
+    system_profiler SPBluetoothDataType | grep -B 99 'Not Connected:' | grep -Eq 'AirPods|Galaxy Buds'
+}
+
+
 function blind {
     local input=$(cat)
     local lines=("${(@f)input}")   # split on newlines
@@ -76,14 +81,15 @@ function act {
     local full_input="$*"
     local project=''
     local important_flag="-i"
+    local do_dnd=true
+    local print_start_date=true
 
-    local do_local=true
+    map.sh -s opt.extra && local do_local=true || local do_local=false
     local should_block=true
 
-    local max_duration="50:00"
+    local max_duration="60:00"
     local duration_overridden=false
 
-    map.sh -s opt.reachable && local focus_flag="" || local focus_flag="-f"
     in_window.sh 7:00 $(map routine.latest_dinner 20:00) && local is_day=true || local is_day=false
 
     # calc connectivity ---------------------------------------------------------- #
@@ -99,7 +105,7 @@ function act {
         local was_home=false
 
         max_duration=""
-        focus_flag=""
+        do_dnd=false
     else
         local was_home=true
     fi
@@ -122,11 +128,11 @@ function act {
             shift 1
             ;;
         -F | --skip-focus)
-            focus_flag=""
+            do_dnd=false
             shift 1
             ;;
         -f | --focus)
-            focus_flag="-f"
+            do_dnd=true
             shift 1
             ;;
         -S | --continue-after-duration)
@@ -135,6 +141,10 @@ function act {
             ;;
         -L | --skip-local)
             do_local=false
+            shift 1
+            ;;
+        --skip-start-date-print)
+            print_start_date=false
             shift 1
             ;;
         *)
@@ -146,18 +156,23 @@ function act {
 
     # print secondary info ------------------------------------------------------- #
 
-    date +"%Y-%m-%d %H:%M:%S" | to_color.sh blue
+    $print_start_date && { date +"%Y-%m-%d %H:%M:%S" | to_color.sh blue; }
     ( $was_home && act_extra "$activity_name" "$project" & )
 
     # handle specific activities ------------------------------------------------- #
+    
+    if [[ $project == '.eat' ]]; then
+        eat --from-act -m "$activity_name"
+        return
+    fi
 
     if [[ $project == "study" || $project == "p1" ]]; then
         activity_name="main"
 
         if [[ $project == "p1" ]]; then
-            echo 'Main during' | to_color.sh cyan
+            echo 'Medd during' | to_color.sh cyan
         fi
-    i
+
     elif [[ $project == "sys" ]]; then
         if ! $duration_overridden && ! map.sh -s ps.off; then
             echo "Custom duration required" | to_color.sh cyan
@@ -175,6 +190,7 @@ function act {
         if [[ $activity_name == 'medd' ]]; then
             do_meditation
             important_flag=''
+
         elif [[ $activity_name == 'walk' ]]; then
             ask 'cort 2.5?' && a 'cort 2.5 #u'
         fi
@@ -182,6 +198,7 @@ function act {
     elif [[ $project == "improve" ]]; then
         max_duration=''
         should_block=false
+        map.sh -m set done.improve true
 
     elif [[ -z $project ]]; then
         max_duration=''
@@ -209,7 +226,7 @@ function act {
             (
                 loc "start$start_param" &
                 if $is_day; then 
-                    [[ $activity_name == 'main' ]] && loc dev colored color work &
+                    # [[ $activity_name == 'main' ]] && loc dev colored color work &
                     [[ $activity_name == 'improve' ]] && loc dev colored color 55ff55 &
                 fi
             ) >/dev/null 2>&1
@@ -220,10 +237,18 @@ function act {
 
     if $was_home; then
         local prev_focus=$(short get_focus)
-        [[ -n $prev_focus ]] && focus_flag=""
+        [[ -n $prev_focus ]] && do_dnd=false
     fi
 
     # run activity --------------------------------------------------------------- #
+
+    if $do_dnd; then
+        if map.sh -s opt.reachable; then
+            short -s focus less
+        else
+            short -s focus on
+        fi
+    fi
 
     if [[ -n $project ]]; then
         map -m set act.current "$project"
@@ -231,8 +256,10 @@ function act {
         map -m set act.current "no project"
     fi
 
-    sw $important_flag $focus_flag -a "$activity_name" $max_duration
+    sw $important_flag -a "$activity_name" $max_duration
     date +"%Y-%m-%d %H:%M:%S" | to_color.sh blue
+
+    $do_dnd && short -s focus off
 
     # stop activity -------------------------------------------------------------- #
 
@@ -250,7 +277,7 @@ function act {
 
 function dnd {
     local mode do_phone=false do_wifi=false
-    local was_on=$(map opt.dnd_on)
+    local was_on=$(map misc.is_dnd_on)
 
     while [[ $# -gt 0 ]]; do
         case "$1" in
@@ -302,7 +329,7 @@ function dnd {
             brew services restart blocky
         } >/dev/null 2>&1
         
-        map.sh set opt.dnd_on 1
+        map.sh set misc.is_dnd_on 1
     else
         if $do_wifi; then
             wifi on
@@ -314,7 +341,7 @@ function dnd {
             brew services stop blocky
         } >/dev/null 2>&1
 
-        map.sh set opt.dnd_on 0
+        map.sh set misc.is_dnd_on 0
     fi
 }
 
@@ -353,7 +380,7 @@ function exor {
         [[ -z $type ]] && return 1
     fi
 
-    [[ $type == *'exorita'* ]] && local is_exorita=true || local is_exorita=false
+    [[ $type == *'home'* ]] && local is_exorita=true || local is_exorita=false
     [[ -n ${(M)cardio_types:#$type} ]] && local is_cardio=true || local is_cardio=false 
     [[ $type == *'run'* ]] && local is_run=true || local is_run=false
     [[ $type == *'gym'* ]] && local is_gym=true || local is_gym=false
@@ -419,7 +446,7 @@ function exor {
 
         # Track and time
         local start_time=$(date +%s)
-        act exor -n "$type" -D
+        act exor -n "exor - $type" -D
         local end_time=$(date +%s)
 
         # Set duration
@@ -429,10 +456,12 @@ function exor {
 
         # Track time results    
         if $is_gym && ! map.sh -s ps.off; then
-            local decomp
-            vared -p "Decompress minutes: " -c decomp
-            if [[ -n $decomp && $decomp -gt 0 ]]; then
-                a "decomp $decomp #u"
+            if map.sh -s 'opt.track_decomp'; then
+                local decomp
+                vared -p "Decompress minutes: " -c decomp
+                if [[ -n $decomp && $decomp -gt 0 ]]; then
+                    a "decomp $decomp #u"
+                fi
             fi
 
             local main
@@ -531,7 +560,133 @@ function tgs {
     fi
 }
 
-# tracking ------------------------------------------------------------------- #
+
+# ================================= DIABETES ================================= #
+
+
+function diab {
+    local amount meal
+
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+        -u | --update)
+            eval 'vi "$diab"'
+            return
+            ;; 
+        --fill)
+            amount="$2"
+            shift 2
+            ;;
+        -m | --meal)
+            meal="$2"
+            shift 2
+            ;;
+        *)
+            break
+            ;;
+        esac
+    done
+
+    if [[ -z $meal ]]; then
+        if in_window.sh 10:00 16:00; then
+            meal="lunch"
+            echo "Lunch" | to_color.sh magenta
+        elif in_window.sh 16:00 02:00; then
+            meal="dinner"
+            echo "Dinner" | to_color.sh magenta
+        else
+            vared -p "%B%F{yellow}Meal:%f%b " -c meal
+            [[ -z $meal ]] && return 1
+        fi
+    fi
+
+    if [[ -z $amount ]]; then
+        local amount="$1"
+        
+        if [[ -z $amount ]]; then
+            vared -p "%B%F{yellow}Amount:%f%b " -c amount
+            [[ -z $amount ]] && return 1
+        fi
+    else
+        vared -p "%B%F{yellow}Amount:%f%b " -c amount
+        [[ -z $amount ]] && return 1
+    fi
+
+    "$diab" "$meal" "$amount"
+
+    local result="$(map.sh diab.insulin_amount)"
+    local delay="$(map.sh -m diab.delay)"
+    local carbs="$(map.sh -m diab.carbs)"
+
+    printf "%s\n" "$result"
+    print -s -- "$amount"
+
+    # Menu
+    local response=""
+    echo -n "\n(s)w $delay:00 | (e)dit -: " | to_color.sh yellow 
+    read response
+    if [[ "$response" =~ ^[SsYyQqNn]$ ]]; then
+        ( a.sh "#tmp #done ^insulin ^TASK ; $amount ; $result && carbohydrates $carbs #u" & ) >/dev/null
+        map.sh set diab.insulin_time "$(date +%H:%M)"
+
+        if [[ "$response" =~ ^[SsYy]$ ]]; then
+            sw --just-output "$delay:00"
+            date +"%Y-%m-%d %H:%M:%S" | to_color.sh blue
+        fi
+    elif [[ "$response" =~ ^[Ee]$ ]]; then
+        print -s -- ""
+        diab --fill "$amount"
+    else
+        return 1
+    fi
+}
+
+
+function insu {
+    # Print previous info
+    if [[ -z $1 ]]; then
+        local time_since_insulin=$(time_diff.sh $(map.sh diab.insulin_time) $(date +%H:%M))
+        [[ -z $time_since_insulin ]] && time_since_insulin="N/A"
+        echo "Time since insulin: $time_since_insulin"
+
+        local time_since_meal=$(time_diff.sh $(map.sh diab.meal_time) $(date +%H:%M))
+        [[ -z $time_since_meal ]] && time_since_meal="N/A"
+        echo "Time since meal:    $time_since_meal"
+
+        echo
+
+        map.sh diab
+        return
+    fi
+
+    # Track
+    if [[ $1 == 't' ]]; then
+        local amount="$2"
+        map set diab.insulin_amount "$amount"
+
+        if [[ -n $3 ]]; then
+            local time_ago="$3"
+        else
+            local time_ago=$(date +%H:%M)
+        fi
+        map set diab.insulin_time "$time_ago"
+
+        a "#tmp #done ^insulin ^TASK ; null ; $amount"
+
+    # Set difference
+    elif [[ $1 == 'ds' ]]; then
+        map set diab.diff "$2"
+    # Inc difference
+    elif [[ $1 == 'di' ]]; then
+        map inc diab.diff "$2"
+    else
+        echo "Invalid command"
+        return 1
+    fi
+}
+
+# ================================= TRACKING ================================= #
+
 
 function group { python3 $MY_SCRIPTS/lang/python/group.py "$@" | rat.sh -pPl 'json'; }
 function csv { conda run -n main python3 "$MY_SCRIPTS/lang/python/jsons_to_csv.py" $@ | rat.sh -pPl 'tsv'; }
@@ -643,7 +798,7 @@ function isl {
 }
 
 
-# obsidian ------------------------------------------------------------------- #
+# ================================= OBSIDIAN ================================= #
 
 function do_now {
     set -- $($MY_SCRIPTS/lang/shell/expand_args.sh $*)
@@ -708,7 +863,9 @@ function obc {
         lang="json"
     fi
 
-    ob --note-only "$file" | python3 $MY_SCRIPTS/lang/python/ob_filter.py "$@" | rat.sh -Pl "$lang" --file-name "$file"
+    ob --note-only "$file" | python3 $MY_SCRIPTS/lang/python/ob_filter.py "$@" | \
+        cat -s | \
+        rat.sh -Pl "$lang" --file-name "$file"
 }
 
 
@@ -732,7 +889,7 @@ function _ob_completions {
 compdef _ob_completions ob
 
 
-# todoist -------------------------------------------------------------------- #
+# ================================== TODOIST ================================= #
 
 alias td="todoist"
 alias tdl="tdl.sh"

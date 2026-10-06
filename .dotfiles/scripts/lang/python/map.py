@@ -68,12 +68,10 @@ def calc_value(value: str) -> object:
         return False
     elif value_lower == "null":
         return None
-    elif value.isdigit() or (value.startswith("-") and value[1:].isdigit()):
-        return int(value)
     else:
         try:
             value_parsed = json.loads(value)
-            if isinstance(value_parsed, (dict, list)) or value_parsed is None:
+            if isinstance(value_parsed, (dict, list, float, int)) or value_parsed is None:
                 return value_parsed
         except Exception:
             return value
@@ -149,15 +147,15 @@ def main():
             current_value = get_value(key.split("."))
             if current_value is None:
                 current_value = 0
-            elif not isinstance(amount, int):
-                print(f"Error: Amount to add for '{key}' is not an integer.")
+            elif not isinstance(amount, (int, float)):
+                print(f"Error: Amount to add for '{key}' is not a number.")
                 sys.exit(1)
 
-            if not isinstance(current_value, int):
-                print(f"Error: Current value for '{key}' is not an integer.")
+            if not isinstance(current_value, (int, float)):
+                print(f"Error: Current value for '{key}' is not a number.")
                 sys.exit(1)
 
-            new_value = cast(int, current_value) + cast(int, amount)
+            new_value = cast(float, current_value) + cast(float, amount)
             set_value(key.split("."), new_value)
             sys.exit(0)
 

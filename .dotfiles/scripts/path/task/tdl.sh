@@ -99,14 +99,6 @@ function main {
             filter="^a\Z" # Matches nothing
         fi
 
-        if map.sh -s s.headache || map.sh -s opt.busy; then
-            filter+="|(p3.*#bdg)|@zt"
-        fi
-
-        if in_window.sh 5:00 "$earliest_coding" && map.sh -s opt.busy; then
-            filter+="|#bdg"
-        fi
-
         if ! ping -c1 -t1 "$LOCAL_SERVER_IP" &>/dev/null; then
             filter+="|@p"
         fi

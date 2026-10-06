@@ -19,7 +19,7 @@ function act_ui {
         vared -p '%B%F{yellow}>%f%b ' -c input
         [[ -z $input ]] && break
 
-        eval "run_act $input"
+        eval run_act $input
         echo
 
         print -s -- "$input"

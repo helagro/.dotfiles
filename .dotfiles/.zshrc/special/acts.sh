@@ -52,8 +52,13 @@ function run {
 
     while :; do
         if $do_act; then
+            if ! is_home --guess-yes; then
+                act_filter="away $act_filter"
+            fi
+            
             if $alt; then
                 selection=""
+
                 acts.sh "$act_filter"
             else
                 local list=$(acts.sh "$act_filter")
@@ -95,7 +100,7 @@ function menu {
     local found_match=false
         
     # Take input
-    printf "Action: "
+    printf "Action: " | to_color.sh yellow
     local input="$1"
     read action </dev/tty
 
@@ -111,7 +116,7 @@ function menu {
     elif [[ "$action" == *"n"* ]]; then
         return
     elif [[ $action == *"f"* ]]; then
-        vared -p "Filter: " filter </dev/tty
+        vared -p "%B%F{yellow}Filter:%f%b " filter </dev/tty
         
         local escaped_filter=$(echo "$filter" | sed -E \
             -e "s/'/\\'/g" \
@@ -126,7 +131,7 @@ function menu {
         found_match=true
         do_act=false
     elif [[ $action == *"a"* ]]; then
-        vared -p "New task: " new_task </dev/tty
+        vared -p "%B%F{yellow}New task:%f%b " new_task </dev/tty
         (
             a.sh "$new_task" >/dev/null &
             $await_completion && wait
@@ -135,9 +140,9 @@ function menu {
 
     elif [[ $action == *"c"* ]]; then
         echo -n "" | pbcopy
-        
+                
     elif [[ $action == *"F"* ]]; then
-        vared -p "Act filter: " act_filter </dev/tty
+        vared -p "%B%F{yellow}Act filter:%f%b " act_filter </dev/tty
 
         print -s -- "$act_filter"
         print -s -- " "
@@ -158,10 +163,10 @@ function menu {
         fi
 
         update="$update "
-        vared -p "Update: " update </dev/tty
+        vared -p "%B%F{yellow}Update:%f%b " update </dev/tty
     elif [[ $action == *"r"* ]]; then
         local command=""
-        vared -p "Run: " command </dev/tty
+        vared -p "%B%F{yellow}Run:%f%b " command </dev/tty
 
         if [[ -n "$command" ]]; then
             eval "$command"

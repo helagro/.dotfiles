@@ -49,7 +49,7 @@ function menu {
     read action </dev/tty
 
     # IFs through actions
-    if [[ "$action" == "d" ]]; then
+    if [[ "$action" =~ "d|D" ]]; then
         close "$id" &
         
     elif [[ "$action" == "u" ]]; then

@@ -48,35 +48,23 @@ function is_truthy {
 
 # ==================================== EXECUTION =================================== #
 
-length_matches=""
-
-if [[ -n $1 ]]; then
-    note_length=$(ob.sh "$1" | wc -l)
-fi
-
-while IFS= read -r line; do
-    if [[ -n $1 && $line =~ '.*-IF.* <([0-9]+).*' ]]; then
-        local number="$match[1]"
-        if [ $note_length -le $number ]; then
-            length_matches+="$line\n"
-        fi
-    else
-        length_matches+="$line\n"
-    fi
-done
 
 non_state_matches=""
 
-echo "$length_matches" | while IFS= read -r line; do
-    if [[ "$line" == *'**-IF'* ]]; then
-        match_and "$line"
+while IFS= read -r line; do
+    local output=$(
+        if [[ "$line" == *'**-IF'* ]]; then
+            match_and "$line"
 
-    elif [[ "$line" == *'*-IF'* ]]; then
-        match_or "$line"
-        
-    elif [ -n "$line" ] && [[ "$line" != "---" ]]; then
-        non_state_matches+="$line\n"
-    fi
+        elif [[ "$line" == *'*-IF'* ]]; then
+            match_or "$line"
+            
+        elif [ -n "$line" ] && [[ "$line" != "---" ]]; then
+            non_state_matches+="$line\n"
+        fi
+    )
+
+    echo $output | sed "s/\$chore_reminder/$chore_reminder/g" 
 done
 
 echo -n $non_state_matches | awk '!seen[$0]++' | sed 's/- \[ \] //g'

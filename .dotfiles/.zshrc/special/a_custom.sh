@@ -3,11 +3,13 @@
 # Misc
 is="#zz @wifi @eye > is"
 p1="#other p1"
+florinef="get florinef in 122 days"
 
 # Special activities
-reboot='> sudo shutdown -r now #b'
-eat='> eat #b @mv'
-exor='> exor #b @mv'
+reboot='`sudo shutdown -r now` #b'
+eat='`eat` #b @mv'
+exor='`exor` #b @mv'
+dish="dish - _$chore_reminder_ #b @mv @home"
 
 # Run
 rb="@run #other :b"
@@ -16,33 +18,19 @@ pom="@run #other :p tom"
 
 # Tags
 mv="@mv @home"
-mb="@mv @home #b"
-mtb="@mv @home @tod #b"
+bo="@out #b"
+bm="@mv @home #b"
+bmt="@mv @home @tod #b"
 h="@home"
-pret="@return && c pret"
 
 alias tea="drink tea"
 alias water="drink water"
-
-# time ----------------------------------------------------------------------- #
-
 
 # Time shortcuts
 yd="yesterday"
 yyd="two days ago"
 
 # ================================= FUNCTIONS ================================ #
-
-function tv {
-    echo "#b \`tv $1 &<wbr>& echo\` @p @tod"
-}
-
-function dk {
-    local lines=$1
-    [[ -z $lines ]] && lines=1
-
-    printf "\033[$((1+$lines))A\033[J" >&3
-}
 
 function day_part {
     if is_dawn; then
@@ -61,7 +49,43 @@ function ut {
     printf '\033c' >&3
 }
 
+function remind_eat {
+    if in_window.sh "$(map routine.lunch 11:00)" 14:00; then
+        ! map -s done.lunch && is_home && out 'eat lunch'
+    elif in_window.sh "$(map routine.dinner 17:00)" 21:00; then
+        ! map -s done.dinner && is_home && out 'eat dinner'
+    fi
+}
+
 # manually executed ------------------------------------------------------------ #
+
+function hr {
+    local hour="$1"
+    local dest="$2"
+    local message="$(in)"
+
+    if [[ -z $hour || -z $dest || -z $message ]]; then
+        out "Missing hour, dest, or message"
+        return 1
+    fi
+
+    echo "#hour $hour ; + :$dest $message"
+}
+
+function hrb {
+    hr "$1" b
+}
+
+function tv {
+    echo "#b \`tv $1 &<wbr>& echo\` @p @tod"
+}
+
+function dk {
+    local lines=$1
+    [[ -z $lines ]] && lines=1
+
+    printf "\033[$((1+$lines))A\033[J" >&3
+}
 
 alias pyg="py get --"
 
@@ -75,6 +99,20 @@ function p {
 
 function share {
     echo "#share ![$1]($1)"
+}
+
+function exp {
+    if [[ -n $1 ]]; then
+        local food="$1"
+    else
+        local food=$(in 'food: ')
+    fi
+
+    local output="#docok $1"
+    local hard_deadline=$(in 'hard deadline: ')
+    if [[ -n $hard_deadline ]]; then
+        output="$output && #b **finish $1** $hard_deadline"
+    fi
 }
 
 # utils ---------------------------------------------------------------------- #

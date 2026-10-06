@@ -6,7 +6,7 @@ function back {
     
     # TODO - add calm down routine with timer
     
-    do_now -w p/situation/return > /dev/null
+    do_now -w p/situations/return > /dev/null
     ob back | cat
 }
 
@@ -17,6 +17,8 @@ function cook {
     if map.sh -s ps.off; then
         obc diet
     fi
+
+    obc docok
 
     if ! map.sh -m -s act.current; then
         act -n "cook" -L
@@ -165,7 +167,6 @@ function dawn {
         echo "$forecast"
     fi
 
-    wait
     later
     echo
 
@@ -174,7 +175,7 @@ function dawn {
     if [[ $(ob p | lines) -gt 1 ]]; then
         ob p
     else
-        a 'plan` - missing #b'
+        a '`plan` - missing #b @max_8'
     fi
 
     if map.sh -s 's.headache' && ! map.sh -s 'ps.off'; then
@@ -188,7 +189,7 @@ function dawn {
     # Other
     ({
         if is_home; then
-            do_now -w p/situation/return
+            do_now -w p/situations/return
 
             if (( $(loc sens temp) > 25 )); then
                 a '#b open window - ( temp > 25°C )'
@@ -236,7 +237,7 @@ function eve {
 
     # other info ------------------------------------------------- #
 
-    info tom | grep -vE 'detach|full_detach|full_detach|bed_time'
+    info tom | grep -vE 'lunch|dinner|detach|full_detach|bed_time' 
     echo
 
     "$MY_SCRIPTS/lang/shell/battery.sh" 40
@@ -250,11 +251,11 @@ function eve {
 
     # conditional displays ----------------------------------------------------------- #
 
-    if ! $is_late && ! map.sh -s done.excuse; then
+    if ! $is_late && ! map.sh -s done.excuse && map.sh -s opt.feat.excuse_reminder; then
         echo "Do excuse practice"
     fi
 
-    if ! $is_late && map.sh -s ps.off; then
+    if ! $is_late && ! map.sh -m -s done.improve && map.sh -s ps.off; then
         a '#b retrospective - off @tod'
     fi
 
@@ -275,7 +276,7 @@ function eve {
     fi
 
     # Handle temperature
-    if [[ $month -ge 5 && $month -le 9 ]]; then
+    if [[ $month -ge 5 && $month -le 8 ]]; then
         local temp=$(loc -S sens temp)
         if [[ -n $temp ]]; then
             if (( $temp > 23 )); then
@@ -309,10 +310,12 @@ function eve {
             a "screen $screen_min s #u"
         fi
 
-        vared -p "Decomp: " -c decomp
-        if [[ -n "$decomp" ]]; then 
-            local decomp_min=$(hm $decomp)
-            a "decomp $decomp_min #u"
+        if map.sh -s 'opt.track_decomp'; then
+            vared -p "Decomp: " -c decomp
+            if [[ -n "$decomp" ]]; then 
+                local decomp_min=$(hm $decomp)
+                a "decomp $decomp_min #u"
+            fi
         fi
 
         vared -p "TV: " -c tv
@@ -322,21 +325,24 @@ function eve {
         fi
     fi
 
-    if [[ "$(map.sh s.gym_ago)" -ge 4 ]] && ! map.sh -s 's.sick' && ! $is_late; then
+    if [[ "$(map.sh s.gym_ago)" -ge 4 ]] && ! map.sh -s done.gym && ! map.sh -s 's.sick' && ! $is_late; then
         leverage 'no_gym'
     fi
 
     # auto track ------------------------------------------------- #
 
     $before_midnight && (eve_track &)
-    a '#tmp done ; detach'
 
     # display main ----------------------------------------------- #
 
     clear
     ! $is_late && eve_extra "$tv_min"
 
-    ob eve
+    if is_home; then
+        ob eve
+    else
+        obc eve -F home
+    fi
 
     "$HOME/.dotfiles/scripts/lang/shell/battery.sh" 50
     ob "p/auto/state eve act.md" | state_switch.sh
@@ -358,11 +364,7 @@ function eve {
 
     later
 
-    if ! $is_late && ! map.sh -s ps.off && is_home; then
-        ask "Do wind-down activity later instead?" && a "#b [[detach]]"
-    fi
-
-    a '#done detach'
+    a '#done ^routine ; detach'
 }
 
 
@@ -377,11 +379,13 @@ function bedtime {
         loc led "red?a=off" &
     ) 2>/dev/null
 
-    local decomp=""
-    vared -p "Decomp: " -c decomp
-    if [[ -n "$decomp" ]]; then 
-        local decomp_min=$(hm $decomp)
-        a "decomp $decomp_min #u"
+    if map.sh -s 'opt.track_decomp'; then
+        local decomp=""
+        vared -p "Decomp: " -c decomp
+        if [[ -n "$decomp" ]]; then 
+            local decomp_min=$(hm $decomp)
+            a "decomp $decomp_min #u"
+        fi
     fi
 
     # Flush tasks in desktop
@@ -394,11 +398,9 @@ function bedtime {
         echo "earbuds - spring"
     elif [[ $(date +%a) == (Fri|Sat) ]]; then
         echo "earplugs - weekend"
-    elif is_orust; then
-        echo "earplugs - orust"
     fi
 
-    if [[ $month -le 2 || $month -ge 9 ]]; then
+    if [[ $month -le 2 || $month -ge 11 ]]; then
         echo "have warm clothes near"
         echo "scarf?"
     elif [[ $month -ge 4 && $month -le 5 ]]; then
@@ -420,12 +422,17 @@ function bedtime {
 
     # general ------------------------------------------------------------ #
 
+    local zink_len=$(ob zink | lines)
+    if [[ $zink_len -ge 14 ]]; then
+        printf "len zink : %s\n" "$zink_len"
+    fi
+
     ob "state bedtime" | state_switch.sh
     ob bedtime
 
     # [[ $(ob p | lines) -le 2 ]] && plan
 
-    a '#done bedtime'
+    a '#done ^routine ^TASK ; bedtime'
 
     # shut down ------------------------------------------------------------------ #
 
@@ -454,6 +461,3 @@ function bedtime {
     fi
 }
 
-# ========================== HELPERS ========================= #
-
-function bed_minus_dinner { time_diff.sh -mp $(date +%H:%M) $(tl.sh 'routines/bed_time/start?sep=%3A'); }

@@ -176,7 +176,11 @@ function inv {
 }
 
 function info {
-    short -m -N day "$1" | grep -Ev 'full_detach|stable_on_or_off|latest_dinner' | to_color.sh blue
+    short -m -N day "$1" | \
+        grep -Ev 'full_detach|stable_on_or_off|latest_dinner' | \
+        awk '!seen[$0]++' | \
+        to_color.sh blue
+        
     echo
 
     tdis
@@ -188,7 +192,6 @@ alias timer="short -s timer"
 
 function sw {
     # Initialise variables
-    local do_focus=false
     local just_output=false
     
     local time=""
@@ -199,10 +202,6 @@ function sw {
     # Parse options
     while [[ $# -gt 0 ]]; do
         case "$1" in
-        -f | --focus)
-            do_focus=true
-            shift
-            ;;
         -j | --just-output)
             just_output=true
             shift
@@ -230,17 +229,13 @@ function sw {
         $activity == "main"
     ]] && trackable=true
 
-    if [[ $activity == *"decomp"* ]]; then
+    if [[ $activity == *"decomp"* ]] && map.sh -s 'opt.track_decomp'; then
         trackActivity="decomp"
         trackable=true
     fi
 
 
     # handle pre-timer setup ----------------------------------------------------- #
-
-    if $do_focus; then
-        short -s focus on
-    fi
 
     if $trackable; then
         echo "[TRACKING $trackActivity]" | to_color.sh yellow   
@@ -299,11 +294,5 @@ function sw {
             map.sh inc "s.$trackActivity" $min
         fi
 
-    fi
-
-    # reset state ---------------------------------------------------------------- #
-
-    if $do_focus; then
-        short -s focus off
     fi
 }

@@ -2,7 +2,6 @@
 
 [[ "$PWD" == "$HOME/.dotfiles/config/tabs/"* ]] && is_special_tab=true || is_special_tab=false
 $is_special_tab && [[ "$PWD" == "$HOME/.dotfiles/config/tabs/work" ]] && is_work_tab=true || is_work_tab=false
-$is_special_tab && [[ "$PWD" == "$HOME/.dotfiles/config/tabs/red" ]] && export is_red_tab=true || export is_red_tab=false
 
 source "$HOME/.dotfiles/.zshrc/first.sh"
 export PATH="$HOME/.dotfiles/scripts/path:$(printf "%s:" "$HOME/.dotfiles/scripts/path"/*/):$PATH"
@@ -48,12 +47,7 @@ source "$HOME/.dotfiles/.zshrc/main.sh"
 
 # ================================ ALTERED TABS ================================ #
 
-if $is_red_tab; then
-    printf "\033]10;rgb:ff/30/30\007"
-    cd "$HOME"
-else
-    red_mode 0 0
-fi
+red_mode 0 0
 
 if $is_work_tab; then
     cd "$HOME"
@@ -69,7 +63,7 @@ if [ "$(uname)" = "Darwin" ]; then
         source "$(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
     fi
 
-    if ! $is_red_tab && [[ -f "$(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; then
+    if [[ -f "$(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; then
         source "$(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
     fi
 
