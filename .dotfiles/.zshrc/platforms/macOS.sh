@@ -238,7 +238,7 @@ function sw {
     # handle pre-timer setup ----------------------------------------------------- #
 
     if $trackable; then
-        echo "[TRACKING $trackActivity]" | to_color.sh yellow   
+        echo "[TRACKING $trackActivity]" | to_color.sh magenta   
     fi
 
     # run stopwatch -------------------------------------------------------------- #
@@ -289,7 +289,7 @@ function sw {
                 local track_cmd="$(day) $trackActivity $min #u"
             fi
 
-            echo "$track_cmd" | to_color.sh yellow
+            echo "$track_cmd" | to_color.sh magenta
             a "$track_cmd"
             map.sh inc "s.$trackActivity" $min
         fi

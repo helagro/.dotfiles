@@ -133,7 +133,7 @@ function menu {
     elif [[ $action == *"a"* ]]; then
         vared -p "%B%F{yellow}New task:%f%b " new_task </dev/tty
         (
-            a.sh "$new_task" >/dev/null &
+            a.sh "$new_task" &
             $await_completion && wait
         )
         found_match=true
@@ -212,7 +212,7 @@ function menu {
                         local project=$(echo "$content" | sed -n 's/.*#\([A-Za-z0-9/]*\).*/\1/p')
                         if [[ -n $project && ! $project =~ 'u|Inbox|then|done|hooks' ]]; then
                             local item_text=$(echo "$content" | sed 's/#//g' | sed 's/://g' | td.sh s)
-                            a "#done ^$project ; $item_text"
+                            a "#done @$project ; $item_text"
                         fi
                     fi
                     

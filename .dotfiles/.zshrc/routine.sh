@@ -42,6 +42,11 @@ function wake {
             dnd 0
         }&)
 
+        # Handle loc command - Will call again if no internet
+        if [[ -n $1 ]]; then
+            loc "$@" 2>/dev/null
+        fi
+
         # Handle cortisone
         local cort_taken
         vared -p 'Cort amt: ' -c cort_taken
@@ -58,17 +63,10 @@ function wake {
         fi
 
         if ! is_home --guess-yes; then
-            if is_orust; then
-                obc orust
-            elif ask "obc stayover?"; then
-                a 'social 1 ; away 1'
-                a '!(13:00) eat lunch @rm'
-                obc stayover
-            else
-                a 'away 1'
-            fi
+            "$MY_SCRIPTS/secret/ssid_switch.sh" "$(short ssid)" wake
         fi
 
+        a '#done @routine wake'
         wake_extra "$cort_taken"
     fi
 
@@ -86,7 +84,7 @@ function wake {
             fi
 
             if [[ -n $cort_taken ]]; then
-                a "cort ; $cort_taken #tmp"
+                a "#took @cort $cort_taken"
                 map.sh inc s.cort "$cort_taken"
 
                 if [[ $cort_taken -ge 10 ]]; then
@@ -159,7 +157,6 @@ function dawn {
     obc dawn
 
     local streaks=$(glo habits streaks)
-    echo "$streaks" | bat -p --color=always -l json
     map.sh set 's.gym_ago' "$(echo "$streaks" | jq '.gym')"
 
     local forecast=$(weather -l 1)
@@ -170,7 +167,6 @@ function dawn {
     later
     echo
 
-    [[ $(ob rule | lines) -gt 1 ]] && ob rule
     [[ $(ob risk | lines) -gt 1 ]] && ob risk
     if [[ $(ob p | lines) -gt 1 ]]; then
         ob p
@@ -178,24 +174,31 @@ function dawn {
         a '`plan` - missing #b @max_8'
     fi
 
-    if map.sh -s 's.headache' && ! map.sh -s 'ps.off'; then
-        obc 'head period' -s
-    fi
-
     echo $cal | "$MY_SCRIPTS/secret/agenda_switch.sh"
     ob p | "$MY_SCRIPTS/secret/agenda_switch.sh"
     ob b | "$MY_SCRIPTS/secret/agenda_switch.sh"
 
-    # Other
-    ({
-        if is_home; then
-            do_now -w p/situations/return
+    # other ---------------------------------------------------------------------- #
 
-            if (( $(loc sens temp) > 25 )); then
-                a '#b open window - ( temp > 25°C )'
-            fi
+    a '#tmp dawn'
+
+    if should_extra; then
+        [[ $(ob rule | lines) -gt 1 ]] && ob rule
+        echo "$streaks" | bat -p --color=always -l json
+
+        # If headache
+        if map.sh -s 's.head' && ! map.sh -s 'ps.off'; then
+            obc 'head period' -s
         fi
-    }&) 
+    fi
+
+    if is_home; then
+        do_now -w p/situations/return
+
+        if (( $(loc sens temp) > 25 )); then
+            a '#b open window - ( temp > 25°C )'
+        fi
+    fi
 }
 
 
@@ -212,8 +215,11 @@ function eve {
     fi
 
     local month=$(date +%m)
+
     [[ $(date +%H) -ge 16 ]] && local before_midnight=true || local before_midnight=false
     in_window.sh $(map.sh routine.full_detach 21:30) 05:00 && local is_late=true || local is_late=false
+    map.sh -s s.visit && local is_visit=true || local is_visit=false
+    is_home && local is_home=true || local is_home=false
 
     # environment ------------------------------------------------ #
 
@@ -227,7 +233,7 @@ function eve {
 
     # reset ---------------------------------------------------------------------- #
 
-    if [[ $(ob rule | lines) -gt 1 ]]; then
+    if [[ $(ob rule | lines) -gt 1 ]] && ! $is_visit; then
         ob rule
     fi
 
@@ -242,60 +248,65 @@ function eve {
 
     "$MY_SCRIPTS/lang/shell/battery.sh" 40
 
-    printf 'Cort: '
-    is 'cort' 2
-
     if map.sh -s ps.off; then
         echo "is off" | to_color.sh yellow
     fi
 
     # conditional displays ----------------------------------------------------------- #
 
-    if ! $is_late && ! map.sh -s done.excuse && map.sh -s opt.feat.excuse_reminder; then
-        echo "Do excuse practice"
-    fi
+    if ! $is_visit; then
+        printf 'Cort: '
+        is 'cort' 2
 
-    if ! $is_late && ! map.sh -m -s done.improve && map.sh -s ps.off; then
-        a '#b retrospective - off @tod'
-    fi
-
-    if map.sh -s 's.low_sleep'; then
-        echo "Turn off alarm? - sleepy"
-    fi
-
-    # Handle snow
-    if [[ $month -ge 11 || $month -le 2 ]]; then
-        local forecast=$(weather)
-
-        if echo $forecast | grep -q "snow"; then
-            echo "$forecast"
-            if ask "Add ear plugs? - snow"; then 
-                a "ear plugs #b"
+        if ! $is_late; then
+            if ! map.sh -s done.excuse && map.sh -s opt.feat.excuse_reminder; then
+                echo "Do excuse practice"
             fi
+
+            if ! map.sh -s done.improve && map.sh -s ps.off; then
+                a '#b retrospective - off @tod'
+            fi
+        fi
+
+        if map.sh -s 's.low_sleep'; then
+            echo "Turn off alarm? - sleepy"
+        fi
+
+        # Handle snow
+        if [[ $month -ge 11 || $month -le 2 ]]; then
+            local forecast=$(weather)
+
+            if echo $forecast | grep -q "snow"; then
+                echo "$forecast"
+                if ask "Add ear plugs? - snow"; then 
+                    a "ear plugs #b"
+                fi
+            fi
+        fi
+
+        # Handle temperature
+        if [[ $month -ge 5 && $month -le 8 ]]; then
+            local temp=$(loc -S sens temp)
+            if [[ -n $temp ]]; then
+                if (( $temp > 23 )); then
+                    echo "open window & rm curtains - ( $temp > 23°C )"
+                elif (( $temp > 21 )); then
+                    echo "open window - ( $temp > 21°C )"
+                fi
+            fi
+        fi
+        
+        if [[ $(date +"%m") -gt 5 && $(date +"%m") -le 8 && $(date +%H) -le 21 ]] && is_home; then 
+            echo "optimize melatonin - summer"
         fi
     fi
 
-    # Handle temperature
-    if [[ $month -ge 5 && $month -le 8 ]]; then
-        local temp=$(loc -S sens temp)
-        if [[ -n $temp ]]; then
-            if (( $temp > 23 )); then
-                echo "open window & rm curtains - ( $temp > 23°C )"
-            elif (( $temp > 21 )); then
-                echo "open window - ( $temp > 21°C )"
-            fi
-        fi
-    fi
-    
-    if [[ $(date +"%m") -gt 5 && $(date +"%m") -le 8 && $(date +%H) -le 21 ]] && is_home; then # Is Jun, Jul or Aug
-        echo "optimize melatonin - summer"
-    fi
 
     if [[ $(date +%u) -eq 7 ]] && map.sh -s ps.off; then
-        if $is_late; then
-            echo "LOG #week"
-        else
+        if $is_late || $is_visit; then
             a "**log week** #b"
+        else
+            echo "LOG #week"
         fi
     fi
 
@@ -303,7 +314,7 @@ function eve {
 
     echo
 
-    if $before_midnight; then
+    if $before_midnight && ! $is_visit; then
         vared -p "Screen: " -c screen
         if [[ -n "$screen" ]]; then 
             local screen_min=$(hm $screen)
@@ -323,10 +334,10 @@ function eve {
             local tv_min=$(hm $tv)
             a "tv $tv_min"
         fi
-    fi
 
-    if [[ "$(map.sh s.gym_ago)" -ge 4 ]] && ! map.sh -s done.gym && ! map.sh -s 's.sick' && ! $is_late; then
-        leverage 'no_gym'
+        if [[ "$(map.sh s.gym_ago)" -ge 4 ]] && ! map.sh -s done.gym && ! map.sh -s 's.sick' && ! $is_late; then
+            leverage 'no_gym'
+        fi
     fi
 
     # auto track ------------------------------------------------- #
@@ -338,7 +349,7 @@ function eve {
     clear
     ! $is_late && eve_extra "$tv_min"
 
-    if is_home; then
+    if $is_home; then
         ob eve
     else
         obc eve -F home
@@ -349,22 +360,23 @@ function eve {
 
     # flight mode ------------------------------------------------ #
 
-    if [[ ! " $@ " == *" -F "* ]]; then
-        read
+    if [[ ! " $@ " == *" -F "* ]] && ! $is_visit; then
         short phondo "flight mode"
         dnd 1
     fi
 
     # other ------------------------------------------------------------ #
 
-    local load_res=$(is -v "load" 1)
-    if [[ "$load_res" -gt 6 ]]; then
-        a "#b :p load - %% $load_res %% "
+    if $is_home; then
+        local load_res=$(is -v "load" 1)
+        if [[ "$load_res" -gt 6 ]]; then
+            a "#b :p load - %% $load_res %% "
+        fi
     fi
 
     later
 
-    a '#done ^routine ; detach'
+    a '#done @routine detach'
 }
 
 
@@ -373,11 +385,6 @@ function bedtime {
     ( bedtime_extra & ) 2>/dev/null
 
     short -s focus sleep
-    (
-        [[ -n $1 ]] && loc "$@" &
-        loc led "green?a=off" &
-        loc led "red?a=off" &
-    ) 2>/dev/null
 
     if map.sh -s 'opt.track_decomp'; then
         local decomp=""
@@ -391,49 +398,59 @@ function bedtime {
     # Flush tasks in desktop
     a 'flush @rm'
 
-    # display seasonal -------------------------------------------------------------------- #
+    if is_home; then
+        # handle loc ----------------------------------------------------------------- #
 
-    local month=$(date +%m)
-    if [[ "$month" == "03" || "$month" == "04" || "$month" == "05" ]]; then
-        echo "earbuds - spring"
-    elif [[ $(date +%a) == (Fri|Sat) ]]; then
-        echo "earplugs - weekend"
-    fi
+        (
+            [[ -n $1 ]] && loc "$@" &
+            loc led "green?a=off" &
+            loc led "red?a=off" &
+        ) 2>/dev/null
 
-    if [[ $month -le 2 || $month -ge 11 ]]; then
-        echo "have warm clothes near"
-        echo "scarf?"
-    elif [[ $month -ge 4 && $month -le 5 ]]; then
-        echo 'USE eye mask'
-    
-        local temp=$(loc -S sens/temp)
-        if [[ -n $temp ]] && (( $temp > 21 )); then
-            echo "USE fan - $temp > 21°C"
+        # display seasonal -------------------------------------------------------------------- #
 
-            if (( $temp > 22 )); then
-                echo "cold pad UNDER pillow - $temp > 22°C"
+        local month=$(date +%m)
+        if [[ "$month" == "03" || "$month" == "04" || "$month" == "05" ]]; then
+            echo "earbuds - spring"
+        elif [[ $(date +%a) == (Fri|Sat) ]]; then
+            echo "earplugs - weekend"
+        fi
+
+        if [[ $month -le 2 || $month -ge 11 ]]; then
+            echo "have warm clothes near"
+            echo "scarf?"
+        elif [[ $month -ge 4 && $month -le 5 ]]; then
+            echo 'USE eye mask'
+        
+            local temp=$(loc -S sens/temp)
+            if [[ -n $temp ]] && (( $temp > 21 )); then
+                echo "USE fan - $temp > 21°C"
+
+                if (( $temp > 22 )); then
+                    echo "cold pad UNDER pillow - $temp > 22°C"
+                fi
             fi
         fi
-    fi
 
-    if [[ $(map s.sleep_delay) -ge 90 ]]; then
-        echo "sleep somewhere different - sleep delay"
-    fi
+        if [[ $(map s.sleep_delay) -ge 90 ]]; then
+            echo "sleep somewhere different - sleep delay"
+        fi
 
-    # general ------------------------------------------------------------ #
+        # general ------------------------------------------------------------ #
 
-    local zink_len=$(ob zink | lines)
-    if [[ $zink_len -ge 14 ]]; then
-        printf "len zink : %s\n" "$zink_len"
+        local zink_len=$(ob zink | lines)
+        if [[ $zink_len -ge 14 ]]; then
+            printf "len zink : %s\n" "$zink_len"
+        fi
+    else
+        "$MY_SCRIPTS/secret/ssid_switch.sh" "$(short ssid)" bedtime
     fi
 
     ob "state bedtime" | state_switch.sh
     ob bedtime
 
-    # [[ $(ob p | lines) -le 2 ]] && plan
-
-    a '#done ^routine ^TASK ; bedtime'
-
+    a '#done @routine @TASK bedtime ; -------------------------------'
+    
     # shut down ------------------------------------------------------------------ #
 
     if is_home --not-offline && ! map.sh -s opt.reachable && ask "Set flight mode on phone?"; then
@@ -441,7 +458,7 @@ function bedtime {
     fi
 
     local uptime=$(sysctl -n kern.boottime | awk '{print $4}' | tr -d ',')
-    if [[ $uptime -lt $(date -v-8d +%s) ]]; then
+    if [[ $uptime -lt $(date -v-10d +%s) ]]; then
         if ask "Shut down?"; then
             wait
             sudo shutdown -h now

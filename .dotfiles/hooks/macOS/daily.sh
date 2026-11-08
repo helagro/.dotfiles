@@ -24,11 +24,12 @@ function main {
 function weekly {
     echo "Running weekly tasks..."
     
+    # Log weekly
     if map off; then
         a '#b weekly log'
     fi
     
-    # list apps
+    # List apps
     echo "--- list_app"
     cd "$MY_SCRIPTS/lang/shell" && ./list_app.sh 2>&1
 

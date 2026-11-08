@@ -93,7 +93,7 @@ def main():
     if args:
         if args[0] == "set":
             if args_len != 3:
-                print("Usage: state.py set <key> <value>")
+                print(f"Usage: state.py set <key> <value>. Key is {None if args_len < 2 else args[1]}")
                 sys.exit(1)
 
             key = args[1]
@@ -148,11 +148,11 @@ def main():
             if current_value is None:
                 current_value = 0
             elif not isinstance(amount, (int, float)):
-                print(f"Error: Amount to add for '{key}' is not a number.")
+                print(f"Error: Amount to add for '{key}' is not a number. ({amount})")
                 sys.exit(1)
 
             if not isinstance(current_value, (int, float)):
-                print(f"Error: Current value for '{key}' is not a number.")
+                print(f"Error: Current value for '{key}' is not a number. ({amount})")
                 sys.exit(1)
 
             new_value = cast(float, current_value) + cast(float, amount)
@@ -167,7 +167,7 @@ def main():
         if isinstance(value, str):
             print(value)
         else:
-            print(json.dumps(value, indent=2))
+            print(json.dumps(value, indent=2, sort_keys=True))
 
     sys.exit(not value)
 

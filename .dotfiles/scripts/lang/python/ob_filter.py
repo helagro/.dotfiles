@@ -57,10 +57,12 @@ def main(input, args):
         if args.section and (not line or line.isspace()):
             break
 
+        # Extracts tags
         if re.match(r".*\^\w+\s.*", line):
             matches = re.findall(r"\^\w+", line)
             found_tags.update(m[1:] for m in matches)
 
+        # Continue if only supposed to list flags
         if args.list:
             continue
 
@@ -100,6 +102,9 @@ def excluded_by_tags(line, tags):
 
 def included_by_tags(line, tags):
     if not tags:
+        return True
+
+    if not line:
         return True
 
     for tag_arr in tags:

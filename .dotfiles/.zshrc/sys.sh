@@ -1,13 +1,12 @@
 #!/bin/zsh
 
-alias glo="tl.sh"
-alias map="map.sh"
-
 dawn_start='04:00'
 day_start='12:00'
 eve_start='18:00'
 eve_end='01:00'
-ashr="$HOME/.dotfiles/scripts/secret/ash_remind.sh"
+
+alias glo="tl.sh"
+alias map="map.sh"
 
 # ================================= FUNCTIONS ================================ #
 
@@ -15,8 +14,6 @@ function is_dawn { in_window.sh $dawn_start $day_start; }
 function is_day { in_window.sh $day_start $eve_start; }
 function is_eve { in_window.sh $eve_start $eve_end; }
 
-alias is_summery='test "$(date +%m)" -ge 5 -a "$(date +%m)" -le 9'
-alias is_wintery='test "$(date +%m)" -ge 11 -o "$(date +%m)" -le 2'
 
 
 function is_occupied {
@@ -83,8 +80,9 @@ function act {
     local important_flag="-i"
     local do_dnd=true
     local print_start_date=true
+    local do_live_tracking=true
 
-    map.sh -s opt.extra && local do_local=true || local do_local=false
+    map.sh -s opt.feat.extra && local do_local=true || local do_local=false
     local should_block=true
 
     local max_duration="60:00"
@@ -157,7 +155,7 @@ function act {
     # print secondary info ------------------------------------------------------- #
 
     $print_start_date && { date +"%Y-%m-%d %H:%M:%S" | to_color.sh blue; }
-    ( $was_home && act_extra "$activity_name" "$project" & )
+    $was_home && act_extra "$activity_name" "$project"
 
     # handle specific activities ------------------------------------------------- #
     
@@ -170,7 +168,7 @@ function act {
         activity_name="main"
 
         if [[ $project == "p1" ]]; then
-            echo 'Medd during' | to_color.sh cyan
+            should_extra -c && echo 'Medd during' | to_color.sh cyan
         fi
 
     elif [[ $project == "sys" ]]; then
@@ -179,7 +177,7 @@ function act {
             return 1
         fi
 
-        echo 'Medd during' | to_color.sh cyan
+        should_extra -c && echo 'Medd during' | to_color.sh cyan
         should_block=false
 
     elif [[ $project == "exor" || $project == "mind" || $project == "mixed" || $project == "social" ]]; then
@@ -192,13 +190,13 @@ function act {
             important_flag=''
 
         elif [[ $activity_name == 'walk' ]]; then
-            ask 'cort 2.5?' && a 'cort 2.5 #u'
+            ask 'cort 2.5?' yellow && a 'cort 2.5 #u'
         fi
 
     elif [[ $project == "improve" ]]; then
         max_duration=''
         should_block=false
-        map.sh -m set done.improve true
+        map.sh set done.improve true
 
     elif [[ -z $project ]]; then
         max_duration=''
@@ -213,7 +211,10 @@ function act {
 
     if $online; then
         # toggl
-        tgs "$project" "$activity_name"
+        if [[ -n $activity_name && $(map -m act.current) =~ '^(non-activity|exor)' ]]; then
+            ask "Override tracking $(map -m act.current)?" yellow || do_live_tracking=false
+        fi
+        $do_live_tracking && tgs "$project" "$activity_name"
 
         # local app
         if $do_local && in_window.sh 7:00 $(map routine.full_detach 21:30); then
@@ -250,10 +251,12 @@ function act {
         fi
     fi
 
-    if [[ -n $project ]]; then
-        map -m set act.current "$project"
-    else
-        map -m set act.current "no project"
+    if $do_live_tracking; then
+        if [[ -n $project ]]; then
+            map -m set act.current "$project"
+        else
+            map -m set act.current "no project"
+        fi
     fi
 
     sw $important_flag -a "$activity_name" $max_duration
@@ -267,10 +270,14 @@ function act {
 
     if $online; then
         (
-            toggl stop || later 'toggl stop'
+            $do_live_tracking && { toggl stop || later 'toggl stop'; }
             loc stop &
             $is_day && loc "dev colored color chill" &
         ) >/dev/null 2>&1
+    fi
+
+    if [[ $project == "social" ]]; then
+        should_extra -c && echo 'Wash hands' | to_color.sh cyan
     fi
 }
 
@@ -419,9 +426,9 @@ function exor {
 
         # Show warnings
         if map -s s.low_sleep && in_window.sh 07:00 14:00; then
-            echo "WARN - Workout when tired, consider afternoon energy" | to_color.sh yellow
+            echo "WARN - Workout when tired, consider afternoon energy" | to_color.sh magenta
         elif map -s s.fam && ! map -s ps.off; then
-            echo "WARN - Workout when fam, consider energy" | to_color.sh yellow
+            echo "WARN - Workout when fam, consider energy" | to_color.sh magenta
         fi
 
         # Show relevant note
@@ -430,7 +437,7 @@ function exor {
             obc "$type"
         elif [[ $type == *"run"* ]]; then
             obc "running"
-            ask 'Continue?'
+            ask 'Continue?' 'yellow'
         elif $is_gym; then
             if map.sh -s s.weak; then
                 obc "gym prob"
@@ -565,20 +572,12 @@ function tgs {
 
 
 function diab {
-    local amount meal
+    local amount_input meal
 
     while [[ $# -gt 0 ]]; do
         case "$1" in
-        -u | --update)
-            eval 'vi "$diab"'
-            return
-            ;; 
         --fill)
-            amount="$2"
-            shift 2
-            ;;
-        -m | --meal)
-            meal="$2"
+            amount_input="$2"
             shift 2
             ;;
         *)
@@ -587,55 +586,88 @@ function diab {
         esac
     done
 
-    if [[ -z $meal ]]; then
-        if in_window.sh 10:00 16:00; then
-            meal="lunch"
-            echo "Lunch" | to_color.sh magenta
-        elif in_window.sh 16:00 02:00; then
-            meal="dinner"
-            echo "Dinner" | to_color.sh magenta
-        else
-            vared -p "%B%F{yellow}Meal:%f%b " -c meal
-            [[ -z $meal ]] && return 1
-        fi
-    fi
-
-    if [[ -z $amount ]]; then
-        local amount="$1"
+    if [[ -z $amount_input ]]; then
+        local amount_input="$1"
         
-        if [[ -z $amount ]]; then
-            vared -p "%B%F{yellow}Amount:%f%b " -c amount
-            [[ -z $amount ]] && return 1
+        if [[ -z $amount_input ]]; then
+            vared -p "%B%F{yellow}Amount:%f%b " -c amount_input
         fi
     else
-        vared -p "%B%F{yellow}Amount:%f%b " -c amount
-        [[ -z $amount ]] && return 1
+        vared -p "%B%F{yellow}Amount:%f%b " -c amount_input
     fi
 
-    "$diab" "$meal" "$amount"
+    "$diab" "$amount_input"
 
-    local result="$(map.sh diab.insulin_amount)"
+    local result="$(map.sh -m diab.insulin_amount)"
     local delay="$(map.sh -m diab.delay)"
     local carbs="$(map.sh -m diab.carbs)"
+    local instant="$(map.sh -m diab.instant)"
 
     printf "%s\n" "$result"
-    print -s -- "$amount"
+    print -s -- "$amount_input"
 
     # Menu
     local response=""
-    echo -n "\n(s)w $delay:00 | (e)dit -: " | to_color.sh yellow 
+    echo -n "\nMODIFIERS: (i)nc | (a)t\nCOMMANDS:  (s)w $delay:00 | (t)ake | (e)dit | (d)iff -: " | to_color.sh yellow 
     read response
-    if [[ "$response" =~ ^[SsYyQqNn]$ ]]; then
-        ( a.sh "#tmp #done ^insulin ^TASK ; $amount ; $result && carbohydrates $carbs #u" & ) >/dev/null
-        map.sh set diab.insulin_time "$(date +%H:%M)"
+    if [[ $response =~ [SsQqDdTt] ]]; then
+        [[ $response =~ [SsTt] ]] && local was_taken=true || local was_taken=false
 
-        if [[ "$response" =~ ^[SsYy]$ ]]; then
-            sw --just-output "$delay:00"
-            date +"%Y-%m-%d %H:%M:%S" | to_color.sh blue
+        if $was_taken; then 
+            map.sh set diab.insulin_amount "$result"
+
+            if [[ $carbs -eq 0 && $(map.sh -m diab.diff) -ne 0 ]]; then
+                map.sh inc diab.diff "$result"
+            else
+                map.sh set diab.diff 0
+            fi
+
+            if [[ $response =~ [Aa] ]]; then
+                local insulin_time
+                vared -p "At (HH:MM): " -c insulin_time
+
+                if [[ -n $insulin_time ]]; then
+                    map.sh set diab.insulin_time "$insulin_time"
+                else
+                    echo "No time provided, using current time" | to_color.sh red
+                    map.sh set diab.insulin_time "$(date +%H:%M)"
+                fi
+            else
+                map.sh set diab.insulin_time "$(date +%H:%M)"
+            fi
+
+            if [[ $response =~ [Ss] ]]; then
+                sw --just-output "$delay:00"
+                date +"%Y-%m-%d %H:%M:%S" | to_color.sh blue
+            fi
+
+            a "#done @insulin @TASK $amount_input &&\
+                #took @diab $result ; $(date +%H:%M) ; $amount_input"
+
+            [[ -n $carbs && $carbs -gt 0 ]] && a "carbohydrates $carbs"
+            [[ -n $instant && $instant -gt 0 ]] && a "instant $instant"
         fi
-    elif [[ "$response" =~ ^[Ee]$ ]]; then
+
+        if [[ $response =~ [Dd] ]]; then
+            if $was_taken || [[ $result -eq 0 ]]; then
+                local diff
+                vared -p "%B%F{yellow}Diff: %f%b" -c diff
+                [[ -z $diff ]] && return 1
+            else
+                local diff="$result"
+            fi
+
+            if [[ $response =~ [Ii] ]]; then
+                map.sh inc diab.diff "$diff"
+                ( a.sh "#took @diab @diff_inc $diff ; $amount_input" & ) >/dev/null
+            else
+                map.sh set diab.diff "$diff"
+                ( a.sh "#took @diab @diff_set $diff ; $amount_input" & ) >/dev/null
+            fi
+        fi
+    elif [[ "$response" =~ [Ee] ]]; then
         print -s -- ""
-        diab --fill "$amount"
+        diab --fill "$amount_input"
     else
         return 1
     fi
@@ -644,45 +676,17 @@ function diab {
 
 function insu {
     # Print previous info
-    if [[ -z $1 ]]; then
-        local time_since_insulin=$(time_diff.sh $(map.sh diab.insulin_time) $(date +%H:%M))
-        [[ -z $time_since_insulin ]] && time_since_insulin="N/A"
-        echo "Time since insulin: $time_since_insulin"
+    local time_since_insulin=$(time_diff.sh $(map.sh diab.insulin_time) $(date +%H:%M))
+    [[ -z $time_since_insulin ]] && time_since_insulin="N/A"
+    echo "Time since insulin: $time_since_insulin"
 
-        local time_since_meal=$(time_diff.sh $(map.sh diab.meal_time) $(date +%H:%M))
-        [[ -z $time_since_meal ]] && time_since_meal="N/A"
-        echo "Time since meal:    $time_since_meal"
+    local time_since_meal=$(time_diff.sh $(map.sh diab.meal_time) $(date +%H:%M))
+    [[ -z $time_since_meal ]] && time_since_meal="N/A"
+    echo "Time since meal:    $time_since_meal"
 
-        echo
+    echo
 
-        map.sh diab
-        return
-    fi
-
-    # Track
-    if [[ $1 == 't' ]]; then
-        local amount="$2"
-        map set diab.insulin_amount "$amount"
-
-        if [[ -n $3 ]]; then
-            local time_ago="$3"
-        else
-            local time_ago=$(date +%H:%M)
-        fi
-        map set diab.insulin_time "$time_ago"
-
-        a "#tmp #done ^insulin ^TASK ; null ; $amount"
-
-    # Set difference
-    elif [[ $1 == 'ds' ]]; then
-        map set diab.diff "$2"
-    # Inc difference
-    elif [[ $1 == 'di' ]]; then
-        map inc diab.diff "$2"
-    else
-        echo "Invalid command"
-        return 1
-    fi
+    map.sh diab
 }
 
 # ================================= TRACKING ================================= #
@@ -782,6 +786,10 @@ function plot {
     fi
 }
 
+
+function sleeper {
+    obc sleeper "$@" | state_switch.sh | grep -v "^$" | bat -p -l markdown
+}
 
 function to_days {
     cat | jq -r 'to_entries | map("\(.key) \(.value)") | .[]' | while read the_date value; do

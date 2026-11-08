@@ -60,11 +60,10 @@ while IFS= read -r line; do
             match_or "$line"
             
         elif [ -n "$line" ] && [[ "$line" != "---" ]]; then
-            non_state_matches+="$line\n"
+            echo "$line" | sed 's/- \[ \] //g'
         fi
     )
 
     echo $output | sed "s/\$chore_reminder/$chore_reminder/g" 
 done
 
-echo -n $non_state_matches | awk '!seen[$0]++' | sed 's/- \[ \] //g'

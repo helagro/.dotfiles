@@ -1,17 +1,23 @@
 #!/bin/zsh
 
 export MY_SCRIPTS="$HOME/.dotfiles/scripts"
-export LOCAL_SERVER_IP="192.168.3.46"
+export LOCAL_SERVER_IP="192.168.0.198" # "192.168.3.46"
 export chore_reminder="medd during"
 export is_red_tab=false
 
 diab="$MY_SCRIPTS/lang/shell/diab_util.sh"
+ashr="$HOME/.dotfiles/scripts/secret/ash_remind.sh"
+ash="$HOME/.dotfiles/.zshrc/secret/a.sh"
+wiswi="$HOME/.dotfiles/scripts/secret/ssid_switch.sh"
 
 # -------------------------- ALIASES ------------------------- #
 
 alias is_dark='[[ $(defaults read -g AppleInterfaceStyle 2>/dev/null) == "Dark" ]]'
 alias gpt4="aichat -s -m openai:gpt-4o"
 alias rand="$MY_SCRIPTS/lang/shell/rand.sh"
+
+alias is_summery='test "$(date +%m)" -ge 5 -a "$(date +%m)" -le 9'
+alias is_wintery='test "$(date +%m)" -ge 11 -o "$(date +%m)" -le 2'
 
 # ---------------------------- ZSH --------------------------- #
 
@@ -26,8 +32,8 @@ HISTSIZE=10000
 SAVEHIST=20000
 
 # --------------------------- MAIN --------------------------- #
+
 alias loccb="loc p chill && sleep 0.3 && loc dev eve lvl 15"
-alias is_orust='test "$(short ssid)" = "ZyXEL2F227C"'
 
 function locdb {
     loc p darkish
@@ -40,6 +46,10 @@ function locdb {
             loc 'dev/plant?a=off' 
         }&)
     fi
+}
+
+function fun {
+    functions "$@" | bat -l zsh -p --color=always --style=plain --paging=never
 }
 
 function is_online {

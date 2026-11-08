@@ -62,3 +62,19 @@ function run_act {
     } | to_color.sh green
 }
 
+
+# ==================== ACTIVITY FUNCTIONS ==================== #
+
+function do_meditation {
+    if ! is_home --guess-yes; then
+        return
+    fi
+
+    if map.sh -s done.bedtime; then
+        local medds_content=$(obc medds -f sleep)
+    else
+        local medds_content=$(obc medds)
+    fi
+    echo "$medds_content" | head -n 5 | to_color.sh cyan
+    echo
+}

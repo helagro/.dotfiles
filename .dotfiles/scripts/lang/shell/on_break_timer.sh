@@ -2,6 +2,15 @@
 
 source "$HOME/.dotfiles/.zshrc/first.sh"
 
+# =============================== NOTIFICATIONS ============================== #
+
+notif=$("$HOME/.dotfiles/scripts/path/note/ob.sh" 'notif' | tail -n 1)
+if [[ -n $notif ]]; then
+    afplay /System/Library/Sounds/Submarine.aiff
+    printf '%s' "$notif"
+    exit 0
+fi
+
 # =============================== REQUIREMENTS =============================== #
 
 # Is at home
@@ -13,6 +22,11 @@ fi
 # Is doing some activity
 if ! "$MY_SCRIPTS/path/state/map.sh" -m -s act.current; then
     exit 1
+fi
+
+# If is end message
+if [[ $* == *'--break-end'* ]]; then
+    exit 0
 fi
 
 # =============================== RANDOM TASKS =============================== #
@@ -28,7 +42,6 @@ if ! command -v "shuf" &>/dev/null; then
     exit 1
 fi
 
-
 # ============================== DISPLAY ============================= #
 
 cal=$(echo tod | shortcuts run day --output-type public.plain-text)
@@ -40,7 +53,6 @@ if ! echo $cal | grep -Fq "full_detach"; then
     fi
 
     print -n "full_detach"
-    alias beep="afplay /System/Library/Sounds/Submarine.aiff"
     exit 0
 fi
 

@@ -8,8 +8,7 @@ florinef="get florinef in 122 days"
 # Special activities
 reboot='`sudo shutdown -r now` #b'
 eat='`eat` #b @mv'
-exor='`exor` #b @mv'
-dish="dish - _$chore_reminder_ #b @mv @home"
+exor='`exor` #b @mv @tod'
 
 # Run
 rb="@run #other :b"
@@ -25,6 +24,7 @@ h="@home"
 
 alias tea="drink tea"
 alias water="drink water"
+alias mouwash="map set done.mouthwash true"
 
 # Time shortcuts
 yd="yesterday"

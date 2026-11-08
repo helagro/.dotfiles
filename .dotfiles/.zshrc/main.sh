@@ -25,14 +25,21 @@ typeset -A ZSH_HIGHLIGHT_REGEXP
 
 alias st="python3 $MY_SCRIPTS/lang/python/st.py"
 alias lines="grep -v '^$' | wc -l | tr -d '[:space:]' && echo"
-alias fun="functions"
 
 # ------------------ UNCATEGORISED FUNCTIONS ----------------- #
 
 function ask {
     [[ $audio == 1 && $_extra == 1 ]] && beep $beep_volume frog 
 
-    echo -n "$1 (y/N) "
+    local prompt="$1 (y/N): "
+    local color="$2"
+
+    if [[ -n $color ]]; then
+        echo -n "$prompt" | to_color.sh $color
+    else
+        echo -n "$prompt"
+    fi
+    
     read response
     [[ "$response" =~ ^[Yy]$ ]]
 }

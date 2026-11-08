@@ -150,7 +150,7 @@ function a_ui {
         if [[ $_hist == 0 ]]; then
             my_clear
         fi
-        should_extra -u -c 2>/dev/null && use_extra 1 || use_extra 0
+        extra -u -c 2>/dev/null && use_extra 1 || use_extra 0
 
         take_input
 
@@ -183,7 +183,8 @@ function a_ui {
         # Clear with reset
         if [[ $line == 'c' ]]; then
             # NOTE - must be first
-            map -s done.boot || (nohup a.sh "$(day -1) ash $next_idx" >/dev/null &)
+            local ash_track_amt=$((next_idx - $(map s | jq 'length')))
+            map -s done.boot || (nohup a.sh "$(day -1) ash $ash_track_amt" >/dev/null &)
 
             py clear
             my_clear
@@ -269,7 +270,7 @@ function a_ui {
 
             ({
                 py add -- "$expanded_line" &
-                nohup a.sh "$expanded_line" >/dev/null &
+                nohup a.sh "$expanded_line" &>/dev/null &
                 wait
                 print_top_right "$pgo"
             }&)
@@ -345,19 +346,18 @@ function _handle_if_special {
             local reminder_text="${(j:;:)reminder_parts[2, -1]## }"
 
             if [[ $reminder_text == "'"* ]]; then
-                should_extra 2>/dev/null || continue
+                extra 2>/dev/null || continue
 
                 rem=${reminder_text//"'"/}
                 out "$rem"
             elif [[ $reminder_text == "\`"* ]]; then
-                should_extra -u -c 2>/dev/null || continue
+                extra -u -c 2>/dev/null || continue
 
                 cmd=${reminder_text//\`/}
                 ttab -d '' -w $cmd
             else
                 local expanded=$(eval "$reminder_text" 2> >(out_pipe -e) | tr -d '\\')
-                echo "$expanded\n" >> ~/Desktop/ash_reminder.txt
-                ( nohup a.sh "$expanded" >/dev/null & )
+                ( nohup a.sh "$expanded" &>/dev/null & )
             fi
         fi
     done <<< "$reminders"
@@ -414,7 +414,7 @@ function print_top_right {
 
     # expansion info ------------------------------------------------------------- #
 
-    if should_extra 2>/dev/null; then
+    if extra 2>/dev/null; then
         if [[ -n $1 ]]; then
             print -n "\e7\e[${row};${wipe_col}H\033[35m${wiper}\033[0m\e8" >&3
             local truncated=" ${msg[1,$max_pyg_preview]}"

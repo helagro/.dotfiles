@@ -16,8 +16,6 @@ function process {
     [ -z "$1" ] && return 1
     [[ "$DISABLED_TD_APP_ITEMS" == *"$1"* ]] && return 0
 
-    echo "$1" # For logging
-
     # Do process local
     if process_local "$1"; then
         did_local=true
@@ -40,18 +38,18 @@ function process_local {
     # return 1 # Disable local processing
 
     (! command -v "$HOME/.dotfiles/scripts/path/note/ob.sh" >/dev/null 2>&1 || [ ! -e "$vault" ]) && return 1
-
+    
     local destination=$(echo "$1" | grep -o '#\w\+')
     local escaped_input=$(echo "$1" | sed 's/#/\\#/g')
 
-    "$HOME/.dotfiles/scripts/path/note/ob.sh" "${destination#?}" 2>&1
+    while IFS= read -r dest; do
+        if ! "$HOME/.dotfiles/scripts/path/note/ob.sh" "${dest#?}" >/dev/null 2>&1; then
+            return 1
+        fi
+    done <<< "$destination"
 
-    if "$HOME/.dotfiles/scripts/path/note/ob.sh" "${destination#?}" >/dev/null 2>&1; then
-        echo "$escaped_input" >>"$vault/_/local/in.md"
-        return 0
-    else
-        return 1
-    fi
+    echo "$escaped_input" >>"$vault/_/local/in.md"
+    return 0
 }
 
 function process_server {
